@@ -331,6 +331,6 @@ onMounted(() => {
 })
 </script>
 
-<style scoped>
+<style>
 @import '../assets/css/feed.css';
 </style>

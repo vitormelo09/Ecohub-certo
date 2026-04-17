@@ -527,3 +527,132 @@
     justify-content: center;
   }
 }
+/* ================= DARK MODE ================= */
+
+body.dark-mode  {
+  background: #0f172a;
+}
+
+/* Fundo geral */
+body.dark-mode .feed-page {
+  background:
+    radial-gradient(circle at top left, rgba(28, 164, 166, 0.12), transparent 25%),
+    linear-gradient(180deg, #0f172a 0%, #020617 100%);
+}
+
+/* Cards */
+body.dark-mode .profile-card,
+body.dark-mode .create-post-card,
+body.dark-mode .post-card,
+body.dark-mode .side-card {
+  background: #1e293b;
+  border: 1px solid #334155;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+/* Textos principais */
+body.dark-mode h2,
+body.dark-mode h3,
+body.dark-mode h4,
+body.dark-mode strong {
+  color: #f1f5f9;
+}
+
+/* Textos secundários */
+body.dark-mode p,
+body.dark-mode span,
+body.dark-mode .post-hint,
+body.dark-mode .users-state {
+  color: #94a3b8;
+}
+
+/* Linhas/divisões */
+body.dark-mode .profile-stats,
+body.dark-mode .post-card-footer {
+  border-top: 1px solid #334155;
+}
+
+/* Textarea */
+body.dark-mode .create-post-top textarea {
+  background: #0f172a;
+  border: 1px solid #334155;
+  color: #e2e8f0;
+}
+
+body.dark-mode .create-post-top textarea:focus {
+  background: #020617;
+  border-color: #1ca4a6;
+}
+
+/* Inputs */
+body.dark-mode .search-users-box input {
+  background: #0f172a;
+  border: 1px solid #334155;
+  color: #e2e8f0;
+}
+
+body.dark-mode .search-users-box input:focus {
+  background: #020617;
+  border-color: #1ca4a6;
+}
+
+/* Botões */
+body.dark-mode .action-button {
+  background: #0f172a;
+  color: #cbd5f5;
+}
+
+body.dark-mode .action-button:hover {
+  background: #1e293b;
+  color: #5eead4;
+}
+
+/* Curtido */
+body.dark-mode .action-button.liked {
+  background: #3f1d2e;
+  color: #f472b6;
+}
+
+body.dark-mode .action-button.liked:hover {
+  background: #4c1d35;
+}
+
+/* Botão deletar */
+body.dark-mode .more-button {
+  background: #0f172a;
+  color: #94a3b8;
+}
+
+body.dark-mode .more-button:hover {
+  background: #3f1d2e;
+  color: #f87171;
+}
+
+/* Lista de usuários */
+body.dark-mode .user-result-card {
+  background: #0f172a;
+  border: 1px solid #334155;
+}
+
+body.dark-mode .user-result-card:hover {
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.5);
+}
+
+/* Follow */
+body.dark-mode .follow-button.following {
+  background: #1e293b;
+  color: #38bdf8;
+}
+
+/* Estado vazio */
+body.dark-mode .feed-state {
+  background: #1e293b;
+  border: 1px dashed #334155;
+  color: #94a3b8;
+}
+
+/* Loader */
+body.dark-mode .loader {
+  border: 4px solid #334155;
+  border-top: 4px solid #1ca4a6;
+}

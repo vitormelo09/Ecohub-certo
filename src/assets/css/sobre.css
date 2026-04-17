@@ -348,3 +348,87 @@
     text-align: center;
   }
 }
+
+
+/* ================= DARK MODE ================= */
+
+body.dark-mode {
+  background: #0f172a;
+}
+
+/* fundo geral */
+body.dark-mode .sobre-page {
+  background:
+    radial-gradient(circle at top left, rgba(49, 186, 223, 0.12), transparent 30%),
+    linear-gradient(180deg, #020617 0%, #020617 100%);
+  color: #e2e8f0;
+}
+
+/* CARDS */
+body.dark-mode .sobre-hero-content,
+body.dark-mode .info-card,
+body.dark-mode .program-card,
+body.dark-mode .team-card {
+  background: #020617;
+  border: 1px solid #1e293b;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+}
+
+/* HERO CARD mantém gradiente mas ajusta */
+body.dark-mode .sobre-hero-card {
+  background: linear-gradient(180deg, #020617 0%, #0f172a 100%);
+}
+
+/* TEXTOS */
+body.dark-mode h1,
+body.dark-mode h2,
+body.dark-mode h3,
+body.dark-mode strong {
+  color: #f1f5f9;
+}
+
+body.dark-mode p,
+body.dark-mode span {
+  color: #94a3b8;
+}
+
+/* BADGES */
+body.dark-mode .sobre-badge,
+body.dark-mode .section-kicker {
+  background: rgba(56, 189, 248, 0.12);
+  color: #7dd3fc;
+  border: 1px solid rgba(56, 189, 248, 0.2);
+}
+
+/* BOTÕES */
+body.dark-mode .btn-secondary {
+  background: #020617;
+  color: #38bdf8;
+  border: 1px solid #1e293b;
+}
+
+body.dark-mode .btn-primary {
+  box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+}
+
+/* SECTION SOFT */
+body.dark-mode .sobre-section-soft {
+  background: linear-gradient(180deg, #020617 0%, #020617 100%);
+}
+
+/* HERO POINT */
+body.dark-mode .hero-point {
+  background: #020617;
+  border: 1px solid #1e293b;
+}
+
+/* IMPACT */
+body.dark-mode .impact-section {
+  background: linear-gradient(135deg, #020617 0%, #0f172a 100%);
+}
+
+/* HIGHLIGHT */
+body.dark-mode .highlight-box {
+  background: #020617;
+  border: 1px solid #1e293b;
+}
