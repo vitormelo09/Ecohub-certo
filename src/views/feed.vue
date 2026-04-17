@@ -117,6 +117,7 @@
         </div>
       </main>
 
+      
       <!-- DIREITA -->
       <aside class="right-column">
         <div class="side-card">
