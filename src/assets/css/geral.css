@@ -1,0 +1,538 @@
+/* ================= RESET ================= */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins', sans-serif;
+}
+
+html, body{
+    height:100%;
+}
+
+/* ================= VARIÁVEIS ================= */
+
+:root {
+    --bg: #f1f5f9;
+    --text: #051D40;
+    --card: #ffffff;
+    --primary: #2788C8;
+    --dark: #051D40;
+}
+
+/* ================= BODY ================= */
+
+body{
+    padding-top:0;
+    margin:0;
+    display:flex;
+    flex-direction:column;
+    min-height:100vh;
+
+    background: var(--bg);
+    color: var(--text);
+
+    transition: background 0.3s, color 0.3s;
+}
+
+/* ================= HEADER ================= */
+
+header{
+    background: var(--primary);
+    color: var(--dark);
+    padding:20px;
+    height:80px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    z-index:1000;
+    transition:0.3s;
+}
+
+header img{
+    width:200px;
+}
+
+/* ================= NAV ================= */
+
+nav{
+    display:flex;
+    align-items:center;
+    gap:20px;
+}
+
+nav a{
+    text-decoration:none;
+    padding:6px 14px;
+    border-radius:10px;
+    background: var(--primary);
+    color:white;
+    font-size:16px;
+    transition:0.3s;
+}
+
+nav a:hover{
+    background: var(--dark);
+}
+
+nav a.ativo{
+    background: var(--dark);
+}
+
+/* ================= HEADER DIREITA ================= */
+
+.header-direita{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+/* ================= PERFIL ================= */
+
+.perfil img{
+    width:40px;
+    border-radius:100%;
+    object-fit:cover;
+    cursor:pointer;
+}
+
+/* ================= BOTÃO TEMA ================= */
+
+.btn-tema{
+    background: transparent;
+    border:none;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.btn-tema svg{
+    width:20px;
+    height:20px;
+    stroke: var(--dark);
+}
+
+/* ================= LAYOUT ================= */
+
+.layout{
+    display:flex;
+}
+
+.conteudo{
+    flex:2;
+    padding:20px;
+}
+
+/* ================= CONTAINER ================= */
+
+.container{
+    max-width:1200px;
+    margin:40px auto;
+    padding:0 20px;
+}
+
+/* ================= HERO ================= */
+
+.hero h1{
+    font-size:32px;
+    margin-bottom:10px;
+}
+
+.hero p{
+    line-height:1.6;
+}
+
+/* ================= TITULO ================= */
+
+.section-title{
+    font-size:24px;
+    font-weight:700;
+    margin-bottom:25px;
+    color: var(--text);
+}
+
+/* ================= GRID ================= */
+
+.hubs-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+    gap:25px;
+    margin-bottom:40px;
+}
+
+/* ================= OBJETIVO ================= */
+
+.objetivo{
+    background: var(--card);
+    padding:35px;
+    border-radius:18px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.05);
+}
+
+/* ================= EQUIPE ================= */
+
+.equipe-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    gap:25px;
+    margin-bottom:50px;
+}
+
+.equipe-card{
+    background: var(--card);
+    padding:20px;
+    border-radius:15px;
+    text-align:center;
+    box-shadow:0 5px 15px rgba(0,0,0,0.05);
+    transition:0.3s;
+}
+
+.equipe-card:hover{
+    transform:translateY(-6px);
+    box-shadow:0 10px 25px rgba(0,0,0,0.1);
+}
+
+.equipe-card img{
+    width:120px;
+    height:120px;
+    object-fit:cover;
+    border-radius:50%;
+    margin-bottom:15px;
+}
+
+.equipe-card h3{
+    color: var(--text);
+}
+
+.equipe-card p{
+    font-size:14px;
+    color:#666;
+}
+
+/* ================= FOOTER ================= */
+
+.footer {
+    background: #1a6fad; /* Mesmo tom azul do seu site */
+    color: white;
+    padding: 70px 5% 30px;
+    font-family: 'Poppins', sans-serif;
+    margin-top: 50px;
+}
+
+.footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    gap: 50px;
+    flex-wrap: wrap;
+}
+
+.footer-col {
+    flex: 1;
+    min-width: 250px;
+}
+
+.footer-col h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 25px;
+    color: #ffffff;
+}
+
+.footer-col h3 span {
+    color: #a8f0ff; /* Destaque no nome EcoHub */
+}
+
+.footer-col p {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: rgba(255, 255, 255, 0.85);
+    margin-bottom: 20px;
+}
+
+/* Links de Navegação */
+.footer-links {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-links li {
+    margin-bottom: 12px;
+}
+
+.footer-links li a {
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+.footer-links li a:hover {
+    color: #a8f0ff;
+    transform: translateX(5px); /* Efeito de deslize no hover */
+}
+
+/* Seção de Redes Sociais */
+.social-text {
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+}
+
+.social-icons {
+    display: flex;
+    gap: 15px;
+}
+
+.social-btn {
+    width: 44px;
+    height: 44px;
+    background: rgba(255, 255, 255, 0.1); /* Círculo levemente visível */
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    text-decoration: none;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.social-btn:hover {
+    background: white;
+    color: #1a6fad; /* Inverte a cor no hover */
+    transform: translateY(-5px) scale(1.1);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Parte de baixo (Copyright) */
+.footer-bottom {
+    max-width: 1200px;
+    margin: 50px auto 0;
+    text-align: center;
+}
+
+.footer-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    margin-bottom: 25px;
+}
+
+.footer-bottom p {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.6);
+    letter-spacing: 0.5px;
+}
+
+/* Responsividade para celular */
+@media (max-width: 768px) {
+    .footer {
+        padding: 50px 20px 30px;
+        text-align: center;
+    }
+    .footer-container {
+        flex-direction: column;
+        gap: 40px;
+    }
+    .social-icons {
+        justify-content: center;
+    }
+    .footer-links li a:hover {
+        transform: none; /* Remove o deslize no mobile */
+    }
+}
+
+/* Ícones de Redes Sociais */
+.social-icons {
+    display: flex;
+    gap: 15px;
+}
+
+.social-btn {
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    color: white;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.social-btn:hover {
+    background: white;
+    color: #1a6fad;
+    transform: translateY(-3px);
+}
+
+/* Rodapé inferior */
+.footer-bottom {
+    max-width: 1200px;
+    margin: 40px auto 0;
+    text-align: center;
+}
+
+.divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+    margin-bottom: 20px;
+}
+
+.footer-bottom p {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .footer-container {
+        flex-direction: column;
+        text-align: center;
+    }
+    .social-icons {
+        justify-content: center;
+    }
+}
+
+/* Redes Sociais */
+.social-links {
+    display: flex;
+    gap: 12px;
+}
+
+.social-links a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+    transition: 0.3s ease;
+}
+
+.social-links a:hover {
+    background: white;
+    transform: translateY(-3px);
+}
+
+/* Footer bottom */
+.footer-bottom {
+    max-width: 1200px;
+    margin: 40px auto 0;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.3);
+    text-align: center;
+}
+
+.footer-bottom p {
+    font-size: 13px;
+    color: white;
+}
+
+/* ================= BOTÃO VOLTAR AO TOPO ================= */
+
+.btn-topo {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background-color: var(--dark);
+    color: white;
+    border: none;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+}
+
+/* ================= DARK MODE ================= */
+
+body.dark-mode {
+    --bg: #0f172a;
+    --text: #f8fafc;
+    --card: #1e293b;
+}
+
+/* HEADER */
+body.dark-mode header{
+    background:#020817;
+    color:white;
+}
+
+/* NAV */
+body.dark-mode nav a{
+    background:#020817;
+}
+
+body.dark-mode nav a:hover{
+    background: var(--primary);
+}
+
+body.dark-mode nav a.ativo{
+    background: var(--primary);
+}
+
+/* BOTÕES */
+body.dark-mode .btn-tema svg{
+    stroke:white;
+}
+
+/* CARDS */
+body.dark-mode .objetivo,
+body.dark-mode .equipe-card{
+    background: var(--card);
+}
+
+/* TEXTOS */
+body.dark-mode .equipe-card p{
+    color:#94a3b8;
+}
+
+/* TITULOS */
+body.dark-mode .section-title{
+    color: var(--text);
+}
+
+/* FOOTER */
+body.dark-mode .footer{
+    background:#051D40;
+}
+
+/* ================= BOTÃO CADASTRO ================= */
+
+.btn-cadastro {
+    background-color: #051D40;
+    color: white !important;
+    padding: 8px 18px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.btn-cadastro:hover {
+    background-color: #2788C8;
+}
+
+/* DARK MODE */
+body.dark-mode .btn-cadastro {
+    background: #2788C8;
+    color: white !important;
+}
+
+body.dark-mode .btn-cadastro:hover {
+    background: #38bdf8;
+}

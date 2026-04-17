@@ -1,0 +1,346 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    height: 100vh;
+    width: 100vw;
+    background-color: #ffffff;
+    overflow: auto; /* ALTERADO (antes hidden) */
+}
+
+.split-layout {
+    display: flex;
+    height: 100vh;
+    width: 100%;
+}
+
+/* --- LADO DO FORMULÁRIO --- */
+.form-side {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* 🔥 CORREÇÃO PRINCIPAL */
+    padding: 40px 20px; /* 🔥 MELHORA VISUAL */
+    background-color: #ffffff;
+    overflow-y: auto;
+}
+
+.form-container {
+    width: 80%;              /* ALTERADO */
+    max-width: 700px;        /* ALTERADO (antes 400px) */
+    display: flex;
+    flex-direction: column;
+}
+
+.stats-row-login{
+    display: flex;
+    justify-content: space-around;
+    flex-direction: row;
+    margin-top: auto;
+}
+
+.icon-logo {
+    width: 120px; /* LEVEMENTE MAIOR */
+    margin-bottom: 15px;
+    align-self: center;
+}
+
+.form-container h2 {
+    font-size: 28px; /* MAIOR */
+    color: #051D40;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    color: #666;
+    font-size: 14px;
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+/* --- O BLOCO DE INFORMAÇÃO --- */
+.form-box {
+    width: 100%;
+    border: 1px solid #e1e5eb;
+    border-radius: 12px;
+    padding: 30px; /* ALTERADO (antes 22px) */
+    background: #ffffff;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.form-header h3 {
+    font-size: 20px; /* MAIOR */
+    color: #051D40;
+    margin-bottom: 5px;
+}
+
+.form-header p {
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 20px;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* MAIS ESPAÇO */
+}
+
+.grupo-input {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.grupo-input label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #051D40;
+}
+
+.campo {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: #f8f9fa;
+    border: 1px solid #e1e5eb;
+    border-radius: 10px;
+    height: 50px; /* ALTERADO (antes 44px) */
+    padding: 0 15px;
+    transition: all 0.3s ease;
+}
+
+.campo:focus-within {
+    border-color: #2788C8;
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(39, 136, 200, 0.1);
+}
+
+.campo i {
+    color: #a0aab5;
+    margin-right: 12px;
+    font-size: 16px;
+}
+
+.campo input {
+    border: none;
+    outline: none;
+    background: transparent;
+    flex: 1;
+    font-size: 15px; /* LEVEMENTE MAIOR */
+    color: #333;
+}
+
+/* --- SELETORES --- */
+.linha {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+}
+
+.linha .grupo-input {
+    flex: 1;
+    min-width: 0;
+}
+
+.linha select {
+    height: 50px; /* ALTERADO */
+    border-radius: 10px;
+    border: 1px solid #e1e5eb;
+    padding: 0 10px;
+    background: #f8f9fa;
+    outline: none;
+    font-size: 14px;
+    width: 100%;
+    cursor: pointer;
+}
+
+/* --- LINKS E BOTÕES --- */
+.termos {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 12px;
+    color: #666;
+    line-height: 1.4;
+    margin-top: 5px;
+}
+
+.termos input { margin-top: 2px; }
+
+.termos a {
+    color: #2788C8;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+button[type="submit"] {
+    background-color: #051D40;
+    color: white;
+    border: none;
+    height: 50px; /* ALTERADO */
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: 5px;
+    box-shadow: 0 4px 6px rgba(5, 29, 64, 0.1);
+}
+
+button[type="submit"]:hover {
+    background-color: #2788C8;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(39, 136, 200, 0.2);
+}
+
+.troca-pagina {
+    text-align: center;
+    font-size: 14px;
+    margin-top: 15px;
+    color: #555;
+}
+
+.troca-pagina a {
+    color: #2788C8;
+    text-decoration: none;
+    font-weight: 700;
+}
+
+.btn-voltar {
+    align-self: center;
+    margin-top: 20px;
+    font-size: 13px;
+    color: #aaa;
+    text-decoration: none;
+}
+
+/* --- LADO DA IMAGEM --- */
+.image-side {
+    flex: 1.2;
+    background: linear-gradient(rgba(5, 29, 64, 0.8), rgba(39, 136, 200, 0.6)), 
+                url('../img/eniac.jpg') center/cover no-repeat;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 60px;
+    color: white;
+}
+
+.benefits-list {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.benefit-item {
+    display: flex;
+    gap: 15px;
+}
+
+.benefit-item i { font-size: 22px; color: #31BADF; }
+
+@media (max-width: 1000px) {
+    .image-side { display: none; }
+}
+
+
+/* ===== MODO ESCURO ===== */
+
+/* ===== MODO ESCURO PADRÃO (ALINHADO COM O OUTRO CSS) ===== */
+
+body.dark-mode{
+    background:#0f172a;
+    color:#ffffff;
+}
+
+/* LADO FORM */
+body.dark-mode .form-side{
+    background:#0f172a;
+}
+
+/* CARD */
+body.dark-mode .form-box{
+    background:#020817;
+    border:1px solid #1e293b;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+}
+
+/* TEXTOS */
+body.dark-mode .form-container h2,
+body.dark-mode .form-header h3,
+body.dark-mode .grupo-input label{
+    color:#ffffff;
+}
+
+body.dark-mode .subtitle,
+body.dark-mode .form-header p{
+    color:#94a3b8;
+}
+
+/* INPUT */
+body.dark-mode .campo{
+    background:#020817;
+    border:1px solid #1e293b;
+}
+
+body.dark-mode .campo input{
+    color:#ffffff;
+}
+
+body.dark-mode .campo input::placeholder{
+    color:#64748b;
+}
+
+/* ÍCONES */
+body.dark-mode .campo i{
+    color:#94a3b8;
+}
+
+/* FOCO */
+body.dark-mode .campo:focus-within{
+    border-color:#387499;
+    background:#020817;
+    box-shadow:0 0 0 4px rgba(56,116,153,0.3);
+}
+
+/* SELECT */
+body.dark-mode select{
+    background:#020817;
+    border:1px solid #1e293b;
+    color:#ffffff;
+}
+
+/* TEXTOS SECUNDÁRIOS */
+body.dark-mode .termos,
+body.dark-mode .troca-pagina{
+    color:#94a3b8;
+}
+
+/* LINKS */
+body.dark-mode .troca-pagina a,
+body.dark-mode .termos a{
+    color:#60a5fa;
+}
+
+/* BOTÃO */
+body.dark-mode button[type="submit"]{
+    background:#1e3a8a;
+}
+
+body.dark-mode button[type="submit"]:hover{
+    background:#1e40af;
+}
+
+/* BOTÃO VOLTAR */
+body.dark-mode .btn-voltar{
+    color:#94a3b8;
+}

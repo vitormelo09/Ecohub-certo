@@ -1,0 +1,350 @@
+.sobre-page {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(49, 186, 223, 0.18), transparent 28%),
+    linear-gradient(180deg, #f1f5f9 0%, #eaf4fb 100%);
+  color: #051d40;
+}
+
+.sobre-container {
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
+}
+
+.sobre-hero {
+  padding: 42px 0 28px;
+}
+
+.sobre-hero-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 24px;
+  align-items: stretch;
+}
+
+.sobre-hero-content,
+.sobre-hero-card,
+.info-card,
+.program-card,
+.team-card {
+  background: #ffffff;
+  border: 1px solid rgba(39, 136, 200, 0.12);
+  box-shadow: 0 14px 36px rgba(5, 29, 64, 0.08);
+}
+
+.sobre-hero-content {
+  border-radius: 30px;
+  padding: 38px;
+}
+
+.sobre-badge,
+.section-kicker,
+.hero-mini-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.sobre-badge,
+.section-kicker {
+  color: #0f5e96;
+  background: rgba(39, 136, 200, 0.12);
+  border: 1px solid rgba(39, 136, 200, 0.16);
+}
+
+.section-kicker.light {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+}
+
+.sobre-hero-content h1 {
+  font-size: clamp(2rem, 4vw, 3.4rem);
+  line-height: 1.08;
+  margin: 18px 0 16px;
+  max-width: 11ch;
+}
+
+.sobre-lead {
+  font-size: 1.08rem;
+  line-height: 1.7;
+  color: #21344d;
+  margin-bottom: 12px;
+}
+
+.sobre-text {
+  color: #617287;
+  line-height: 1.8;
+  max-width: 680px;
+}
+
+.sobre-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 26px;
+}
+
+.btn-primary,
+.btn-secondary {
+  text-decoration: none;
+  border-radius: 14px;
+  padding: 12px 20px;
+  font-weight: 700;
+  transition: 0.2s ease;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #2788c8 0%, #31badf 100%);
+  color: #ffffff;
+  box-shadow: 0 12px 24px rgba(39, 136, 200, 0.22);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  background: #f7fbfe;
+  color: #0f5e96;
+  border: 1px solid rgba(39, 136, 200, 0.16);
+}
+
+.btn-secondary:hover {
+  background: #eef7fc;
+}
+
+.sobre-hero-card {
+  border-radius: 30px;
+  padding: 26px;
+  background: linear-gradient(180deg, #051d40 0%, #0f5e96 100%);
+  color: #ffffff;
+}
+
+.hero-mini-badge {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.hero-card-top h3 {
+  margin: 18px 0 0;
+  font-size: 1.5rem;
+}
+
+.hero-points {
+  display: grid;
+  gap: 14px;
+  margin-top: 22px;
+}
+
+.hero-point {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  padding: 16px;
+}
+
+.hero-point strong {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 1rem;
+}
+
+.hero-point p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.84);
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+.sobre-section {
+  padding: 28px 0;
+}
+
+.sobre-section-soft {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.4) 0%, rgba(236, 247, 252, 0.85) 100%);
+  border-top: 1px solid rgba(39, 136, 200, 0.08);
+  border-bottom: 1px solid rgba(39, 136, 200, 0.08);
+}
+
+.section-header {
+  text-align: center;
+  max-width: 760px;
+  margin: 0 auto 28px;
+}
+
+.section-header h2 {
+  font-size: clamp(1.7rem, 3vw, 2.5rem);
+  margin: 14px 0 12px;
+}
+
+.section-header p {
+  margin: 0;
+  color: #617287;
+  line-height: 1.7;
+}
+
+.cards-grid,
+.programas-grid,
+.team-grid {
+  display: grid;
+  gap: 20px;
+}
+
+.cards-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.programas-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.team-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.info-card,
+.program-card,
+.team-card {
+  border-radius: 24px;
+  padding: 24px;
+}
+
+.card-icon,
+.team-avatar {
+  width: 54px;
+  height: 54px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: #ffffff;
+  background: linear-gradient(135deg, #2788c8 0%, #31badf 100%);
+}
+
+.info-card h3,
+.program-card h3,
+.team-card h3 {
+  margin: 16px 0 10px;
+  font-size: 1.1rem;
+  color: #051d40;
+}
+
+.info-card p,
+.program-card p,
+.team-card p {
+  margin: 0;
+  line-height: 1.7;
+  color: #5f7085;
+}
+
+.impact-section {
+  padding: 34px 0;
+  background: linear-gradient(135deg, #051d40 0%, #2788c8 60%, #31badf 100%);
+  color: #ffffff;
+}
+
+.impact-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 24px;
+  align-items: center;
+}
+
+.impact-content h2 {
+  font-size: clamp(1.8rem, 3vw, 2.7rem);
+  margin: 14px 0 14px;
+}
+
+.impact-content p {
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.8;
+  margin: 0 0 12px;
+}
+
+.impact-highlight {
+  display: grid;
+  gap: 14px;
+}
+
+.highlight-box {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
+  padding: 18px;
+  backdrop-filter: blur(4px);
+}
+
+.highlight-box strong {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 1.05rem;
+}
+
+.highlight-box span {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.team-card {
+  text-align: center;
+}
+
+.team-avatar {
+  margin: 0 auto;
+  border-radius: 50%;
+}
+
+@media (max-width: 1100px) {
+  .sobre-hero-grid,
+  .impact-grid,
+  .cards-grid,
+  .programas-grid,
+  .team-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .team-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 780px) {
+  .sobre-hero {
+    padding-top: 24px;
+  }
+
+  .sobre-hero-grid,
+  .impact-grid,
+  .cards-grid,
+  .programas-grid,
+  .team-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sobre-hero-content,
+  .sobre-hero-card,
+  .info-card,
+  .program-card,
+  .team-card {
+    border-radius: 22px;
+  }
+
+  .sobre-hero-content {
+    padding: 26px;
+  }
+
+  .sobre-hero-actions {
+    flex-direction: column;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    text-align: center;
+  }
+}
