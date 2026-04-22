@@ -229,6 +229,10 @@ body.dark-mode .stat {
   color: #94a3b8;
 }
 
+body.dark-mode .tweet-card-fake{ background: #0f172a;
+  border: 1px solid #1e293b;
+  color: #cbd5e1;}
+
 body.dark-mode .perfil-stats {
   border-top: 1px solid #1e293b;
   border-bottom: 1px solid #1e293b;
@@ -275,4 +279,84 @@ body.dark-mode .info-item {
   .btn-secundario {
     width: 100%;
   }
+}
+/* ===== DARK MODE COMPLETO TWEET ===== */
+
+body.dark-mode .tweet-card-fake {
+  background: #0f172a !important;
+  border: 1px solid #1e293b !important;
+  color: #cbd5e1 !important;
+}
+
+/* header */
+body.dark-mode .tweet-user strong {
+  color: #ffffff !important;
+}
+
+body.dark-mode .tweet-user span {
+  color: #94a3b8 !important;
+}
+
+/* conteúdo */
+body.dark-mode .tweet-content {
+  color: #e2e8f0 !important;
+}
+
+/* ações */
+body.dark-mode .tweet-action {
+  color: #94a3b8 !important;
+}
+
+body.dark-mode .tweet-action:hover {
+  color: #38bdf8 !important;
+}
+
+/* ===== DARK MODE - INPUTS E FORM ===== */
+
+body.dark-mode input,
+body.dark-mode textarea {
+  background: #020817;
+  color: #e2e8f0;
+  border: 1px solid #1e293b;
+}
+
+body.dark-mode input::placeholder,
+body.dark-mode textarea::placeholder {
+  color: #64748b;
+}
+
+/* labels */
+body.dark-mode label {
+  color: #94a3b8;
+}
+
+/* campos agrupados */
+body.dark-mode .grupo-campo input,
+body.dark-mode .grupo-campo textarea {
+  background: #020817;
+  border: 1px solid #1e293b;
+  color: #e2e8f0;
+}
+
+/* ===== BOTÕES ===== */
+
+body.dark-mode .btn-secundario {
+  background: #0f172a;
+  color: #e2e8f0;
+  border: 1px solid #1e293b;
+}
+
+body.dark-mode .btn-secundario:hover {
+  background: #1e293b;
+}
+
+body.dark-mode .btn-sair {
+  background: #020817;
+  color: #f87171;
+  border: 1px solid #7f1d1d;
+}
+
+body.dark-mode .btn-sair:hover {
+  background: #ef4444;
+  color: #fff;
 }

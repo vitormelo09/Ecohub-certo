@@ -656,3 +656,60 @@ body.dark-mode .loader {
   border: 4px solid #334155;
   border-top: 4px solid #1ca4a6;
 }
+
+/* ===== COMENTÁRIOS ===== */
+
+.comentarios-box {
+  margin-top: 12px;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 10px;
+}
+
+.novo-comentario {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.novo-comentario input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+}
+
+.novo-comentario button {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: none;
+  background: #2788C8;
+  color: white;
+  cursor: pointer;
+}
+
+.lista-comentarios {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.comentario-item {
+  background: #f1f5f9;
+  padding: 8px 10px;
+  border-radius: 10px;
+}
+
+.comentario-item p {
+  margin: 4px 0 0;
+}
+
+body.dark-mode .comentario-item {
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+body.dark-mode .novo-comentario input {
+  background: #020817;
+  border: 1px solid #1e293b;
+  color: #e2e8f0;
+}

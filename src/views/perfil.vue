@@ -254,7 +254,7 @@ const confirmarLogout = () => {
 }
 </script>
 
-<style scoped>
+<style >
 @import "../assets/css/geral.css";
 @import "../assets/css/perfil.css";
 </style>
