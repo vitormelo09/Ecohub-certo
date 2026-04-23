@@ -10,7 +10,25 @@
 
       <!-- Painéis laterais -->
       <div class="left-panels">
-        <div class="panel">Painel 1</div>
+        <div class="panel">
+          <h3>Próximos Eventos</h3>
+
+          <div v-if="proximosEventos.length">
+            <div
+              v-for="evento in proximosEventos"
+              :key="evento.date"
+              class="mini-evento"
+            >
+              <strong>{{ evento.title }}</strong>
+              <p>{{ formatDate(evento.date) }}</p>
+            </div>
+          </div>
+
+          <div v-else>
+            <p>Nenhum próximo evento.</p>
+          </div>
+        </div>
+
         <div class="panel">Painel 2</div>
         <div class="panel">Painel 3</div>
       </div>
@@ -77,11 +95,6 @@
   </main>
 </template>
 
-<style  scoped>
-@import "../assets/css/geral.css";
-@import "../assets/css/calendario.css";
-</style>
-
 <script>
 export default {
   data() {
@@ -119,12 +132,13 @@ export default {
 
       const days = []
 
-      // espaços vazios
       for (let i = 0; i < firstDay; i++) {
-        days.push({ day: "", fullDate: `empty-${i}` })
+        days.push({
+          day: "",
+          fullDate: `empty-${i}`
+        })
       }
 
-      // dias do mês
       for (let day = 1; day <= lastDate; day++) {
         const fullDate = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`
 
@@ -141,6 +155,19 @@ export default {
       }
 
       return days
+    },
+
+    proximosEventos() {
+      const hoje = new Date().toISOString().split("T")[0]
+
+      return Object.entries(this.events)
+        .filter(([date, event]) => date >= hoje && event.type === "eniac")
+        .sort((a, b) => a[0].localeCompare(b[0]))
+        .slice(0, 3)
+        .map(([date, event]) => ({
+          date,
+          title: event.title
+        }))
     }
   },
 
@@ -148,7 +175,8 @@ export default {
     nextMonth() {
       this.currentDate = new Date(
         this.currentDate.getFullYear(),
-        this.currentDate.getMonth() + 1
+        this.currentDate.getMonth() + 1,
+        1
       )
       this.loadHolidays()
     },
@@ -156,7 +184,8 @@ export default {
     prevMonth() {
       this.currentDate = new Date(
         this.currentDate.getFullYear(),
-        this.currentDate.getMonth() - 1
+        this.currentDate.getMonth() - 1,
+        1
       )
       this.loadHolidays()
     },
@@ -175,6 +204,10 @@ export default {
       return this.selectedDate === date
     },
 
+    formatDate(date) {
+      return new Date(date + "T00:00:00").toLocaleDateString("pt-BR")
+    },
+
     async loadHolidays() {
       const year = this.currentDate.getFullYear()
 
@@ -183,12 +216,13 @@ export default {
         const data = await response.json()
 
         data.forEach(f => {
-          this.events[f.date] = {
-            title: f.name,
-            type: "feriado"
+          if (!this.events[f.date]) {
+            this.events[f.date] = {
+              title: f.name,
+              type: "feriado"
+            }
           }
         })
-
       } catch (e) {
         console.log("Erro ao carregar feriados", e)
       }
@@ -200,3 +234,8 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+@import "../assets/css/geral.css";
+@import "../assets/css/calendario.css";
+</style>
