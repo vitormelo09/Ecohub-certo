@@ -713,3 +713,67 @@ body.dark-mode .novo-comentario input {
   border: 1px solid #1e293b;
   color: #e2e8f0;
 }
+
+.comentarios-box {
+  margin-top: 10px;
+  padding: 10px;
+  background: #f9f9f9;
+  border-radius: 8px;
+}
+
+body.dark-mode .comentarios-box{
+   background: #020817;
+  border: 1px solid #1e293b;
+  color: #e2e8f0;
+}
+
+.comentario-input {
+  display: flex;
+  gap: 5px;
+}
+
+body.dark-mode .comentario-input{
+   background: #020817;
+  border: 1px solid #1e293b;
+  color: #e2e8f0;
+}
+.comentario-input input {
+  flex: 1;
+  padding: 6px;
+}
+
+body.dark-mode .comentario-input input {
+   background: #020817;
+  border: 1px solid #1e293b;
+  color: #e2e8f0;
+}
+
+.comentario-input button {
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+body.dark-mode .comentario-input button {
+   background: #020817;
+  border: 1px solid #1e293b;
+  color: #e2e8f0;
+}
+
+.lista-comentarios {
+  margin-top: 10px;
+}
+
+body.dark-mode .lista-comentarios{
+   background: #020817;
+  border: 1px solid #1e293b;
+  color: #e2e8f0;
+}
+.comentario-item {
+  background: #eee;
+  padding: 6px;
+  border-radius: 5px;
+  margin-bottom: 5px;
+}
+body.dark-mode .comentario-item{ background: #020817;
+  border: 1px solid #1e293b;
+  color: #e2e8f0;}

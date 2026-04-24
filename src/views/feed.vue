@@ -102,6 +102,7 @@
               <p>{{ post.conteudo }}</p>
             </div>
 
+            <!-- FOOTER -->
             <div class="post-card-footer">
               <button
                 class="action-button"
@@ -112,12 +113,39 @@
                 {{ Number(post.curtidoPorMim) === 1 ? 'Descurtir' : 'Curtir' }}
                 <span class="count-badge">{{ post.likes || 0 }}</span>
               </button>
+
+              <!-- BOTÃO COMENTAR -->
+              <button class="action-button" @click="toggleComentarios(post)">
+                <i class="fa-solid fa-comment"></i> Comentar
+              </button>
+            </div>
+
+            <!-- COMENTÁRIOS -->
+            <div v-if="post.mostrarComentarios" class="comentarios-box">
+              <div class="comentario-input">
+                <input
+                  v-model="post.novoComentario"
+                  placeholder="Escreva um comentário..."
+                />
+                <button @click="adicionarComentario(post)">
+                  Enviar
+                </button>
+              </div>
+
+              <div v-if="post.comentarios.length" class="lista-comentarios">
+                <p
+                  v-for="(c, index) in post.comentarios"
+                  :key="index"
+                  class="comentario-item"
+                >
+                  {{ c }}
+                </p>
+              </div>
             </div>
           </article>
         </div>
       </main>
 
-      
       <!-- DIREITA -->
       <aside class="right-column">
         <div class="side-card">
@@ -233,7 +261,13 @@ async function carregarPosts() {
 
   try {
     const response = await api.get('/api/posts', authHeaders.value)
-    posts.value = response.data
+
+    posts.value = response.data.map(post => ({
+      ...post,
+      comentarios: [],
+      novoComentario: '',
+      mostrarComentarios: false
+    }))
   } catch (error) {
     console.error('Erro ao carregar posts:', error)
   } finally {
@@ -284,6 +318,18 @@ async function toggleLike(post) {
   } catch (error) {
     console.error('Erro ao curtir/descurtir post:', error)
   }
+}
+
+/* NOVAS FUNÇÕES */
+function toggleComentarios(post) {
+  post.mostrarComentarios = !post.mostrarComentarios
+}
+
+function adicionarComentario(post) {
+  if (!post.novoComentario?.trim()) return
+
+  post.comentarios.push(post.novoComentario.trim())
+  post.novoComentario = ''
 }
 
 async function buscarUsuarios() {
