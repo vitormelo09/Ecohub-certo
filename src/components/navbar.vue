@@ -3,7 +3,7 @@
     <RouterLink to="/inicio">
       <img src="../assets/img/lohead2.png" alt="EcoHub" class="logo">
     </RouterLink>
-    
+
     <nav>
       <RouterLink to="/inicio" active-class="ativo">Inicio</RouterLink>
       <RouterLink to="/eventos" active-class="ativo">Eventos</RouterLink>
@@ -13,11 +13,26 @@
     </nav>
 
     <div class="header-direita">
-      <RouterLink to="/cadastro" class="btn-cadastro">Cadastre-se</RouterLink>
+      <!-- Só aparece se NÃO tiver usuário logado -->
+      <RouterLink
+        v-if="!usuario"
+        to="/cadastro"
+        class="btn-cadastro"
+      >
+        Cadastre-se
+      </RouterLink>
 
-      <!-- 👇 ADICIONEI A CLASSE AQUI -->
-      <RouterLink to="/perfil" class="perfil">
-        <img src="../assets/img/perfil.jpg" alt="Perfil">
+      <!-- Perfil só aparece se tiver usuário logado -->
+      <RouterLink
+        v-if="usuario"
+        to="/perfil"
+        class="perfil"
+      >
+        <img
+          :src="fotoPerfil"
+          alt="Perfil"
+          @error="usarFotoPadrao"
+        >
       </RouterLink>
 
       <button @click="toggleTema" class="btn-tema">
@@ -29,16 +44,57 @@
 </template>
 
 <script>
-import { ref, onMounted } from "vue"
+import { ref, computed, onMounted, onBeforeUnmount } from "vue"
 import { Sun, Moon } from "lucide-vue-next"
+import perfilPadrao from "../assets/img/perfil.jpg"
 
 export default {
   components: {
     Sun,
     Moon
   },
+
   setup() {
     const darkMode = ref(false)
+    const usuario = ref(JSON.parse(localStorage.getItem("usuario")) || null)
+
+    const API_URL = "http://localhost:3000"
+
+    const fotoPerfil = computed(() => {
+      const fotoUrl = usuario.value?.foto_perfil_url
+      const fotoBanco = usuario.value?.foto_perfil
+      const fotoLocal = usuario.value?.foto
+
+      if (fotoUrl) {
+        return fotoUrl
+      }
+
+      if (fotoBanco && fotoBanco.startsWith("/uploads")) {
+        return `${API_URL}${fotoBanco}`
+      }
+
+      if (fotoBanco && fotoBanco.startsWith("http")) {
+        return fotoBanco
+      }
+
+      if (fotoLocal && fotoLocal.startsWith("data:image")) {
+        return fotoLocal
+      }
+
+      if (fotoLocal && fotoLocal.startsWith("http")) {
+        return fotoLocal
+      }
+
+      return perfilPadrao
+    })
+
+    function atualizarUsuarioLocal() {
+      usuario.value = JSON.parse(localStorage.getItem("usuario")) || null
+    }
+
+    function usarFotoPadrao(event) {
+      event.target.src = perfilPadrao
+    }
 
     function toggleTema() {
       darkMode.value = !darkMode.value
@@ -58,11 +114,24 @@ export default {
         document.body.classList.add("dark-mode")
         darkMode.value = true
       }
+
+      atualizarUsuarioLocal()
+
+      window.addEventListener("usuario-atualizado", atualizarUsuarioLocal)
+      window.addEventListener("storage", atualizarUsuarioLocal)
+    })
+
+    onBeforeUnmount(() => {
+      window.removeEventListener("usuario-atualizado", atualizarUsuarioLocal)
+      window.removeEventListener("storage", atualizarUsuarioLocal)
     })
 
     return {
       toggleTema,
-      darkMode
+      darkMode,
+      fotoPerfil,
+      usarFotoPadrao,
+      usuario
     }
   }
 }

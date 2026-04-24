@@ -1058,3 +1058,72 @@ body.dark-mode .comentario-btn.cancelar:hover {
     width: 100%;
   }
 }
+
+/* ================================
+   IMAGENS DE PERFIL NO FEED
+================================ */
+
+.profile-avatar,
+.mini-avatar,
+.author-avatar,
+.user-result-avatar,
+.comentario-avatar {
+  overflow: hidden;
+  position: relative;
+}
+
+.profile-avatar .avatar-img,
+.mini-avatar .avatar-img,
+.author-avatar .avatar-img,
+.user-result-avatar .avatar-img,
+.comentario-avatar .avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Mantém as iniciais centralizadas quando não tiver foto */
+.profile-avatar span,
+.mini-avatar span,
+.author-avatar span,
+.user-result-avatar span,
+.comentario-avatar span {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Ajuste específico do avatar grande da lateral */
+.profile-avatar {
+  overflow: hidden;
+}
+
+/* Ajuste para evitar imagem esticada */
+.profile-avatar img,
+.mini-avatar img,
+.author-avatar img,
+.user-result-avatar img,
+.comentario-avatar img {
+  border-radius: 50%;
+}
+
+/* ================================
+   LINK DO USUÁRIO PESQUISADO
+================================ */
+
+.user-result-link {
+  text-decoration: none;
+  color: inherit;
+  flex: 1;
+}
+
+.user-result-link:hover .user-result-meta strong {
+  color: #0b5fa5;
+}
+
+body.dark-mode .user-result-link:hover .user-result-meta strong {
+  color: #5eead4;
+}

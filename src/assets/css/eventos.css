@@ -6,76 +6,30 @@
   font-family: 'Inter', sans-serif;
 }
 
-/* ================= HTML / BODY ================= */
-html,
-body,
-#app {
-  min-height: 100%;
-}
+/* ================= PÁGINA EVENTOS ================= */
 
-body {
+.eventos-page {
+  min-height: calc(100vh - 70px);
   background:
     radial-gradient(circle at top left, rgba(28, 164, 166, 0.08), transparent 22%),
     linear-gradient(180deg, #f4f8fb 0%, #edf2f7 100%);
+  padding: 32px 20px;
   color: #122033;
-  transition: background 0.3s ease, color 0.3s ease;
-  display: block;
-  min-height: 100vh;
-}
-
-/* ================= HEADER ================= */
-.navbar {
-  background: #ffffff;
-  padding: 15px 40px;
-  display: flex;
-  gap: 40px;
-  border-bottom: 1px solid #e5edf4;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
-  transition: 0.3s ease;
-}
-
-.navbar a {
-  text-decoration: none;
-  color: #445164;
-  font-weight: 700;
-  position: relative;
-  padding-bottom: 8px;
-  transition: color 0.3s ease;
-}
-
-.navbar a::after {
-  content: '';
-  position: absolute;
-  left: 50%;
-  bottom: -8px;
-  width: 0%;
-  height: 3px;
-  background: linear-gradient(135deg, #0b5fa5, #1ca4a6);
-  border-radius: 999px;
-  transition: 0.3s ease;
-  transform: translateX(-50%);
-}
-
-.navbar a:hover {
-  color: #0b5fa5;
-}
-
-.navbar a:hover::after {
-  width: 100%;
 }
 
 /* ================= CONTAINER ================= */
-.container {
+
+.eventos-page .container {
   max-width: 1200px;
-  min-height: calc(100vh - 80px);
-  margin: 40px auto;
-  padding: 0 20px 40px;
+  margin: 0 auto;
+  padding: 0;
 }
 
 /* ================= HERO ================= */
-.hero {
-  background: linear-gradient(135deg, #0b5fa5, #1ca4a6);
-  color: #ffffff;
+
+.eventos-page .hero {
+  background: #ffffff;
+  color: #122033;
   padding: 45px;
   border-radius: 24px;
   margin-bottom: 40px;
@@ -85,25 +39,27 @@ body {
   margin-left: auto;
   margin-right: auto;
   text-align: center;
-  box-shadow: 0 14px 40px rgba(28, 164, 166, 0.18);
+  border: 1px solid #e5edf4;
+  box-shadow: 0 14px 40px rgba(15, 23, 42, 0.07);
   transition: 0.3s ease;
 }
 
-.hero h1,
-.hero h2,
-.hero h3 {
-  color: #ffffff;
+.eventos-page .hero h1,
+.eventos-page .hero h2,
+.eventos-page .hero h3 {
+  color: #122033;
   margin-bottom: 10px;
   font-weight: 800;
 }
 
-.hero p {
-  color: rgba(255, 255, 255, 0.9);
+.eventos-page .hero p {
+  color: #6b7280;
   line-height: 1.6;
 }
 
 /* ================= SMALL CARDS ================= */
-.top-cards {
+
+.eventos-page .top-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 300px));
   gap: 45px;
@@ -111,7 +67,7 @@ body {
   justify-content: center;
 }
 
-.small-card {
+.eventos-page .small-card {
   text-decoration: none;
   color: #122033;
   background: #ffffff;
@@ -124,24 +80,24 @@ body {
   box-shadow: 0 14px 40px rgba(15, 23, 42, 0.07);
 }
 
-.small-card i {
+.eventos-page .small-card i {
   font-size: 34px;
   color: #1ca4a6;
   margin-bottom: 14px;
 }
 
-.small-card h3 {
+.eventos-page .small-card h3 {
   color: #122033;
   margin-bottom: 8px;
   font-weight: 800;
 }
 
-.small-card p {
+.eventos-page .small-card p {
   color: #6b7280;
   line-height: 1.6;
 }
 
-.small-card:hover {
+.eventos-page .small-card:hover {
   transform: translateY(-8px);
   background: #ffffff;
   box-shadow: 0 18px 45px rgba(15, 23, 42, 0.12);
@@ -149,20 +105,21 @@ body {
 }
 
 /* ================= EVENTS ================= */
-.section-title {
+
+.eventos-page .section-title {
   font-size: 22px;
   font-weight: 800;
   margin-bottom: 25px;
   color: #314155;
 }
 
-.events {
+.eventos-page .events {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
   gap: 30px;
 }
 
-.event-card {
+.eventos-page .event-card {
   background: #ffffff;
   border-radius: 24px;
   overflow: hidden;
@@ -171,25 +128,25 @@ body {
   box-shadow: 0 14px 40px rgba(15, 23, 42, 0.07);
 }
 
-.event-card:hover {
+.eventos-page .event-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 18px 45px rgba(15, 23, 42, 0.12);
   border-color: rgba(28, 164, 166, 0.25);
 }
 
-.event-card img {
+.eventos-page .event-card img {
   width: 100%;
   height: 230px;
   object-fit: cover;
   display: block;
 }
 
-.event-content {
+.eventos-page .event-content {
   padding: 25px;
   background: #ffffff;
 }
 
-.badge {
+.eventos-page .badge {
   background: linear-gradient(135deg, #0b5fa5, #1ca4a6);
   color: #ffffff;
   padding: 7px 13px;
@@ -199,7 +156,7 @@ body {
   display: inline-block;
 }
 
-.capacity {
+.eventos-page .capacity {
   float: right;
   font-size: 13px;
   color: #6b7280;
@@ -209,28 +166,29 @@ body {
   border-radius: 999px;
 }
 
-.event-title {
+.eventos-page .event-title {
   font-size: 20px;
   font-weight: 800;
   margin: 14px 0 10px;
   color: #122033;
 }
 
-.event-desc {
+.eventos-page .event-desc {
   font-size: 14px;
   color: #6b7280;
   margin-bottom: 15px;
   line-height: 1.7;
 }
 
-.event-info {
+.eventos-page .event-info {
   font-size: 14px;
   color: #445164;
   line-height: 1.8;
 }
 
 /* ================= BOTÃO ================= */
-.button {
+
+.eventos-page .button {
   margin-top: 20px;
   width: 100%;
   padding: 14px;
@@ -244,201 +202,173 @@ body {
   box-shadow: 0 12px 24px rgba(28, 164, 166, 0.18);
 }
 
-.button:hover {
+.eventos-page .button:hover {
   transform: translateY(-1px);
   box-shadow: 0 16px 30px rgba(28, 164, 166, 0.25);
 }
 
-.button:active {
+.eventos-page .button:active {
   transform: scale(0.98);
 }
 
 /* ================= MODO ESCURO IGUAL AO FEED ================= */
 
-body.dark-mode,
-body.dark-mode #app {
+body.dark-mode .eventos-page {
   background:
-    radial-gradient(circle at 0% 0%, rgba(28, 164, 166, 0.22), transparent 32%),
-    radial-gradient(circle at 0% 45%, rgba(11, 95, 165, 0.18), transparent 38%),
+    radial-gradient(circle at top left, rgba(28, 164, 166, 0.16), transparent 25%),
     linear-gradient(180deg, #0f172a 0%, #020617 100%);
   color: #e2e8f0;
-  min-height: 100vh;
-  background-attachment: fixed;
-}
-
-body.dark-mode .container {
-  color: #e2e8f0;
-  background: transparent;
-}
-
-/* HEADER DARK */
-body.dark-mode .navbar {
-  background: #020617;
-  border-bottom: 1px solid #1e293b;
-  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.38);
-}
-
-body.dark-mode .navbar a {
-  color: #cbd5e1;
-}
-
-body.dark-mode .navbar a:hover {
-  color: #5eead4;
-}
-
-body.dark-mode .navbar a::after {
-  background: linear-gradient(135deg, #0b5fa5, #1ca4a6);
 }
 
 /* HERO DARK */
-body.dark-mode .hero {
+
+body.dark-mode .eventos-page .hero {
   background: #1e293b;
-  border: 1px solid #334155;
+  border-color: #334155;
   box-shadow: 0 14px 40px rgba(0, 0, 0, 0.38);
 }
 
-body.dark-mode .hero h1,
-body.dark-mode .hero h2,
-body.dark-mode .hero h3 {
+body.dark-mode .eventos-page .hero h1,
+body.dark-mode .eventos-page .hero h2,
+body.dark-mode .eventos-page .hero h3 {
   color: #f8fafc;
 }
 
-body.dark-mode .hero p {
+body.dark-mode .eventos-page .hero p {
   color: #cbd5e1;
 }
 
 /* SMALL CARDS DARK */
-body.dark-mode .small-card {
+
+body.dark-mode .eventos-page .small-card {
   background: #1e293b;
   color: #e2e8f0;
-  border: 1px solid #334155;
+  border-color: #334155;
   box-shadow: 0 14px 40px rgba(0, 0, 0, 0.38);
 }
 
-body.dark-mode .small-card:hover {
+body.dark-mode .eventos-page .small-card:hover {
   background: #1e293b;
   border-color: #334155;
   box-shadow: 0 18px 45px rgba(0, 0, 0, 0.55);
 }
 
-body.dark-mode .small-card i {
+body.dark-mode .eventos-page .small-card i {
   color: #5eead4;
 }
 
-body.dark-mode .small-card h3 {
+body.dark-mode .eventos-page .small-card h3 {
   color: #f8fafc;
 }
 
-body.dark-mode .small-card p {
+body.dark-mode .eventos-page .small-card p {
   color: #94a3b8;
 }
 
 /* TÍTULOS DARK */
-body.dark-mode .section-title {
+
+body.dark-mode .eventos-page .section-title {
   color: #f8fafc;
 }
 
-/* EVENTS DARK */
-body.dark-mode .event-card {
+/* EVENT CARDS DARK */
+
+body.dark-mode .eventos-page .event-card {
   background: #1e293b;
-  border: 1px solid #334155;
+  border-color: #334155;
   box-shadow: 0 14px 40px rgba(0, 0, 0, 0.38);
 }
 
-body.dark-mode .event-card:hover {
+body.dark-mode .eventos-page .event-card:hover {
   background: #1e293b;
   border-color: #334155;
   box-shadow: 0 18px 45px rgba(0, 0, 0, 0.55);
 }
 
-body.dark-mode .event-card img {
+body.dark-mode .eventos-page .event-card img {
   filter: brightness(0.72) saturate(1.05);
 }
 
-body.dark-mode .event-content {
+body.dark-mode .eventos-page .event-content {
   background: #1e293b;
 }
 
-body.dark-mode .event-title {
+body.dark-mode .eventos-page .event-title {
   color: #f8fafc;
 }
 
-body.dark-mode .event-desc {
+body.dark-mode .eventos-page .event-desc {
   color: #94a3b8;
 }
 
-body.dark-mode .event-info {
+body.dark-mode .eventos-page .event-info {
   color: #e2e8f0;
 }
 
-body.dark-mode .capacity {
+body.dark-mode .eventos-page .capacity {
   color: #cbd5e1;
   background: rgba(56, 189, 248, 0.14);
 }
 
 /* BADGE DARK */
-body.dark-mode .badge {
+
+body.dark-mode .eventos-page .badge {
   background: linear-gradient(135deg, #0b5fa5, #1ca4a6);
   color: #ffffff;
 }
 
 /* BOTÃO DARK */
-body.dark-mode .button {
+
+body.dark-mode .eventos-page .button {
   background: linear-gradient(135deg, #0b5fa5, #1ca4a6);
   color: #ffffff;
   box-shadow: 0 12px 26px rgba(28, 164, 166, 0.18);
 }
 
-body.dark-mode .button:hover {
+body.dark-mode .eventos-page .button:hover {
   background: linear-gradient(135deg, #0b5fa5, #178f91);
   box-shadow: 0 16px 34px rgba(28, 164, 166, 0.25);
 }
 
 /* ================= RESPONSIVO ================= */
+
 @media (max-width: 768px) {
-  .events {
+  .eventos-page .events {
     grid-template-columns: 1fr;
   }
 
-  .navbar {
-    padding: 14px 20px;
-    gap: 20px;
-    overflow-x: auto;
-  }
-
-  .hero {
+  .eventos-page .hero {
     padding: 34px 24px;
   }
 }
 
 @media (max-width: 480px) {
-  .container {
-    margin: 24px auto;
-    padding: 0 14px 40px;
+  .eventos-page {
+    padding: 18px 12px;
   }
 
-  .events {
+  .eventos-page .events {
     grid-template-columns: 1fr;
   }
 
-  .event-card {
+  .eventos-page .event-card {
     border-radius: 18px;
   }
 
-  .event-card img {
+  .eventos-page .event-card img {
     height: 190px;
   }
 
-  .top-cards {
+  .eventos-page .top-cards {
     grid-template-columns: 1fr;
     gap: 20px;
   }
 
-  .small-card {
+  .eventos-page .small-card {
     width: 100%;
   }
 
-  .capacity {
+  .eventos-page .capacity {
     float: none;
     display: block;
     width: fit-content;

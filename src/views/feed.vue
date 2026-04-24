@@ -8,7 +8,16 @@
 
           <div class="profile-content">
             <div class="profile-avatar">
-              {{ iniciaisUsuario }}
+              <img
+                v-if="fotoUsuario"
+                :src="fotoUsuario"
+                alt="Foto do perfil"
+                class="avatar-img"
+              >
+
+              <span v-else>
+                {{ iniciaisUsuario }}
+              </span>
             </div>
 
             <h2>{{ usuario?.nome || 'Usuário' }}</h2>
@@ -36,7 +45,16 @@
         <div class="create-post-card">
           <div class="create-post-top">
             <div class="mini-avatar">
-              {{ iniciaisUsuario }}
+              <img
+                v-if="fotoUsuario"
+                :src="fotoUsuario"
+                alt="Foto do perfil"
+                class="avatar-img"
+              >
+
+              <span v-else>
+                {{ iniciaisUsuario }}
+              </span>
             </div>
 
             <textarea
@@ -79,7 +97,16 @@
             <div class="post-card-header">
               <div class="post-author">
                 <div class="author-avatar">
-                  {{ getInitials(post.nome || 'U') }}
+                  <img
+                    v-if="getFotoPost(post)"
+                    :src="getFotoPost(post)"
+                    alt="Foto do autor"
+                    class="avatar-img"
+                  >
+
+                  <span v-else>
+                    {{ getInitials(post.nome || 'U') }}
+                  </span>
                 </div>
 
                 <div class="author-meta">
@@ -182,7 +209,16 @@
                   class="comentario-item"
                 >
                   <div class="comentario-avatar">
-                    {{ getInitials(comentario.nome || 'U') }}
+                    <img
+                      v-if="getFotoComentario(comentario)"
+                      :src="getFotoComentario(comentario)"
+                      alt="Foto do comentário"
+                      class="avatar-img"
+                    >
+
+                    <span v-else>
+                      {{ getInitials(comentario.nome || 'U') }}
+                    </span>
                   </div>
 
                   <div class="comentario-conteudo">
@@ -280,16 +316,29 @@
               :key="item.id"
               class="user-result-card"
             >
-              <div class="user-result-left">
+              <!-- AGORA CLICA NO USUÁRIO E ABRE O PERFIL -->
+              <RouterLink
+                :to="`/perfil/${item.id}`"
+                class="user-result-left user-result-link"
+              >
                 <div class="user-result-avatar">
-                  {{ getInitials(item.nome || 'U') }}
+                  <img
+                    v-if="getFotoGenerica(item)"
+                    :src="getFotoGenerica(item)"
+                    alt="Foto do usuário"
+                    class="avatar-img"
+                  >
+
+                  <span v-else>
+                    {{ getInitials(item.nome || 'U') }}
+                  </span>
                 </div>
 
                 <div class="user-result-meta">
                   <strong>{{ item.nome }}</strong>
                   <span>{{ item.email }}</span>
                 </div>
-              </div>
+              </RouterLink>
 
               <button
                 class="follow-button"
@@ -314,11 +363,12 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import api from '../services/api'
 
 const usuario = ref(JSON.parse(localStorage.getItem('usuario')) || null)
 const token = localStorage.getItem('token') || ''
+const API_URL = 'http://localhost:3000'
 
 const posts = ref([])
 const novoPost = ref('')
@@ -334,11 +384,69 @@ const iniciaisUsuario = computed(() => {
   return getInitials(usuario.value?.nome || 'Usuário')
 })
 
+const fotoUsuario = computed(() => {
+  return montarUrlFoto(usuario.value)
+})
+
 const authHeaders = computed(() => ({
   headers: {
     Authorization: `Bearer ${token}`
   }
 }))
+
+function atualizarUsuarioLocal() {
+  usuario.value = JSON.parse(localStorage.getItem('usuario')) || null
+}
+
+function montarUrlFoto(item) {
+  if (!item) return null
+
+  if (item.foto_perfil_url) {
+    return item.foto_perfil_url
+  }
+
+  if (item.foto_perfil && item.foto_perfil.startsWith('http')) {
+    return item.foto_perfil
+  }
+
+  if (item.foto_perfil && item.foto_perfil.startsWith('/uploads')) {
+    return `${API_URL}${item.foto_perfil}`
+  }
+
+  if (item.foto && item.foto.startsWith('http')) {
+    return item.foto
+  }
+
+  if (item.foto && item.foto.startsWith('data:image')) {
+    return item.foto
+  }
+
+  if (item.foto && item.foto.startsWith('/uploads')) {
+    return `${API_URL}${item.foto}`
+  }
+
+  return null
+}
+
+function getFotoGenerica(item) {
+  return montarUrlFoto(item)
+}
+
+function getFotoPost(post) {
+  if (isDonoPost(post) && fotoUsuario.value) {
+    return fotoUsuario.value
+  }
+
+  return montarUrlFoto(post)
+}
+
+function getFotoComentario(comentario) {
+  if (isDonoComentario(comentario) && fotoUsuario.value) {
+    return fotoUsuario.value
+  }
+
+  return montarUrlFoto(comentario)
+}
 
 function getInitials(nome) {
   return String(nome)
@@ -444,7 +552,6 @@ async function salvarEdicaoPost(post) {
     post.editando = false
   } catch (error) {
     console.error('Erro ao editar post:', error)
-
     alert('A API ainda não tem a rota para editar post. Depois fazemos essa parte.')
   }
 }
@@ -641,7 +748,16 @@ async function toggleSeguir(item) {
 }
 
 onMounted(() => {
+  atualizarUsuarioLocal()
   carregarPosts()
+
+  window.addEventListener('usuario-atualizado', atualizarUsuarioLocal)
+  window.addEventListener('storage', atualizarUsuarioLocal)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('usuario-atualizado', atualizarUsuarioLocal)
+  window.removeEventListener('storage', atualizarUsuarioLocal)
 })
 </script>
 
