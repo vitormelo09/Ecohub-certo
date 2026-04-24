@@ -79,7 +79,8 @@
         </div>
 
         <div class="feed-title">
-          <h3>Publicações recentes</h3>
+          <h3>Publicações em destaque</h3>
+          <span>Posts com mais curtidas aparecem primeiro</span>
         </div>
 
         <div v-if="carregandoPosts" class="feed-state">
@@ -172,7 +173,7 @@
                 @click="toggleLike(post)"
               >
                 <i class="fa-solid fa-heart"></i>
-                {{ Number(post.curtidoPorMim) === 1 ? 'Descurtir' : 'Curtir' }}
+                {{ Number(post.curtidoPorMim) === 1 ? 'Curtido' : 'Curtir' }}
                 <span class="count-badge">{{ post.likes || 0 }}</span>
               </button>
 
@@ -316,7 +317,6 @@
               :key="item.id"
               class="user-result-card"
             >
-              <!-- AGORA CLICA NO USUÁRIO E ABRE O PERFIL -->
               <RouterLink
                 :to="`/perfil/${item.id}`"
                 class="user-result-left user-result-link"
@@ -483,6 +483,22 @@ function isDonoComentario(comentario) {
   return Number(comentario.usuario_id) === Number(pegarIdUsuarioLogado())
 }
 
+function ordenarPostsPorCurtidas() {
+  posts.value.sort((a, b) => {
+    const likesA = Number(a.likes || 0)
+    const likesB = Number(b.likes || 0)
+
+    if (likesB !== likesA) {
+      return likesB - likesA
+    }
+
+    const dataA = new Date(a.data_publicacao || 0).getTime()
+    const dataB = new Date(b.data_publicacao || 0).getTime()
+
+    return dataB - dataA
+  })
+}
+
 /* ================================
    POSTS
 ================================ */
@@ -502,6 +518,8 @@ async function carregarPosts() {
       editando: false,
       conteudoEditado: post.conteudo || ''
     }))
+
+    ordenarPostsPorCurtidas()
   } catch (error) {
     console.error('Erro ao carregar posts:', error)
   } finally {
@@ -550,6 +568,7 @@ async function salvarEdicaoPost(post) {
 
     post.conteudo = post.conteudoEditado.trim()
     post.editando = false
+    ordenarPostsPorCurtidas()
   } catch (error) {
     console.error('Erro ao editar post:', error)
     alert('A API ainda não tem a rota para editar post. Depois fazemos essa parte.')
@@ -584,6 +603,8 @@ async function toggleLike(post) {
 
     post.curtidoPorMim = response.data.curtidoPorMim ? 1 : 0
     post.likes = response.data.totalCurtidas
+
+    ordenarPostsPorCurtidas()
   } catch (error) {
     console.error('Erro ao curtir/descurtir post:', error)
   }

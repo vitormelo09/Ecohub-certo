@@ -1,13 +1,11 @@
 <template>
   <main class="container">
-
     <section class="hero">
       <h1>Calendário de Eventos</h1>
       <p>Veja todos os eventos da comunidade Ecossistema Academy.</p>
     </section>
 
     <section class="calendar-section">
-
       <!-- Painéis laterais -->
       <div class="left-panels">
         <div class="panel">
@@ -16,7 +14,7 @@
           <div v-if="proximosEventos.length">
             <div
               v-for="evento in proximosEventos"
-              :key="evento.date"
+              :key="evento.date + evento.title"
               class="mini-evento"
             >
               <strong>{{ evento.title }}</strong>
@@ -29,13 +27,35 @@
           </div>
         </div>
 
-        <div class="panel">Painel 2</div>
-        <div class="panel">Painel 3</div>
+        <div class="panel">
+          <h3>Meus lembretes</h3>
+
+          <div v-if="meusProximosEventos.length">
+            <div
+              v-for="evento in meusProximosEventos"
+              :key="evento.date + evento.title"
+              class="mini-evento pessoal"
+            >
+              <strong>{{ evento.title }}</strong>
+              <p>{{ formatDate(evento.date) }}</p>
+            </div>
+          </div>
+
+          <div v-else>
+            <p>Você ainda não adicionou lembretes.</p>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Legenda</h3>
+          <p><span class="legenda-dot eniac"></span> Evento ENIAC</p>
+          <p><span class="legenda-dot feriado"></span> Feriado</p>
+          <p><span class="legenda-dot pessoal"></span> Meu lembrete</p>
+        </div>
       </div>
 
       <!-- Calendário -->
       <div class="calendar">
-
         <div class="calendar-header">
           <button @click="prevMonth">❮</button>
           <h2>{{ monthYear }}</h2>
@@ -61,14 +81,19 @@
               today: isToday(day.fullDate),
               selected: isSelected(day.fullDate),
               holiday: day.type === 'feriado',
-              'event-day': day.type === 'eniac'
+              'event-day': day.type === 'eniac',
+              'personal-day': day.type === 'pessoal',
+              empty: day.fullDate.includes('empty')
             }"
             @click="selectDay(day.fullDate)"
           >
-            {{ day.day }}
+            <span>{{ day.day }}</span>
+
+            <small v-if="day.type === 'eniac'" class="day-dot eniac"></small>
+            <small v-if="day.type === 'feriado'" class="day-dot feriado"></small>
+            <small v-if="day.type === 'pessoal'" class="day-dot pessoal"></small>
           </div>
         </div>
-
       </div>
 
       <!-- Eventos -->
@@ -76,22 +101,66 @@
         <h3>Eventos do Dia</h3>
 
         <div v-if="!selectedDate">
-          <p>Selecione um dia para ver os eventos.</p>
-        </div>
-
-        <div v-else-if="!events[selectedDate]">
-          <p>Nenhum evento neste dia.</p>
+          <p>Selecione um dia para ver ou adicionar eventos.</p>
         </div>
 
         <div v-else>
-          <div class="event-item">
-            <strong>{{ events[selectedDate].title }}</strong>
+          <p class="data-selecionada">
+            {{ formatDate(selectedDate) }}
+          </p>
+
+          <div v-if="eventosDoDia.length === 0">
+            <p>Nenhum evento neste dia.</p>
+          </div>
+
+          <div v-else>
+            <div
+              v-for="evento in eventosDoDia"
+              :key="evento.id"
+              class="event-item"
+              :class="evento.type"
+            >
+              <strong>{{ evento.title }}</strong>
+
+              <span v-if="evento.type === 'eniac'" class="tipo-evento">
+                Evento ENIAC
+              </span>
+
+              <span v-if="evento.type === 'feriado'" class="tipo-evento">
+                Feriado
+              </span>
+
+              <span v-if="evento.type === 'pessoal'" class="tipo-evento">
+                Meu lembrete
+              </span>
+
+              <button
+                v-if="evento.type === 'pessoal'"
+                class="btn-excluir-evento"
+                @click="excluirEventoPessoal(evento.id)"
+              >
+                Excluir
+              </button>
+            </div>
+          </div>
+
+          <div class="form-evento-pessoal">
+            <h4>Adicionar meu lembrete</h4>
+
+            <input
+              type="text"
+              v-model="novoEventoTitulo"
+              placeholder="Ex: Entregar atividade, estudar, reunião..."
+              @keyup.enter="adicionarEventoPessoal"
+            >
+
+            <button @click="adicionarEventoPessoal">
+              Adicionar
+            </button>
           </div>
         </div>
       </div>
-
     </section>
-
   </main>
 </template>
 
@@ -101,21 +170,58 @@ export default {
     return {
       currentDate: new Date(),
       selectedDate: null,
+      novoEventoTitulo: "",
 
-      events: {
-        "2026-05-17": {
-          title: "Workshop de React Native - ENIAC",
-          type: "eniac"
-        },
-        "2026-05-20": {
-          title: "Palestra UX/UI Design - ENIAC",
-          type: "eniac"
-        }
-      }
+      eventosFixos: {
+        "2026-05-17": [
+          {
+            id: "eniac-1",
+            title: "Workshop de React Native - ENIAC",
+            type: "eniac"
+          }
+        ],
+        "2026-05-20": [
+          {
+            id: "eniac-2",
+            title: "Palestra UX/UI Design - ENIAC",
+            type: "eniac"
+          }
+        ]
+      },
+
+      eventosPessoais: {}
     }
   },
 
   computed: {
+    usuarioKey() {
+      const usuario = JSON.parse(localStorage.getItem("usuario")) || {}
+
+      return usuario.id || usuario.email || "usuario-sem-login"
+    },
+
+    chaveLocalStorage() {
+      return `eventos-calendario-${this.usuarioKey}`
+    },
+
+    todosEventos() {
+      const eventosJuntos = {}
+
+      Object.keys(this.eventosFixos).forEach((data) => {
+        eventosJuntos[data] = [...this.eventosFixos[data]]
+      })
+
+      Object.keys(this.eventosPessoais).forEach((data) => {
+        if (!eventosJuntos[data]) {
+          eventosJuntos[data] = []
+        }
+
+        eventosJuntos[data].push(...this.eventosPessoais[data])
+      })
+
+      return eventosJuntos
+    },
+
     monthYear() {
       return this.currentDate.toLocaleDateString("pt-BR", {
         month: "long",
@@ -135,7 +241,8 @@ export default {
       for (let i = 0; i < firstDay; i++) {
         days.push({
           day: "",
-          fullDate: `empty-${i}`
+          fullDate: `empty-${i}`,
+          type: null
         })
       }
 
@@ -143,8 +250,17 @@ export default {
         const fullDate = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`
 
         let type = null
-        if (this.events[fullDate]) {
-          type = this.events[fullDate].type
+
+        if (this.todosEventos[fullDate]) {
+          const eventosDoDia = this.todosEventos[fullDate]
+
+          if (eventosDoDia.some((evento) => evento.type === "pessoal")) {
+            type = "pessoal"
+          } else if (eventosDoDia.some((evento) => evento.type === "eniac")) {
+            type = "eniac"
+          } else if (eventosDoDia.some((evento) => evento.type === "feriado")) {
+            type = "feriado"
+          }
         }
 
         days.push({
@@ -157,16 +273,39 @@ export default {
       return days
     },
 
+    eventosDoDia() {
+      if (!this.selectedDate) {
+        return []
+      }
+
+      return this.todosEventos[this.selectedDate] || []
+    },
+
     proximosEventos() {
       const hoje = new Date().toISOString().split("T")[0]
 
-      return Object.entries(this.events)
-        .filter(([date, event]) => date >= hoje && event.type === "eniac")
+      return Object.entries(this.eventosFixos)
+        .filter(([date, eventos]) => {
+          return date >= hoje && eventos.some((evento) => evento.type === "eniac")
+        })
         .sort((a, b) => a[0].localeCompare(b[0]))
         .slice(0, 3)
-        .map(([date, event]) => ({
+        .map(([date, eventos]) => ({
           date,
-          title: event.title
+          title: eventos[0].title
+        }))
+    },
+
+    meusProximosEventos() {
+      const hoje = new Date().toISOString().split("T")[0]
+
+      return Object.entries(this.eventosPessoais)
+        .filter(([date]) => date >= hoje)
+        .sort((a, b) => a[0].localeCompare(b[0]))
+        .slice(0, 4)
+        .map(([date, eventos]) => ({
+          date,
+          title: eventos[0].title
         }))
     }
   },
@@ -178,6 +317,7 @@ export default {
         this.currentDate.getMonth() + 1,
         1
       )
+
       this.loadHolidays()
     },
 
@@ -187,12 +327,15 @@ export default {
         this.currentDate.getMonth() - 1,
         1
       )
+
       this.loadHolidays()
     },
 
     selectDay(date) {
       if (date.includes("empty")) return
+
       this.selectedDate = date
+      this.novoEventoTitulo = ""
     },
 
     isToday(date) {
@@ -208,6 +351,65 @@ export default {
       return new Date(date + "T00:00:00").toLocaleDateString("pt-BR")
     },
 
+    carregarEventosPessoais() {
+      const eventosSalvos = localStorage.getItem(this.chaveLocalStorage)
+
+      if (eventosSalvos) {
+        this.eventosPessoais = JSON.parse(eventosSalvos)
+      }
+    },
+
+    salvarEventosPessoais() {
+      localStorage.setItem(
+        this.chaveLocalStorage,
+        JSON.stringify(this.eventosPessoais)
+      )
+    },
+
+    adicionarEventoPessoal() {
+      if (!this.selectedDate) {
+        alert("Selecione um dia no calendário.")
+        return
+      }
+
+      if (!this.novoEventoTitulo.trim()) {
+        alert("Digite o nome do lembrete.")
+        return
+      }
+
+      const novoEvento = {
+        id: `pessoal-${Date.now()}`,
+        title: this.novoEventoTitulo.trim(),
+        type: "pessoal"
+      }
+
+      if (!this.eventosPessoais[this.selectedDate]) {
+        this.eventosPessoais[this.selectedDate] = []
+      }
+
+      this.eventosPessoais[this.selectedDate].push(novoEvento)
+
+      this.salvarEventosPessoais()
+      this.novoEventoTitulo = ""
+    },
+
+    excluirEventoPessoal(id) {
+      if (!this.selectedDate) return
+
+      const confirmar = confirm("Deseja excluir este lembrete?")
+
+      if (!confirmar) return
+
+      this.eventosPessoais[this.selectedDate] =
+        this.eventosPessoais[this.selectedDate].filter((evento) => evento.id !== id)
+
+      if (this.eventosPessoais[this.selectedDate].length === 0) {
+        delete this.eventosPessoais[this.selectedDate]
+      }
+
+      this.salvarEventosPessoais()
+    },
+
     async loadHolidays() {
       const year = this.currentDate.getFullYear()
 
@@ -215,12 +417,21 @@ export default {
         const response = await fetch(`https://brasilapi.com.br/api/feriados/v1/${year}`)
         const data = await response.json()
 
-        data.forEach(f => {
-          if (!this.events[f.date]) {
-            this.events[f.date] = {
-              title: f.name,
+        data.forEach((feriado) => {
+          if (!this.eventosFixos[feriado.date]) {
+            this.eventosFixos[feriado.date] = []
+          }
+
+          const jaExiste = this.eventosFixos[feriado.date].some(
+            (evento) => evento.title === feriado.name
+          )
+
+          if (!jaExiste) {
+            this.eventosFixos[feriado.date].push({
+              id: `feriado-${feriado.date}`,
+              title: feriado.name,
               type: "feriado"
-            }
+            })
           }
         })
       } catch (e) {
@@ -230,12 +441,13 @@ export default {
   },
 
   mounted() {
+    this.carregarEventosPessoais()
     this.loadHolidays()
   }
 }
 </script>
 
 <style scoped>
-@import "../assets/css/geral.css";
+
 @import "../assets/css/calendario.css";
 </style>

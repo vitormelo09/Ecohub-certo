@@ -10,7 +10,9 @@
       <RouterLink to="/noticias" active-class="ativo">Notícias</RouterLink>
       <RouterLink to="/feed" active-class="ativo">Feed</RouterLink>
       <RouterLink to="/sobre" active-class="ativo">Sobre</RouterLink>
+       <RouterLink to="/projetos" active-class="ativo">Projeto</RouterLink>
     </nav>
+
 
     <div class="header-direita">
       <!-- Só aparece se NÃO tiver usuário logado -->

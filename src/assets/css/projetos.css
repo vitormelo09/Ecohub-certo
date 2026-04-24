@@ -424,3 +424,277 @@ body.dark-mode .nivel {
   background: rgba(59, 130, 246, 0.16);
   color: #93c5fd;
 }
+/* ================================
+   FORMULÁRIO PUBLICAR PROJETO
+================================ */
+
+.form-projeto-section {
+  max-width: 1200px;
+  margin: 28px auto 0;
+  padding: 0 4px;
+  position: relative;
+  z-index: 3;
+}
+
+.form-projeto-card {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 28px;
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e5e7eb;
+}
+
+.form-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 22px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.form-header h2 {
+  font-size: 26px;
+  color: #051D40;
+  font-weight: 700;
+}
+
+.btn-fechar {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  border: none;
+  background: #eef2f7;
+  color: #051D40;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.btn-fechar:hover {
+  background: #dbeafe;
+  transform: translateY(-1px);
+}
+
+.form-projeto {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  color: #051D40;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  border: 1px solid #dbe2ea;
+  background: #f8fafc;
+  color: #111827;
+  border-radius: 12px;
+  padding: 13px 14px;
+  font-size: 14px;
+  outline: none;
+  transition: 0.25s ease;
+}
+
+.form-group input {
+  min-height: 48px;
+}
+
+.form-group textarea {
+  min-height: 120px;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  border-color: #2788C8;
+  box-shadow: 0 0 0 4px rgba(39, 136, 200, 0.10);
+  background: #ffffff;
+}
+
+.form-group input[type="file"] {
+  padding: 10px;
+  cursor: pointer;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.mensagem-erro,
+.mensagem-sucesso {
+  border-radius: 12px;
+  padding: 13px 15px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.mensagem-erro {
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+.mensagem-sucesso {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #bbf7d0;
+}
+
+/* ================================
+   IMAGEM DO CARD DO PROJETO
+================================ */
+
+.projeto-imagem {
+  width: 100%;
+  height: 170px;
+  object-fit: cover;
+  border-radius: 14px;
+  margin-bottom: 16px;
+  border: 1px solid #e5e7eb;
+}
+
+/* ================================
+   BOTÃO EXCLUIR
+================================ */
+
+.btn-card-danger {
+  min-height: 42px;
+  border: none;
+  background: #ef4444;
+  color: #ffffff;
+  padding: 0 16px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.btn-card-danger:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+}
+
+.btn-card-danger:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ================================
+   MODO ESCURO DO FORMULÁRIO
+================================ */
+
+body.dark-mode .form-projeto-card {
+  background: #020817;
+  border: 1px solid #1e293b;
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.4);
+}
+
+body.dark-mode .form-header {
+  border-bottom: 1px solid #1e293b;
+}
+
+body.dark-mode .form-header h2,
+body.dark-mode .form-group label {
+  color: #ffffff;
+}
+
+body.dark-mode .btn-fechar {
+  background: #0f172a;
+  color: #e2e8f0;
+  border: 1px solid #1e293b;
+}
+
+body.dark-mode .btn-fechar:hover {
+  background: #1e293b;
+}
+
+body.dark-mode .form-group input,
+body.dark-mode .form-group textarea {
+  background: #0f172a;
+  border: 1px solid #1e293b;
+  color: #ffffff;
+}
+
+body.dark-mode .form-group input::placeholder,
+body.dark-mode .form-group textarea::placeholder {
+  color: #64748b;
+}
+
+body.dark-mode .form-group input:focus,
+body.dark-mode .form-group textarea:focus {
+  border-color: #31BADF;
+  box-shadow: 0 0 0 4px rgba(49, 186, 223, 0.16);
+  background: #020817;
+}
+
+body.dark-mode .mensagem-erro {
+  background: rgba(127, 29, 29, 0.35);
+  color: #fecaca;
+  border: 1px solid rgba(248, 113, 113, 0.35);
+}
+
+body.dark-mode .mensagem-sucesso {
+  background: rgba(6, 78, 59, 0.35);
+  color: #bbf7d0;
+  border: 1px solid rgba(52, 211, 153, 0.35);
+}
+
+body.dark-mode .projeto-imagem {
+  border: 1px solid #1e293b;
+}
+
+body.dark-mode .btn-card-danger {
+  background: #b91c1c;
+}
+
+body.dark-mode .btn-card-danger:hover {
+  background: #991b1b;
+}
+
+/* ================================
+   RESPONSIVO DO FORMULÁRIO
+================================ */
+
+@media (max-width: 768px) {
+  .form-projeto-section {
+    margin-left: 14px;
+    margin-right: 14px;
+  }
+
+  .form-projeto-card {
+    padding: 22px;
+  }
+
+  .form-header h2 {
+    font-size: 22px;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .form-actions .btn-primary,
+  .form-actions .btn-secondary {
+    width: 100%;
+  }
+}
