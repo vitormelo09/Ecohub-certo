@@ -62,6 +62,6 @@
 
 <style scoped>
 /* O caminho correto para sair de views/ e entrar em assets/css/ */
-@import "../assets/css/geral.css";
+
 @import "../assets/css/eventos.css";
 </style>

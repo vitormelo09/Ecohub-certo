@@ -88,18 +88,53 @@
                 </div>
               </div>
 
-              <button
-                v-if="Number(post.usuario_id) === Number(usuario?.id)"
-                class="more-button"
-                @click="deletarPost(post.id)"
-                title="Deletar post"
-              >
-                <i class="fa-solid fa-trash"></i>
-              </button>
+              <div v-if="isDonoPost(post)" class="post-actions-top">
+                <button
+                  class="post-action-edit"
+                  @click="editarPost(post)"
+                  title="Editar post"
+                >
+                  Editar
+                </button>
+
+                <button
+                  class="post-action-delete"
+                  @click="deletarPost(post.id)"
+                  title="Excluir post"
+                >
+                  Excluir
+                </button>
+              </div>
             </div>
 
             <div class="post-card-body">
-              <p>{{ post.conteudo }}</p>
+              <template v-if="post.editando">
+                <textarea
+                  v-model="post.conteudoEditado"
+                  class="post-edit-textarea"
+                  placeholder="Edite seu post..."
+                ></textarea>
+
+                <div class="post-edit-actions">
+                  <button
+                    class="post-save-button"
+                    @click="salvarEdicaoPost(post)"
+                  >
+                    Salvar
+                  </button>
+
+                  <button
+                    class="post-cancel-button"
+                    @click="cancelarEdicaoPost(post)"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </template>
+
+              <template v-else>
+                <p>{{ post.conteudo }}</p>
+              </template>
             </div>
 
             <!-- FOOTER -->
@@ -114,7 +149,6 @@
                 <span class="count-badge">{{ post.likes || 0 }}</span>
               </button>
 
-              <!-- BOTÃO COMENTAR -->
               <button class="action-button" @click="toggleComentarios(post)">
                 <i class="fa-solid fa-comment"></i> Comentar
               </button>
@@ -126,20 +160,89 @@
                 <input
                   v-model="post.novoComentario"
                   placeholder="Escreva um comentário..."
+                  @keyup.enter="adicionarComentario(post)"
                 />
-                <button @click="adicionarComentario(post)">
-                  Enviar
+
+                <button
+                  @click="adicionarComentario(post)"
+                  :disabled="post.carregandoComentario || !post.novoComentario.trim()"
+                >
+                  {{ post.carregandoComentario ? 'Enviando...' : 'Enviar' }}
                 </button>
               </div>
 
-              <div v-if="post.comentarios.length" class="lista-comentarios">
-                <p
-                  v-for="(c, index) in post.comentarios"
-                  :key="index"
+              <div v-if="post.carregandoComentarios" class="sem-comentarios">
+                Carregando comentários...
+              </div>
+
+              <div v-else-if="post.comentarios.length" class="lista-comentarios">
+                <div
+                  v-for="comentario in post.comentarios"
+                  :key="comentario.id"
                   class="comentario-item"
                 >
-                  {{ c }}
-                </p>
+                  <div class="comentario-avatar">
+                    {{ getInitials(comentario.nome || 'U') }}
+                  </div>
+
+                  <div class="comentario-conteudo">
+                    <div class="comentario-topo">
+                      <strong>{{ comentario.nome || 'Usuário' }}</strong>
+                      <span>{{ formatarData(comentario.data_criacao) }}</span>
+                    </div>
+
+                    <template v-if="comentario.editando">
+                      <input
+                        v-model="comentario.textoEditado"
+                        class="comentario-edit-input"
+                        @keyup.enter="salvarEdicaoComentario(comentario)"
+                      />
+
+                      <div class="comentario-acoes-edicao">
+                        <button
+                          class="comentario-btn salvar"
+                          @click="salvarEdicaoComentario(comentario)"
+                        >
+                          Salvar
+                        </button>
+
+                        <button
+                          class="comentario-btn cancelar"
+                          @click="cancelarEdicaoComentario(comentario)"
+                        >
+                          Cancelar
+                        </button>
+                      </div>
+                    </template>
+
+                    <template v-else>
+                      <p>{{ comentario.texto }}</p>
+
+                      <div
+                        v-if="isDonoComentario(comentario)"
+                        class="comentario-acoes"
+                      >
+                        <button
+                          class="comentario-btn editar"
+                          @click="editarComentario(comentario)"
+                        >
+                          Editar
+                        </button>
+
+                        <button
+                          class="comentario-btn excluir"
+                          @click="excluirComentario(post, comentario.id)"
+                        >
+                          Excluir
+                        </button>
+                      </div>
+                    </template>
+                  </div>
+                </div>
+              </div>
+
+              <div v-else class="sem-comentarios">
+                Nenhum comentário ainda.
               </div>
             </div>
           </article>
@@ -256,6 +359,25 @@ function formatarData(data) {
   })
 }
 
+function pegarIdUsuarioLogado() {
+  return usuario.value?.id || usuario.value?._id || usuario.value?.usuario_id
+}
+
+function pegarIdDonoPost(post) {
+  return post.usuario_id || post.userId || post.user_id || post.autor_id
+}
+
+function isDonoPost(post) {
+  return Number(pegarIdDonoPost(post)) === Number(pegarIdUsuarioLogado())
+}
+
+function isDonoComentario(comentario) {
+  return Number(comentario.usuario_id) === Number(pegarIdUsuarioLogado())
+}
+
+/* ================================
+   POSTS
+================================ */
 async function carregarPosts() {
   carregandoPosts.value = true
 
@@ -266,7 +388,11 @@ async function carregarPosts() {
       ...post,
       comentarios: [],
       novoComentario: '',
-      mostrarComentarios: false
+      mostrarComentarios: false,
+      carregandoComentarios: false,
+      carregandoComentario: false,
+      editando: false,
+      conteudoEditado: post.conteudo || ''
     }))
   } catch (error) {
     console.error('Erro ao carregar posts:', error)
@@ -296,7 +422,43 @@ async function publicarPost() {
   }
 }
 
+function editarPost(post) {
+  post.conteudoEditado = post.conteudo
+  post.editando = true
+}
+
+async function salvarEdicaoPost(post) {
+  if (!post.conteudoEditado.trim()) {
+    alert('O post não pode ficar vazio.')
+    return
+  }
+
+  try {
+    await api.put(
+      `/api/posts/${post.id}`,
+      { conteudo: post.conteudoEditado.trim() },
+      authHeaders.value
+    )
+
+    post.conteudo = post.conteudoEditado.trim()
+    post.editando = false
+  } catch (error) {
+    console.error('Erro ao editar post:', error)
+
+    alert('A API ainda não tem a rota para editar post. Depois fazemos essa parte.')
+  }
+}
+
+function cancelarEdicaoPost(post) {
+  post.conteudoEditado = post.conteudo
+  post.editando = false
+}
+
 async function deletarPost(postId) {
+  const confirmar = confirm('Tem certeza que deseja excluir este post?')
+
+  if (!confirmar) return
+
   try {
     await api.delete(`/api/posts/${postId}`, authHeaders.value)
     await carregarPosts()
@@ -320,18 +482,123 @@ async function toggleLike(post) {
   }
 }
 
-/* NOVAS FUNÇÕES */
-function toggleComentarios(post) {
+/* ================================
+   COMENTÁRIOS COM BANCO
+================================ */
+async function toggleComentarios(post) {
   post.mostrarComentarios = !post.mostrarComentarios
+
+  if (post.mostrarComentarios) {
+    await carregarComentarios(post)
+  }
 }
 
-function adicionarComentario(post) {
+async function carregarComentarios(post) {
+  post.carregandoComentarios = true
+
+  try {
+    const response = await api.get(
+      `/api/comments/post/${post.id}`,
+      authHeaders.value
+    )
+
+    post.comentarios = response.data.map(comentario => ({
+      ...comentario,
+      textoEditado: comentario.texto,
+      editando: false
+    }))
+  } catch (error) {
+    console.error('Erro ao carregar comentários:', error)
+    post.comentarios = []
+  } finally {
+    post.carregandoComentarios = false
+  }
+}
+
+async function adicionarComentario(post) {
   if (!post.novoComentario?.trim()) return
 
-  post.comentarios.push(post.novoComentario.trim())
-  post.novoComentario = ''
+  post.carregandoComentario = true
+
+  try {
+    await api.post(
+      '/api/comments',
+      {
+        post_id: post.id,
+        texto: post.novoComentario.trim()
+      },
+      authHeaders.value
+    )
+
+    post.novoComentario = ''
+    await carregarComentarios(post)
+  } catch (error) {
+    console.error('Erro ao adicionar comentário:', error)
+    alert('Erro ao adicionar comentário.')
+  } finally {
+    post.carregandoComentario = false
+  }
 }
 
+function editarComentario(comentario) {
+  if (!isDonoComentario(comentario)) return
+
+  comentario.textoEditado = comentario.texto
+  comentario.editando = true
+}
+
+async function salvarEdicaoComentario(comentario) {
+  if (!isDonoComentario(comentario)) return
+
+  if (!comentario.textoEditado.trim()) {
+    alert('O comentário não pode ficar vazio.')
+    return
+  }
+
+  try {
+    await api.put(
+      `/api/comments/${comentario.id}`,
+      {
+        texto: comentario.textoEditado.trim()
+      },
+      authHeaders.value
+    )
+
+    comentario.texto = comentario.textoEditado.trim()
+    comentario.editando = false
+  } catch (error) {
+    console.error('Erro ao editar comentário:', error)
+    alert('Erro ao editar comentário.')
+  }
+}
+
+function cancelarEdicaoComentario(comentario) {
+  if (!isDonoComentario(comentario)) return
+
+  comentario.textoEditado = comentario.texto
+  comentario.editando = false
+}
+
+async function excluirComentario(post, comentarioId) {
+  const confirmar = confirm('Tem certeza que deseja excluir este comentário?')
+
+  if (!confirmar) return
+
+  try {
+    await api.delete(`/api/comments/${comentarioId}`, authHeaders.value)
+
+    post.comentarios = post.comentarios.filter(
+      comentario => Number(comentario.id) !== Number(comentarioId)
+    )
+  } catch (error) {
+    console.error('Erro ao excluir comentário:', error)
+    alert('Erro ao excluir comentário.')
+  }
+}
+
+/* ================================
+   BUSCAR USUÁRIOS
+================================ */
 async function buscarUsuarios() {
   if (debounceBusca) clearTimeout(debounceBusca)
 

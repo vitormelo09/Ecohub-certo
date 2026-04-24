@@ -480,13 +480,527 @@
   animation: spin 0.8s linear infinite;
 }
 
+/* ================================
+   BOTÕES EDITAR / EXCLUIR POST
+================================ */
+
+.post-actions-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.post-action-edit,
+.post-action-delete {
+  border: none;
+  border-radius: 12px;
+  padding: 9px 13px;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.post-action-edit {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.post-action-edit:hover {
+  background: #bae6fd;
+}
+
+.post-action-delete {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.post-action-delete:hover {
+  background: #fecaca;
+}
+
+.post-edit-textarea {
+  width: 100%;
+  min-height: 90px;
+  resize: vertical;
+  border: 1px solid #cbd5e1;
+  border-radius: 14px;
+  padding: 12px;
+  outline: none;
+  font-size: 15px;
+  font-family: inherit;
+  color: #111827;
+  background: #ffffff;
+}
+
+.post-edit-textarea:focus {
+  border-color: #0ea5e9;
+}
+
+.post-edit-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.post-save-button,
+.post-cancel-button {
+  border: none;
+  border-radius: 10px;
+  padding: 9px 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.post-save-button {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.post-save-button:hover {
+  background: #bbf7d0;
+}
+
+.post-cancel-button {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.post-cancel-button:hover {
+  background: #d1d5db;
+}
+
+/* ================================
+   COMENTÁRIOS DO FEED
+================================ */
+
+.comentarios-box {
+  margin-top: 14px;
+  padding: 14px;
+  border-top: 1px solid #e5e7eb;
+  background: #f9fbfd;
+  border-radius: 14px;
+}
+
+.comentario-input {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
+.comentario-input input {
+  flex: 1;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  padding: 10px 12px;
+  outline: none;
+  font-size: 14px;
+  background: #ffffff;
+  color: #111827;
+}
+
+.comentario-input input:focus {
+  border-color: #2563eb;
+}
+
+.comentario-input button {
+  border: none;
+  border-radius: 12px;
+  padding: 10px 16px;
+  background: #2563eb;
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.comentario-input button:hover {
+  background: #1d4ed8;
+}
+
+.lista-comentarios {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.comentario-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: #f1f5f9;
+  padding: 10px;
+  border-radius: 14px;
+}
+
+.comentario-avatar {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  border-radius: 50%;
+  background: #0f8db3;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.comentario-conteudo {
+  flex: 1;
+}
+
+.comentario-topo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.comentario-topo strong {
+  color: #0f172a;
+  font-size: 14px;
+}
+
+.comentario-topo span {
+  color: #64748b;
+  font-size: 12px;
+}
+
+.comentario-conteudo p {
+  margin: 0;
+  color: #111827;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.comentario-acoes,
+.comentario-acoes-edicao {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.comentario-edit-input {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 9px 10px;
+  outline: none;
+  font-size: 14px;
+  background: white;
+  color: #111827;
+}
+
+.comentario-edit-input:focus {
+  border-color: #2563eb;
+}
+
+.comentario-btn {
+  border: none;
+  padding: 7px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.comentario-btn.editar {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
+.comentario-btn.editar:hover {
+  background: #bbdefb;
+}
+
+.comentario-btn.excluir {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.comentario-btn.excluir:hover {
+  background: #ffcdd2;
+}
+
+.comentario-btn.salvar {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.comentario-btn.salvar:hover {
+  background: #c8e6c9;
+}
+
+.comentario-btn.cancelar {
+  background: #eeeeee;
+  color: #333;
+}
+
+.comentario-btn.cancelar:hover {
+  background: #dddddd;
+}
+
+.sem-comentarios {
+  margin-top: 10px;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+/* ================================
+   DARK MODE
+   Classe aplicada: body.dark-mode
+================================ */
+
+body.dark-mode {
+  background: #020617;
+}
+
+body.dark-mode .feed-page {
+  background:
+    radial-gradient(circle at top left, rgba(28, 164, 166, 0.16), transparent 25%),
+    linear-gradient(180deg, #0f172a 0%, #020617 100%);
+}
+
+body.dark-mode .profile-card,
+body.dark-mode .create-post-card,
+body.dark-mode .post-card,
+body.dark-mode .side-card {
+  background: #1e293b;
+  border-color: #334155;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.38);
+}
+
+body.dark-mode .profile-avatar {
+  border-color: #1e293b;
+}
+
+body.dark-mode .profile-content h2,
+body.dark-mode .stat-item strong,
+body.dark-mode .feed-title h3,
+body.dark-mode .author-meta h4,
+body.dark-mode .side-card h4,
+body.dark-mode .user-result-meta strong,
+body.dark-mode .comentario-topo strong {
+  color: #f8fafc;
+}
+
+body.dark-mode .profile-content p,
+body.dark-mode .stat-item span,
+body.dark-mode .post-hint,
+body.dark-mode .author-meta span,
+body.dark-mode .side-card p,
+body.dark-mode .users-state,
+body.dark-mode .user-result-meta span,
+body.dark-mode .comentario-topo span,
+body.dark-mode .sem-comentarios {
+  color: #94a3b8;
+}
+
+body.dark-mode .post-card-body p,
+body.dark-mode .comentario-conteudo p {
+  color: #e2e8f0;
+}
+
+body.dark-mode .profile-stats,
+body.dark-mode .post-card-footer,
+body.dark-mode .comentarios-box {
+  border-top-color: #334155;
+}
+
+body.dark-mode .create-post-top textarea,
+body.dark-mode .search-users-box input,
+body.dark-mode .post-edit-textarea,
+body.dark-mode .comentario-input input,
+body.dark-mode .comentario-edit-input {
+  background: #0f172a;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+body.dark-mode .create-post-top textarea::placeholder,
+body.dark-mode .search-users-box input::placeholder,
+body.dark-mode .post-edit-textarea::placeholder,
+body.dark-mode .comentario-input input::placeholder,
+body.dark-mode .comentario-edit-input::placeholder {
+  color: #64748b;
+}
+
+body.dark-mode .create-post-top textarea:focus,
+body.dark-mode .search-users-box input:focus,
+body.dark-mode .post-edit-textarea:focus,
+body.dark-mode .comentario-input input:focus,
+body.dark-mode .comentario-edit-input:focus {
+  background: #020617;
+  border-color: #1ca4a6;
+  box-shadow: 0 0 0 4px rgba(28, 164, 166, 0.14);
+}
+
+body.dark-mode .action-button {
+  background: #0f172a;
+  color: #cbd5e1;
+}
+
+body.dark-mode .action-button:hover {
+  background: #1e293b;
+  color: #5eead4;
+}
+
+body.dark-mode .action-button.liked {
+  background: #3f1d2e;
+  color: #f472b6;
+}
+
+body.dark-mode .action-button.liked:hover {
+  background: #4c1d35;
+  color: #fb7185;
+}
+
+body.dark-mode .count-badge {
+  background: rgba(56, 189, 248, 0.14);
+}
+
+body.dark-mode .more-button {
+  background: #0f172a;
+  color: #94a3b8;
+}
+
+body.dark-mode .more-button:hover {
+  background: #3f1d2e;
+  color: #f87171;
+}
+
+body.dark-mode .user-result-card {
+  background: #0f172a;
+  border-color: #334155;
+}
+
+body.dark-mode .user-result-card:hover {
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.5);
+}
+
+body.dark-mode .follow-button.following {
+  background: #0f172a;
+  color: #38bdf8;
+}
+
+body.dark-mode .feed-state {
+  background: #1e293b;
+  border-color: #334155;
+  color: #94a3b8;
+}
+
+body.dark-mode .loader {
+  border-color: #334155;
+  border-top-color: #1ca4a6;
+}
+
+body.dark-mode .post-action-edit {
+  background: #082f49;
+  color: #7dd3fc;
+}
+
+body.dark-mode .post-action-edit:hover {
+  background: #0c4a6e;
+}
+
+body.dark-mode .post-action-delete {
+  background: #450a0a;
+  color: #fca5a5;
+}
+
+body.dark-mode .post-action-delete:hover {
+  background: #7f1d1d;
+}
+
+body.dark-mode .post-save-button {
+  background: #052e16;
+  color: #86efac;
+}
+
+body.dark-mode .post-save-button:hover {
+  background: #14532d;
+}
+
+body.dark-mode .post-cancel-button {
+  background: #334155;
+  color: #e2e8f0;
+}
+
+body.dark-mode .post-cancel-button:hover {
+  background: #475569;
+}
+
+body.dark-mode .comentarios-box {
+  background: #0f172a;
+  border-color: #334155;
+}
+
+body.dark-mode .comentario-item {
+  background: #020617;
+  border: 1px solid #1e293b;
+}
+
+body.dark-mode .comentario-input button {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+body.dark-mode .comentario-input button:hover {
+  background: #1d4ed8;
+}
+
+body.dark-mode .comentario-btn.editar {
+  background: #082f49;
+  color: #7dd3fc;
+}
+
+body.dark-mode .comentario-btn.editar:hover {
+  background: #0c4a6e;
+}
+
+body.dark-mode .comentario-btn.excluir {
+  background: #450a0a;
+  color: #fca5a5;
+}
+
+body.dark-mode .comentario-btn.excluir:hover {
+  background: #7f1d1d;
+}
+
+body.dark-mode .comentario-btn.salvar {
+  background: #052e16;
+  color: #86efac;
+}
+
+body.dark-mode .comentario-btn.salvar:hover {
+  background: #14532d;
+}
+
+body.dark-mode .comentario-btn.cancelar {
+  background: #334155;
+  color: #e2e8f0;
+}
+
+body.dark-mode .comentario-btn.cancelar:hover {
+  background: #475569;
+}
+
+/* ================================
+   ANIMAÇÃO
+================================ */
+
 @keyframes spin {
   to {
     transform: rotate(360deg);
   }
 }
 
-/* RESPONSIVO */
+/* ================================
+   RESPONSIVO
+================================ */
+
 @media (max-width: 1100px) {
   .feed-layout {
     grid-template-columns: 1fr;
@@ -526,254 +1040,21 @@
     width: 100%;
     justify-content: center;
   }
-}
-/* ================= DARK MODE ================= */
 
-body.dark-mode  {
-  background: #0f172a;
-}
+  .post-card-header {
+    align-items: flex-start;
+  }
 
-/* Fundo geral */
-body.dark-mode .feed-page {
-  background:
-    radial-gradient(circle at top left, rgba(28, 164, 166, 0.12), transparent 25%),
-    linear-gradient(180deg, #0f172a 0%, #020617 100%);
-}
+  .post-actions-top {
+    flex-direction: column;
+    align-items: stretch;
+  }
 
-/* Cards */
-body.dark-mode .profile-card,
-body.dark-mode .create-post-card,
-body.dark-mode .post-card,
-body.dark-mode .side-card {
-  background: #1e293b;
-  border: 1px solid #334155;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-}
+  .comentario-input {
+    flex-direction: column;
+  }
 
-/* Textos principais */
-body.dark-mode h2,
-body.dark-mode h3,
-body.dark-mode h4,
-body.dark-mode strong {
-  color: #f1f5f9;
+  .comentario-input button {
+    width: 100%;
+  }
 }
-
-/* Textos secundários */
-body.dark-mode p,
-body.dark-mode span,
-body.dark-mode .post-hint,
-body.dark-mode .users-state {
-  color: #94a3b8;
-}
-
-/* Linhas/divisões */
-body.dark-mode .profile-stats,
-body.dark-mode .post-card-footer {
-  border-top: 1px solid #334155;
-}
-
-/* Textarea */
-body.dark-mode .create-post-top textarea {
-  background: #0f172a;
-  border: 1px solid #334155;
-  color: #e2e8f0;
-}
-
-body.dark-mode .create-post-top textarea:focus {
-  background: #020617;
-  border-color: #1ca4a6;
-}
-
-/* Inputs */
-body.dark-mode .search-users-box input {
-  background: #0f172a;
-  border: 1px solid #334155;
-  color: #e2e8f0;
-}
-
-body.dark-mode .search-users-box input:focus {
-  background: #020617;
-  border-color: #1ca4a6;
-}
-
-/* Botões */
-body.dark-mode .action-button {
-  background: #0f172a;
-  color: #cbd5f5;
-}
-
-body.dark-mode .action-button:hover {
-  background: #1e293b;
-  color: #5eead4;
-}
-
-/* Curtido */
-body.dark-mode .action-button.liked {
-  background: #3f1d2e;
-  color: #f472b6;
-}
-
-body.dark-mode .action-button.liked:hover {
-  background: #4c1d35;
-}
-
-/* Botão deletar */
-body.dark-mode .more-button {
-  background: #0f172a;
-  color: #94a3b8;
-}
-
-body.dark-mode .more-button:hover {
-  background: #3f1d2e;
-  color: #f87171;
-}
-
-/* Lista de usuários */
-body.dark-mode .user-result-card {
-  background: #0f172a;
-  border: 1px solid #334155;
-}
-
-body.dark-mode .user-result-card:hover {
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.5);
-}
-
-/* Follow */
-body.dark-mode .follow-button.following {
-  background: #1e293b;
-  color: #38bdf8;
-}
-
-/* Estado vazio */
-body.dark-mode .feed-state {
-  background: #1e293b;
-  border: 1px dashed #334155;
-  color: #94a3b8;
-}
-
-/* Loader */
-body.dark-mode .loader {
-  border: 4px solid #334155;
-  border-top: 4px solid #1ca4a6;
-}
-
-/* ===== COMENTÁRIOS ===== */
-
-.comentarios-box {
-  margin-top: 12px;
-  border-top: 1px solid #e5e7eb;
-  padding-top: 10px;
-}
-
-.novo-comentario {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 10px;
-}
-
-.novo-comentario input {
-  flex: 1;
-  padding: 10px;
-  border-radius: 10px;
-  border: 1px solid #ccc;
-}
-
-.novo-comentario button {
-  padding: 10px 14px;
-  border-radius: 10px;
-  border: none;
-  background: #2788C8;
-  color: white;
-  cursor: pointer;
-}
-
-.lista-comentarios {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.comentario-item {
-  background: #f1f5f9;
-  padding: 8px 10px;
-  border-radius: 10px;
-}
-
-.comentario-item p {
-  margin: 4px 0 0;
-}
-
-body.dark-mode .comentario-item {
-  background: #0f172a;
-  color: #e2e8f0;
-}
-
-body.dark-mode .novo-comentario input {
-  background: #020817;
-  border: 1px solid #1e293b;
-  color: #e2e8f0;
-}
-
-.comentarios-box {
-  margin-top: 10px;
-  padding: 10px;
-  background: #f9f9f9;
-  border-radius: 8px;
-}
-
-body.dark-mode .comentarios-box{
-   background: #020817;
-  border: 1px solid #1e293b;
-  color: #e2e8f0;
-}
-
-.comentario-input {
-  display: flex;
-  gap: 5px;
-}
-
-body.dark-mode .comentario-input{
-   background: #020817;
-  border: 1px solid #1e293b;
-  color: #e2e8f0;
-}
-.comentario-input input {
-  flex: 1;
-  padding: 6px;
-}
-
-body.dark-mode .comentario-input input {
-   background: #020817;
-  border: 1px solid #1e293b;
-  color: #e2e8f0;
-}
-
-.comentario-input button {
-  padding: 6px 10px;
-  cursor: pointer;
-}
-
-body.dark-mode .comentario-input button {
-   background: #020817;
-  border: 1px solid #1e293b;
-  color: #e2e8f0;
-}
-
-.lista-comentarios {
-  margin-top: 10px;
-}
-
-body.dark-mode .lista-comentarios{
-   background: #020817;
-  border: 1px solid #1e293b;
-  color: #e2e8f0;
-}
-.comentario-item {
-  background: #eee;
-  padding: 6px;
-  border-radius: 5px;
-  margin-bottom: 5px;
-}
-body.dark-mode .comentario-item{ background: #020817;
-  border: 1px solid #1e293b;
-  color: #e2e8f0;}
