@@ -6,25 +6,30 @@ import Eventos from '../views/eventos.vue'
 import Noticias from '../views/noticias.vue'
 import Login from '../views/login.vue'
 import Cadastro from '../views/cadastro.vue'
-import calendario from '../views/calendario.vue'
-import sobre from '../views/sobre.vue'
-import esqueci from '../views/esqueci.vue'
-import perfil from '../views/perfil.vue'
+import Calendario from '../views/calendario.vue'
+import Sobre from '../views/sobre.vue'
+import Esqueci from '../views/esqueci.vue'
+import Perfil from '../views/perfil.vue'
 import Projetos from '../views/projetos.vue'
+import Perfilpublico from '../views/perfilpublico.vue'
 
 const routes = [
   { path: '/', redirect: '/inicio' },
+
   { path: '/inicio', name: 'inicio', component: Inicio },
   { path: '/feed', name: 'feed', component: Feed },
   { path: '/eventos', name: 'eventos', component: Eventos },
   { path: '/noticias', name: 'noticias', component: Noticias },
   { path: '/login', name: 'login', component: Login },
   { path: '/cadastro', name: 'cadastro', component: Cadastro },
-  { path: '/calendario', name: 'calendario', component: calendario },
-  { path: '/sobre', name: 'sobre', component: sobre },
-  { path: '/esqueci', name: 'esqueci', component: esqueci },
-  { path: '/perfil', name: 'perfil', component: perfil },
-  { path: '/projetos', name: 'projetos', component: Projetos }
+  { path: '/calendario', name: 'calendario', component: Calendario },
+  { path: '/sobre', name: 'sobre', component: Sobre },
+  { path: '/esqueci', name: 'esqueci', component: Esqueci },
+  { path: '/perfil', name: 'perfil', component: Perfil },
+  { path: '/projetos', name: 'projetos', component: Projetos },
+
+  // Perfil público de outro usuário
+  { path: '/perfil/:id', name: 'perfilpublico', component: Perfilpublico }
 ]
 
 const router = createRouter({

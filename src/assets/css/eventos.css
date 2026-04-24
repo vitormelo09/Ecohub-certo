@@ -1,273 +1,377 @@
 /* ================= RESET ================= */
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Inter', sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', sans-serif;
 }
 
-/* ================= BODY ================= */
-body {
-    background: #f4f4f4;
-    color: #111;
-    transition: background 0.3s, color 0.3s;
+/* ================= PÁGINA EVENTOS ================= */
 
-    /* 🔥 IMPORTANTE: evita bug de layout gigante */
-    display: block;
-}
-
-/* ================= HEADER ================= */
-.navbar {
-    background-color: #31BADF;
-    padding: 15px 40px;
-    display: flex;
-    gap: 40px;
-    border-bottom: 1px solid #eee;
-}
-
-.navbar a {
-    text-decoration: none;
-    color: #444;
-    font-weight: 500;
-    position: relative;
-    padding-bottom: 8px;
-}
-
-.navbar a::after {
-    content: '';
-    position: absolute;
-    left: 50%;
-    bottom: -8px;
-    width: 0%;
-    height: 3px;
-    transition: 0.3s ease;
-    transform: translateX(-50%);
-}
-
-.navbar a:hover::after {
-    width: 100%;
+.eventos-page {
+  min-height: calc(100vh - 70px);
+  background:
+    radial-gradient(circle at top left, rgba(28, 164, 166, 0.08), transparent 22%),
+    linear-gradient(180deg, #f4f8fb 0%, #edf2f7 100%);
+  padding: 32px 20px;
+  color: #122033;
 }
 
 /* ================= CONTAINER ================= */
-.container {
-    max-width: 1200px;
-    margin: 40px auto;
-    padding: 0 20px;
+
+.eventos-page .container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0;
 }
 
 /* ================= HERO ================= */
-.hero {
-    background-color: #31BADF;
-    color: white;
-    padding: 45px;
-    border-radius: 20px;
-    margin-bottom: 40px;
 
-    /* 🔥 CORREÇÃO DO BUG */
-    height: auto;
-    min-height: unset;
-    max-width: 900px;
-    margin-left: auto;
-    margin-right: auto;
-    text-align: center;
+.eventos-page .hero {
+  background: #ffffff;
+  color: #122033;
+  padding: 45px;
+  border-radius: 24px;
+  margin-bottom: 40px;
+  height: auto;
+  min-height: unset;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  border: 1px solid #e5edf4;
+  box-shadow: 0 14px 40px rgba(15, 23, 42, 0.07);
+  transition: 0.3s ease;
+}
+
+.eventos-page .hero h1,
+.eventos-page .hero h2,
+.eventos-page .hero h3 {
+  color: #122033;
+  margin-bottom: 10px;
+  font-weight: 800;
+}
+
+.eventos-page .hero p {
+  color: #6b7280;
+  line-height: 1.6;
 }
 
 /* ================= SMALL CARDS ================= */
-.top-cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 300px));
-    gap: 45px;
-    margin-bottom: 40px;
-    justify-content: center;
+
+.eventos-page .top-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 300px));
+  gap: 45px;
+  margin-bottom: 40px;
+  justify-content: center;
 }
 
-.small-card {
-    text-decoration: none;
-    color: #333;
-    background: #f8f9fc;
-    padding: 30px 20px;
-    border-radius: 15px;
-    width: 300px;
-    text-align: center;
-    transition: all 0.3s ease;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+.eventos-page .small-card {
+  text-decoration: none;
+  color: #122033;
+  background: #ffffff;
+  padding: 30px 20px;
+  border-radius: 24px;
+  width: 300px;
+  text-align: center;
+  transition: all 0.3s ease;
+  border: 1px solid #e5edf4;
+  box-shadow: 0 14px 40px rgba(15, 23, 42, 0.07);
 }
 
-.small-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.12);
-    background: #ffffff;
+.eventos-page .small-card i {
+  font-size: 34px;
+  color: #1ca4a6;
+  margin-bottom: 14px;
+}
+
+.eventos-page .small-card h3 {
+  color: #122033;
+  margin-bottom: 8px;
+  font-weight: 800;
+}
+
+.eventos-page .small-card p {
+  color: #6b7280;
+  line-height: 1.6;
+}
+
+.eventos-page .small-card:hover {
+  transform: translateY(-8px);
+  background: #ffffff;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.12);
+  border-color: rgba(28, 164, 166, 0.25);
 }
 
 /* ================= EVENTS ================= */
-.section-title {
-    font-size: 22px;
-    font-weight: 700;
-    margin-bottom: 25px;
+
+.eventos-page .section-title {
+  font-size: 22px;
+  font-weight: 800;
+  margin-bottom: 25px;
+  color: #314155;
 }
 
-.events {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-    gap: 30px;
+.eventos-page .events {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 30px;
 }
 
-.event-card {
-    background: #fff;
-    border-radius: 18px;
-    overflow: hidden;
-    border: 1px solid #eee;
-    transition: 0.2s;
+.eventos-page .event-card {
+  background: #ffffff;
+  border-radius: 24px;
+  overflow: hidden;
+  border: 1px solid #e5edf4;
+  transition: 0.25s ease;
+  box-shadow: 0 14px 40px rgba(15, 23, 42, 0.07);
 }
 
-.event-card:hover {
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
+.eventos-page .event-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.12);
+  border-color: rgba(28, 164, 166, 0.25);
 }
 
-.event-card img {
-    width: 100%;
-    height: 230px;
-    object-fit: cover;
+.eventos-page .event-card img {
+  width: 100%;
+  height: 230px;
+  object-fit: cover;
+  display: block;
 }
 
-.event-content {
-    padding: 25px;
+.eventos-page .event-content {
+  padding: 25px;
+  background: #ffffff;
 }
 
-.badge {
-    background: #053B5E;
-    color: #e4dddd;
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
+.eventos-page .badge {
+  background: linear-gradient(135deg, #0b5fa5, #1ca4a6);
+  color: #ffffff;
+  padding: 7px 13px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  display: inline-block;
 }
 
-.capacity {
-    float: right;
-    font-size: 13px;
-    color: #666;
+.eventos-page .capacity {
+  float: right;
+  font-size: 13px;
+  color: #6b7280;
+  font-weight: 700;
+  background: rgba(11, 95, 165, 0.08);
+  padding: 6px 10px;
+  border-radius: 999px;
 }
 
-.event-title {
-    font-size: 20px;
-    font-weight: 700;
-    margin: 10px 0;
+.eventos-page .event-title {
+  font-size: 20px;
+  font-weight: 800;
+  margin: 14px 0 10px;
+  color: #122033;
 }
 
-.event-desc {
-    font-size: 14px;
-    color: #555;
-    margin-bottom: 15px;
+.eventos-page .event-desc {
+  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 15px;
+  line-height: 1.7;
 }
 
-.event-info {
-    font-size: 14px;
-    color: #444;
+.eventos-page .event-info {
+  font-size: 14px;
+  color: #445164;
+  line-height: 1.8;
 }
 
 /* ================= BOTÃO ================= */
-.button {
-    margin-top: 20px;
-    width: 100%;
-    padding: 14px;
-    border: none;
-    border-radius: 10px;
-    background: #31BADF;
-    font-weight: 600;
-    cursor: pointer;
-    transition: 0.2s;
+
+.eventos-page .button {
+  margin-top: 20px;
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #0b5fa5, #1ca4a6);
+  color: #ffffff;
+  font-weight: 800;
+  cursor: pointer;
+  transition: 0.25s ease;
+  box-shadow: 0 12px 24px rgba(28, 164, 166, 0.18);
 }
 
-.button:hover {
-    background: #006b85;
+.eventos-page .button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 30px rgba(28, 164, 166, 0.25);
+}
+
+.eventos-page .button:active {
+  transform: scale(0.98);
+}
+
+/* ================= MODO ESCURO IGUAL AO FEED ================= */
+
+body.dark-mode .eventos-page {
+  background:
+    radial-gradient(circle at top left, rgba(28, 164, 166, 0.16), transparent 25%),
+    linear-gradient(180deg, #0f172a 0%, #020617 100%);
+  color: #e2e8f0;
+}
+
+/* HERO DARK */
+
+body.dark-mode .eventos-page .hero {
+  background: #1e293b;
+  border-color: #334155;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.38);
+}
+
+body.dark-mode .eventos-page .hero h1,
+body.dark-mode .eventos-page .hero h2,
+body.dark-mode .eventos-page .hero h3 {
+  color: #f8fafc;
+}
+
+body.dark-mode .eventos-page .hero p {
+  color: #cbd5e1;
+}
+
+/* SMALL CARDS DARK */
+
+body.dark-mode .eventos-page .small-card {
+  background: #1e293b;
+  color: #e2e8f0;
+  border-color: #334155;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.38);
+}
+
+body.dark-mode .eventos-page .small-card:hover {
+  background: #1e293b;
+  border-color: #334155;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.55);
+}
+
+body.dark-mode .eventos-page .small-card i {
+  color: #5eead4;
+}
+
+body.dark-mode .eventos-page .small-card h3 {
+  color: #f8fafc;
+}
+
+body.dark-mode .eventos-page .small-card p {
+  color: #94a3b8;
+}
+
+/* TÍTULOS DARK */
+
+body.dark-mode .eventos-page .section-title {
+  color: #f8fafc;
+}
+
+/* EVENT CARDS DARK */
+
+body.dark-mode .eventos-page .event-card {
+  background: #1e293b;
+  border-color: #334155;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.38);
+}
+
+body.dark-mode .eventos-page .event-card:hover {
+  background: #1e293b;
+  border-color: #334155;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.55);
+}
+
+body.dark-mode .eventos-page .event-card img {
+  filter: brightness(0.72) saturate(1.05);
+}
+
+body.dark-mode .eventos-page .event-content {
+  background: #1e293b;
+}
+
+body.dark-mode .eventos-page .event-title {
+  color: #f8fafc;
+}
+
+body.dark-mode .eventos-page .event-desc {
+  color: #94a3b8;
+}
+
+body.dark-mode .eventos-page .event-info {
+  color: #e2e8f0;
+}
+
+body.dark-mode .eventos-page .capacity {
+  color: #cbd5e1;
+  background: rgba(56, 189, 248, 0.14);
+}
+
+/* BADGE DARK */
+
+body.dark-mode .eventos-page .badge {
+  background: linear-gradient(135deg, #0b5fa5, #1ca4a6);
+  color: #ffffff;
+}
+
+/* BOTÃO DARK */
+
+body.dark-mode .eventos-page .button {
+  background: linear-gradient(135deg, #0b5fa5, #1ca4a6);
+  color: #ffffff;
+  box-shadow: 0 12px 26px rgba(28, 164, 166, 0.18);
+}
+
+body.dark-mode .eventos-page .button:hover {
+  background: linear-gradient(135deg, #0b5fa5, #178f91);
+  box-shadow: 0 16px 34px rgba(28, 164, 166, 0.25);
 }
 
 /* ================= RESPONSIVO ================= */
-@media(max-width: 768px) {
-    .events {
-        grid-template-columns: 1fr;
-    }
+
+@media (max-width: 768px) {
+  .eventos-page .events {
+    grid-template-columns: 1fr;
+  }
+
+  .eventos-page .hero {
+    padding: 34px 24px;
+  }
 }
 
-/* ================= MODO ESCURO ================= */
-body.dark-mode {
-    background: #0f172a;
-    color: #ffffff;
-}
+@media (max-width: 480px) {
+  .eventos-page {
+    padding: 18px 12px;
+  }
 
-/* HEADER */
-body.dark-mode .navbar {
-    background: #020817;
-    border-bottom: 1px solid #1e293b;
-}
+  .eventos-page .events {
+    grid-template-columns: 1fr;
+  }
 
-body.dark-mode .navbar a {
-    color: #94a3b8;
-}
+  .eventos-page .event-card {
+    border-radius: 18px;
+  }
 
-body.dark-mode .navbar a::after {
-    background: #60a5fa;
-}
+  .eventos-page .event-card img {
+    height: 190px;
+  }
 
-/* HERO */
-body.dark-mode .hero {
-    background: #020817;
-}
+  .eventos-page .top-cards {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
 
-/* SMALL CARDS */
-body.dark-mode .small-card {
-    background: #020817;
-    color: #ffffff;
-    border: 1px solid #1e293b;
-}
+  .eventos-page .small-card {
+    width: 100%;
+  }
 
-body.dark-mode .small-card:hover {
-    background: #020817;
-}
-
-/* EVENTS */
-body.dark-mode .event-card {
-    background: #020817;
-    border: 1px solid #1e293b;
-}
-
-body.dark-mode .event-card:hover {
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
-}
-
-body.dark-mode .event-card img {
-    filter: brightness(0.7);
-}
-
-/* BADGE */
-body.dark-mode .badge {
-    background: #1e3a8a;
-    color: white;
-}
-
-/* TEXTOS */
-body.dark-mode .capacity,
-body.dark-mode .event-desc,
-body.dark-mode .event-info {
-    color: #94a3b8;
-}
-
-body.dark-mode .event-title {
-    color: #ffffff;
-}
-
-/* BOTÃO */
-body.dark-mode .button {
-    background: #1e3a8a;
-    color: white;
-}
-
-body.dark-mode .button:hover {
-    background: #1e40af;
-}
-
-/* TÍTULOS */
-body.dark-mode .section-title {
-    color: white;
+  .eventos-page .capacity {
+    float: none;
+    display: block;
+    width: fit-content;
+    margin-top: 8px;
+  }
 }

@@ -1,67 +1,93 @@
 <template>
-  <main class="container">
-    <section class="hero">
-      <h3>Eventos do Ecossistema</h3>
-      <p>
-        Participe de workshops, palestras e encontros para expandir seus conhecimentos 
-        e fazer networking com outros estudantes e profissionais.
-      </p>
-    </section>
-    
-    <section class="top-cards">
-      <RouterLink to="../calendario" class="small-card">
-        <i class="fa-solid fa-calendar-days"></i>
-        <h3>Ver Calendário Completo</h3>
-        <p>Veja todos os eventos programados</p>
-      </RouterLink>
+  <main class="eventos-page">
+    <div class="container">
+      <section class="hero">
+        <h3>Eventos do Ecossistema</h3>
 
-      <RouterLink to="/meus-eventos" class="small-card">
-        <i class="fa-solid fa-users"></i>
-        <h3>Meus Eventos</h3>
-        <p>Eventos que você confirmou presença</p>
-      </RouterLink>
-    </section>
+        <p>
+          Participe de workshops, palestras e encontros para expandir seus conhecimentos
+          e fazer networking com outros estudantes e profissionais.
+        </p>
+      </section>
 
-    <section>
-      <h2 class="section-title">Próximos Eventos</h2>
-      <div class="events">
-        <div class="event-card">
-          <img src="https://images.unsplash.com/photo-1519389950473-47ba0277781c" alt="">
-          <div class="event-content">
-            <span class="badge">Workshop</span>
-            <span class="capacity">👥 25/30</span>
-            <h3 class="event-title">Workshop de React Native</h3>
-            <p class="event-desc">Aprenda os fundamentos do React Native e desenvolva seu primeiro aplicativo móvel.</p>
-            <p class="event-info">📅 sábado, 17 de outubro de 2026</p>
-            <p class="event-info">⏰ 14:00 - 18:00</p>
-            <p class="event-info">📍 Sala 101, Edifício Principal</p>
-            <button class="button confirm-btn">Confirmar Presença</button>
+      <section class="top-cards">
+        <RouterLink to="../calendario" class="small-card">
+          <i class="fa-solid fa-calendar-days"></i>
+          <h3>Ver Calendário Completo</h3>
+          <p>Veja todos os eventos programados</p>
+        </RouterLink>
+
+        <RouterLink to="/meus-eventos" class="small-card">
+          <i class="fa-solid fa-users"></i>
+          <h3>Meus Eventos</h3>
+          <p>Eventos que você confirmou presença</p>
+        </RouterLink>
+      </section>
+
+      <section>
+        <h2 class="section-title">Próximos Eventos</h2>
+
+        <div class="events">
+          <div class="event-card">
+            <img
+              src="https://images.unsplash.com/photo-1519389950473-47ba0277781c"
+              alt="Mesa com notebooks durante um workshop"
+            >
+
+            <div class="event-content">
+              <span class="badge">Workshop</span>
+              <span class="capacity">👥 25/30</span>
+
+              <h3 class="event-title">Workshop de React Native</h3>
+
+              <p class="event-desc">
+                Aprenda os fundamentos do React Native e desenvolva seu primeiro aplicativo móvel.
+              </p>
+
+              <p class="event-info">📅 sábado, 17 de outubro de 2026</p>
+              <p class="event-info">⏰ 14:00 - 18:00</p>
+              <p class="event-info">📍 Sala 101, Edifício Principal</p>
+
+              <button class="button confirm-btn">
+                Confirmar Presença
+              </button>
+            </div>
+          </div>
+
+          <div class="event-card">
+            <img
+              src="https://images.unsplash.com/photo-1523240795612-9a054b0db644"
+              alt="Grupo de pessoas estudando em uma biblioteca"
+            >
+
+            <div class="event-content">
+              <span class="badge">Palestra</span>
+              <span class="capacity">👥 40/50</span>
+
+              <h3 class="event-title">Palestra sobre UX/UI Design</h3>
+
+              <p class="event-desc">
+                Conheça as melhores práticas de design de experiência do usuário e interface do usuário.
+              </p>
+
+              <p class="event-info">📅 quarta-feira, 20 de maio de 2026</p>
+              <p class="event-info">⏰ 10:00 - 12:00</p>
+              <p class="event-info">📍 Auditório Central</p>
+
+              <button class="button confirm-btn">
+                Confirmar Presença
+              </button>
+            </div>
           </div>
         </div>
-
-        <div class="event-card">
-          <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644" alt="">
-          <div class="event-content">
-            <span class="badge">Palestra</span>
-            <span class="capacity">👥 40/50</span>
-            <h3 class="event-title">Palestra sobre UX/UI Design</h3>
-            <p class="event-desc">Conheça as melhores práticas de design de experiência do usuário e interface do usuário.</p>
-            <p class="event-info">📅 quarta-feira, 20 de maio de 2026</p>
-            <p class="event-info">⏰ 10:00 - 12:00</p>
-            <p class="event-info">📍 Auditório Central</p>
-            <button class="button confirm-btn">Confirmar Presença</button>
-          </div>
-        </div>
-      </div>
-    </section>
+      </section>
+    </div>
   </main>
 </template>
 
 <script setup>
 </script>
 
-<style scoped>
-/* O caminho correto para sair de views/ e entrar em assets/css/ */
-@import "../assets/css/geral.css";
+<style>
 @import "../assets/css/eventos.css";
 </style>
