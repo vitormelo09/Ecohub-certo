@@ -59,7 +59,6 @@
           </div>
         </div>
 
-        <!-- AGORA OS NÚMEROS VÊM DA API -->
         <div class="perfil-stats">
           <div class="stat">
             <span>{{ usuario?.seguidores || 0 }}</span>
@@ -103,6 +102,15 @@
               Cancelar
             </button>
           </template>
+
+          <!-- BOTÃO PARA ADMIN -->
+          <button
+            v-if="usuario?.tipo === 'admin'"
+            class="btn-admin-usuarios"
+            @click="irParaAdminUsuarios"
+          >
+            Gerenciar Administradores
+          </button>
 
           <button class="btn-sair" @click="confirmarLogout">
             Sair (Logout)
@@ -413,6 +421,10 @@ async function salvarPerfil() {
   }
 }
 
+function irParaAdminUsuarios() {
+  router.push('/admin-usuarios')
+}
+
 function confirmarLogout() {
   localStorage.removeItem('usuario')
   localStorage.removeItem('token')
@@ -424,4 +436,21 @@ function confirmarLogout() {
 <style>
 @import "../assets/css/geral.css";
 @import "../assets/css/perfil.css";
+
+.btn-admin-usuarios {
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #0b5fa5, #1ca4a6);
+  color: #ffffff;
+  font-weight: 800;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.btn-admin-usuarios:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px rgba(28, 164, 166, 0.22);
+}
 </style>

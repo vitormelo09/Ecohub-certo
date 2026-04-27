@@ -375,3 +375,181 @@ body.dark-mode .eventos-page .button:hover {
     margin-top: 8px;
   }
 }
+
+
+.publicar-evento {
+  margin-top: 30px;
+  margin-bottom: 40px;
+  padding: 25px;
+  border-radius: 16px;
+  background: var(--card-bg, #ffffff);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+}
+
+.form-evento {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.form-evento input,
+.form-evento textarea {
+  width: 100%;
+  padding: 13px 15px;
+  border: 1px solid #d9d9d9;
+  border-radius: 10px;
+  font-size: 15px;
+  outline: none;
+}
+
+.form-evento textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.form-evento input:focus,
+.form-evento textarea:focus {
+  border-color: #1b8f5a;
+}
+
+.sem-permissao {
+  margin: 25px 0;
+  padding: 15px;
+  border-radius: 12px;
+  background: #fff3cd;
+  color: #856404;
+  font-weight: 500;
+}
+
+.delete-btn {
+  margin-top: 10px;
+  background: #dc3545;
+}
+
+.delete-btn:hover {
+  background: #b02a37;
+}
+
+.event-image {
+  width: 100%;
+  height: 220px;
+  overflow: hidden;
+}
+
+.event-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+
+/* ================= CORREÇÃO DAS IMAGENS ================= */
+
+.eventos-page .event-image {
+  width: 100%;
+  height: 230px;
+  overflow: hidden;
+}
+
+.eventos-page .event-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ================= PUBLICAR EVENTO ================= */
+
+.eventos-page .publicar-evento {
+  margin-top: 30px;
+  margin-bottom: 40px;
+  padding: 25px;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid #e5edf4;
+  box-shadow: 0 14px 40px rgba(15, 23, 42, 0.07);
+}
+
+.eventos-page .form-evento {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.eventos-page .form-evento input,
+.eventos-page .form-evento textarea {
+  width: 100%;
+  padding: 13px 15px;
+  border: 1px solid #d9d9d9;
+  border-radius: 10px;
+  font-size: 15px;
+  outline: none;
+}
+
+.eventos-page .form-evento textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.eventos-page .form-evento input:focus,
+.eventos-page .form-evento textarea:focus {
+  border-color: #1ca4a6;
+}
+
+/* ================= AVISO SEM PERMISSÃO ================= */
+
+.eventos-page .sem-permissao {
+  margin: 25px 0;
+  padding: 15px;
+  border-radius: 12px;
+  background: #fff3cd;
+  color: #856404;
+  font-weight: 500;
+}
+
+/* ================= BOTÃO EXCLUIR ================= */
+
+.eventos-page .delete-btn {
+  margin-top: 10px;
+  background: #dc3545;
+  box-shadow: 0 12px 24px rgba(220, 53, 69, 0.18);
+}
+
+.eventos-page .delete-btn:hover {
+  background: #b02a37;
+  box-shadow: 0 16px 30px rgba(220, 53, 69, 0.25);
+}
+
+/* ================= MODO ESCURO FORMULÁRIO ================= */
+
+body.dark-mode .eventos-page .publicar-evento {
+  background: #1e293b;
+  border-color: #334155;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.38);
+}
+
+body.dark-mode .eventos-page .form-evento input,
+body.dark-mode .eventos-page .form-evento textarea {
+  background: #0f172a;
+  color: #f8fafc;
+  border-color: #334155;
+}
+
+body.dark-mode .eventos-page .form-evento input::placeholder,
+body.dark-mode .eventos-page .form-evento textarea::placeholder {
+  color: #94a3b8;
+}
+
+body.dark-mode .eventos-page .sem-permissao {
+  background: rgba(234, 179, 8, 0.16);
+  color: #fde68a;
+}
+
+/* ================= RESPONSIVO DAS IMAGENS ================= */
+
+@media (max-width: 480px) {
+  .eventos-page .event-image {
+    height: 190px;
+  }
+}

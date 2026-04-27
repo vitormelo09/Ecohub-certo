@@ -100,7 +100,11 @@
       <div class="event-panel">
         <h3>Eventos do Dia</h3>
 
-        <div v-if="!selectedDate">
+        <div v-if="carregandoEventos">
+          <p>Carregando eventos...</p>
+        </div>
+
+        <div v-else-if="!selectedDate">
           <p>Selecione um dia para ver ou adicionar eventos.</p>
         </div>
 
@@ -134,6 +138,14 @@
                 Meu lembrete
               </span>
 
+              <p v-if="evento.horario">
+                Horário: {{ evento.horario }}
+              </p>
+
+              <p v-if="evento.local">
+                Local: {{ evento.local }}
+              </p>
+
               <button
                 v-if="evento.type === 'pessoal'"
                 class="btn-excluir-evento"
@@ -165,30 +177,18 @@
 </template>
 
 <script>
+import api from "../services/api"
+
 export default {
   data() {
     return {
       currentDate: new Date(),
       selectedDate: null,
       novoEventoTitulo: "",
+      carregandoEventos: false,
 
-      eventosFixos: {
-        "2026-05-17": [
-          {
-            id: "eniac-1",
-            title: "Workshop de React Native - ENIAC",
-            type: "eniac"
-          }
-        ],
-        "2026-05-20": [
-          {
-            id: "eniac-2",
-            title: "Palestra UX/UI Design - ENIAC",
-            type: "eniac"
-          }
-        ]
-      },
-
+      eventosApi: {},
+      feriados: {},
       eventosPessoais: {}
     }
   },
@@ -207,8 +207,16 @@ export default {
     todosEventos() {
       const eventosJuntos = {}
 
-      Object.keys(this.eventosFixos).forEach((data) => {
-        eventosJuntos[data] = [...this.eventosFixos[data]]
+      Object.keys(this.eventosApi).forEach((data) => {
+        eventosJuntos[data] = [...this.eventosApi[data]]
+      })
+
+      Object.keys(this.feriados).forEach((data) => {
+        if (!eventosJuntos[data]) {
+          eventosJuntos[data] = []
+        }
+
+        eventosJuntos[data].push(...this.feriados[data])
       })
 
       Object.keys(this.eventosPessoais).forEach((data) => {
@@ -284,7 +292,7 @@ export default {
     proximosEventos() {
       const hoje = new Date().toISOString().split("T")[0]
 
-      return Object.entries(this.eventosFixos)
+      return Object.entries(this.eventosApi)
         .filter(([date, eventos]) => {
           return date >= hoje && eventos.some((evento) => evento.type === "eniac")
         })
@@ -349,6 +357,48 @@ export default {
 
     formatDate(date) {
       return new Date(date + "T00:00:00").toLocaleDateString("pt-BR")
+    },
+
+    limparData(data) {
+      if (!data) return ""
+
+      return String(data).split("T")[0]
+    },
+
+    async carregarEventosDaApi() {
+      try {
+        this.carregandoEventos = true
+
+        const response = await api.get("/api/events")
+        const eventosBanco = response.data
+
+        const eventosOrganizados = {}
+
+        eventosBanco.forEach((evento) => {
+          const dataEvento = this.limparData(evento.data_evento || evento.data)
+
+          if (!dataEvento) return
+
+          if (!eventosOrganizados[dataEvento]) {
+            eventosOrganizados[dataEvento] = []
+          }
+
+          eventosOrganizados[dataEvento].push({
+            id: `api-${evento.id}`,
+            title: evento.titulo,
+            type: "eniac",
+            horario: evento.horario,
+            local: evento.local,
+            descricao: evento.descricao
+          })
+        })
+
+        this.eventosApi = eventosOrganizados
+      } catch (error) {
+        console.error("Erro ao carregar eventos da API:", error)
+      } finally {
+        this.carregandoEventos = false
+      }
     },
 
     carregarEventosPessoais() {
@@ -417,23 +467,27 @@ export default {
         const response = await fetch(`https://brasilapi.com.br/api/feriados/v1/${year}`)
         const data = await response.json()
 
+        const feriadosOrganizados = { ...this.feriados }
+
         data.forEach((feriado) => {
-          if (!this.eventosFixos[feriado.date]) {
-            this.eventosFixos[feriado.date] = []
+          if (!feriadosOrganizados[feriado.date]) {
+            feriadosOrganizados[feriado.date] = []
           }
 
-          const jaExiste = this.eventosFixos[feriado.date].some(
+          const jaExiste = feriadosOrganizados[feriado.date].some(
             (evento) => evento.title === feriado.name
           )
 
           if (!jaExiste) {
-            this.eventosFixos[feriado.date].push({
+            feriadosOrganizados[feriado.date].push({
               id: `feriado-${feriado.date}`,
               title: feriado.name,
               type: "feriado"
             })
           }
         })
+
+        this.feriados = feriadosOrganizados
       } catch (e) {
         console.log("Erro ao carregar feriados", e)
       }
@@ -442,12 +496,12 @@ export default {
 
   mounted() {
     this.carregarEventosPessoais()
+    this.carregarEventosDaApi()
     this.loadHolidays()
   }
 }
 </script>
 
 <style scoped>
-
 @import "../assets/css/calendario.css";
 </style>
