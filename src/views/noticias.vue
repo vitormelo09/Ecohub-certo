@@ -413,4 +413,5 @@ export default {
 @import "../assets/css/noticias.css";
 
 
+
 </style>

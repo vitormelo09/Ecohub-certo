@@ -28,6 +28,13 @@
           {{ perfilEditando ? dadosEditados.nome : (usuario?.nome || 'Usuário') }}
         </h2>
 
+        <div
+          class="tipo-usuario-badge"
+          :class="tipoUsuarioClasse"
+        >
+          {{ tipoUsuarioTexto }}
+        </div>
+
         <p class="username">
           @{{ (perfilEditando ? dadosEditados.email : usuario?.email)?.split('@')[0] || 'usuario' }}
         </p>
@@ -45,16 +52,23 @@
           </div>
 
           <div class="info-item">
+            <i class="fa-solid fa-user-tag"></i>
+            <span>
+              {{ tipoUsuarioTexto }}
+            </span>
+          </div>
+
+          <div class="info-item">
             <i class="fa-solid fa-graduation-cap"></i>
             <span>
-              {{ perfilEditando ? dadosEditados.curso : (usuario?.curso || 'Curso não informado') }}
+              {{ nomeCurso(perfilEditando ? dadosEditados.curso : usuario?.curso) }}
             </span>
           </div>
 
           <div class="info-item">
             <i class="fa-solid fa-layer-group"></i>
             <span>
-              {{ perfilEditando ? dadosEditados.semestre : (usuario?.semestre || 'Semestre não informado') }}
+              {{ nomeSemestre(perfilEditando ? dadosEditados.semestre : usuario?.semestre) }}
             </span>
           </div>
         </div>
@@ -71,8 +85,13 @@
           </div>
 
           <div class="stat">
-            <span>{{ usuario?.posts || 0 }}</span>
+            <span>{{ posts.length }}</span>
             Posts
+          </div>
+
+          <div class="stat">
+            <span>{{ projetos.length }}</span>
+            Projetos
           </div>
         </div>
 
@@ -103,7 +122,6 @@
             </button>
           </template>
 
-          <!-- BOTÃO PARA ADMIN -->
           <button
             v-if="usuario?.tipo === 'admin'"
             class="btn-admin-usuarios"
@@ -120,19 +138,6 @@
     </aside>
 
     <main class="perfil-timeline">
-      <div class="tweet-card-fake destaque-card">
-        <div class="section-head">
-          <h3>Resumo do Perfil</h3>
-          <span class="tag-status">
-            {{ perfilEditando ? 'Editando' : 'Ativo' }}
-          </span>
-        </div>
-
-        <p class="tweet-text-fake">
-          Gerencie seus dados, personalize sua apresentação e mantenha seu perfil atualizado dentro do EcoHub.
-        </p>
-      </div>
-
       <div class="tweet-card-fake" v-if="perfilEditando">
         <div class="section-head">
           <h3>Editar informações</h3>
@@ -151,12 +156,29 @@
 
           <div class="grupo-campo">
             <label>Curso</label>
-            <input type="text" v-model="dadosEditados.curso">
+            <select v-model="dadosEditados.curso">
+              <option value="">Selecione</option>
+              <option value="eng_software">Eng. Software</option>
+              <option value="ciencia_computacao">Ciência da Computação</option>
+              <option value="sistemas_info">Sistemas de Informação</option>
+              <option value="analise_dev">Análise e Desenvolvimento</option>
+              <option value="redes">Redes de Computadores</option>
+            </select>
           </div>
 
           <div class="grupo-campo">
             <label>Semestre</label>
-            <input type="text" v-model="dadosEditados.semestre">
+            <select v-model="dadosEditados.semestre">
+              <option value="">Selecione</option>
+              <option value="1">1º Semestre</option>
+              <option value="2">2º Semestre</option>
+              <option value="3">3º Semestre</option>
+              <option value="4">4º Semestre</option>
+              <option value="5">5º Semestre</option>
+              <option value="6">6º Semestre</option>
+              <option value="7">7º Semestre</option>
+              <option value="8">8º Semestre</option>
+            </select>
           </div>
 
           <div class="grupo-campo grupo-campo-full">
@@ -166,45 +188,115 @@
         </div>
       </div>
 
+      <!-- MEUS PROJETOS -->
       <div class="tweet-card-fake">
         <div class="section-head">
-          <h3>Minha Atividade Recente</h3>
-          <span class="tag-status">Últimas ações</span>
+          <h3>Meus Projetos Publicados</h3>
+          <span class="tag-status">
+            {{ projetos.length }} projeto(s)
+          </span>
         </div>
 
-        <div class="atividade-lista">
-          <div class="atividade-item">
-            <div class="atividade-icone">
-              <i class="fa-solid fa-pen-to-square"></i>
+        <p v-if="carregandoProjetos" class="mensagem-perfil">
+          Carregando projetos...
+        </p>
+
+        <p v-else-if="erroProjetos" class="mensagem-perfil erro">
+          {{ erroProjetos }}
+        </p>
+
+        <p v-else-if="projetos.length === 0" class="mensagem-perfil">
+          Você ainda não publicou nenhum projeto.
+        </p>
+
+        <div v-else class="meus-projetos-grid">
+          <article
+            v-for="projeto in projetos"
+            :key="projeto.id"
+            class="meu-projeto-card"
+          >
+            <div v-if="projeto.imagem" class="meu-projeto-img">
+              <img
+                :src="montarImagemProjeto(projeto.imagem)"
+                alt="Imagem do projeto"
+              >
             </div>
 
-            <div>
-              <strong>Perfil atualizado</strong>
-              <p>Personalize seus dados para aparecer melhor na comunidade.</p>
-            </div>
-          </div>
+            <div class="meu-projeto-body">
+              <h4>{{ projeto.titulo }}</h4>
 
-          <div class="atividade-item">
-            <div class="atividade-icone">
-              <i class="fa-solid fa-folder-open"></i>
+              <p>
+                {{ projeto.descricao }}
+              </p>
+
+              <div class="projeto-meta">
+                <span>
+                  ❤️ {{ projeto.curtidas || 0 }} curtida(s)
+                </span>
+
+                <span v-if="projeto.tecnologias_usadas">
+                  🛠 {{ projeto.tecnologias_usadas }}
+                </span>
+              </div>
+
+              <a
+                v-if="projeto.link_github"
+                :href="projeto.link_github"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn-github"
+              >
+                Ver GitHub
+              </a>
+            </div>
+          </article>
+        </div>
+      </div>
+
+      <!-- MEUS POSTS -->
+      <div class="tweet-card-fake">
+        <div class="section-head">
+          <h3>Meus Posts Publicados</h3>
+          <span class="tag-status">
+            {{ posts.length }} post(s)
+          </span>
+        </div>
+
+        <p v-if="carregandoPosts" class="mensagem-perfil">
+          Carregando posts...
+        </p>
+
+        <p v-else-if="erroPosts" class="mensagem-perfil erro">
+          {{ erroPosts }}
+        </p>
+
+        <p v-else-if="posts.length === 0" class="mensagem-perfil">
+          Você ainda não publicou nenhum post.
+        </p>
+
+        <div v-else class="meus-posts-lista">
+          <article
+            v-for="post in posts"
+            :key="post.id"
+            class="meu-post-card"
+          >
+            <div class="meu-post-topo">
+              <strong>{{ post.nome }}</strong>
+              <span>{{ formatarData(post.data_publicacao) }}</span>
             </div>
 
-            <div>
-              <strong>Projetos publicados</strong>
-              <p>Mostre seus trabalhos e fortaleça sua presença no EcoHub.</p>
-            </div>
-          </div>
+            <p class="meu-post-conteudo">
+              {{ post.conteudo }}
+            </p>
 
-          <div class="atividade-item">
-            <div class="atividade-icone">
-              <i class="fa-solid fa-comments"></i>
+            <div v-if="post.imagem_post_url" class="meu-post-img">
+              <img :src="post.imagem_post_url" alt="Imagem do post">
             </div>
 
-            <div>
-              <strong>Interações na comunidade</strong>
-              <p>Acompanhe seu crescimento dentro da plataforma.</p>
+            <div class="meu-post-footer">
+              <span>❤️ {{ post.likes || 0 }} curtida(s)</span>
             </div>
-          </div>
+          </article>
         </div>
       </div>
     </main>
@@ -212,7 +304,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '../services/api'
 import fotoPadrao from '../assets/img/perfil.jpg'
@@ -225,6 +317,14 @@ const fotoPerfil = ref(null)
 const arquivoFoto = ref(null)
 const salvando = ref(false)
 
+const projetos = ref([])
+const carregandoProjetos = ref(false)
+const erroProjetos = ref('')
+
+const posts = ref([])
+const carregandoPosts = ref(false)
+const erroPosts = ref('')
+
 const token = localStorage.getItem('token') || ''
 
 const dadosEditados = ref({
@@ -234,6 +334,56 @@ const dadosEditados = ref({
   semestre: '',
   bio: ''
 })
+
+const tipoUsuarioTexto = computed(() => {
+  if (!usuario.value || !usuario.value.tipo) {
+    return 'Aluno'
+  }
+
+  if (usuario.value.tipo === 'admin') {
+    return 'Administrador'
+  }
+
+  if (usuario.value.tipo === 'professor') {
+    return 'Professor'
+  }
+
+  return 'Aluno'
+})
+
+const tipoUsuarioClasse = computed(() => {
+  if (!usuario.value || !usuario.value.tipo) {
+    return 'tipo-aluno'
+  }
+
+  if (usuario.value.tipo === 'admin') {
+    return 'tipo-admin'
+  }
+
+  if (usuario.value.tipo === 'professor') {
+    return 'tipo-professor'
+  }
+
+  return 'tipo-aluno'
+})
+
+function nomeCurso(curso) {
+  const cursos = {
+    eng_software: 'Eng. Software',
+    ciencia_computacao: 'Ciência da Computação',
+    sistemas_info: 'Sistemas de Informação',
+    analise_dev: 'Análise e Desenvolvimento',
+    redes: 'Redes de Computadores'
+  }
+
+  return cursos[curso] || 'Curso não informado'
+}
+
+function nomeSemestre(semestre) {
+  if (!semestre) return 'Semestre não informado'
+
+  return `${semestre}º Semestre`
+}
 
 function montarFotoPerfil(user) {
   if (!user) return null
@@ -255,6 +405,25 @@ function montarFotoPerfil(user) {
   }
 
   return null
+}
+
+function montarImagemProjeto(imagem) {
+  if (!imagem) return ''
+
+  if (imagem.startsWith('http')) {
+    return imagem
+  }
+
+  return `http://localhost:3000${imagem}`
+}
+
+function formatarData(data) {
+  if (!data) return 'Data não informada'
+
+  const dataLimpa = String(data).split('T')[0]
+  const dataFormatada = new Date(dataLimpa + 'T00:00:00')
+
+  return dataFormatada.toLocaleDateString('pt-BR')
 }
 
 function preencherDados(user) {
@@ -291,8 +460,8 @@ async function carregarPerfil() {
     const usuarioMesclado = {
       ...usuarioLocal,
       ...response.data,
-      curso: usuarioLocal.curso || response.data.curso || '',
-      semestre: usuarioLocal.semestre || response.data.semestre || '',
+      curso: response.data.curso || '',
+      semestre: response.data.semestre || '',
       seguidores: response.data.seguidores || 0,
       seguindo: response.data.seguindo || 0,
       posts: response.data.posts || 0
@@ -307,6 +476,8 @@ async function carregarPerfil() {
 
     const usuarioFallback = {
       ...usuarioLocal,
+      curso: usuarioLocal.curso || '',
+      semestre: usuarioLocal.semestre || '',
       seguidores: usuarioLocal.seguidores || 0,
       seguindo: usuarioLocal.seguindo || 0,
       posts: usuarioLocal.posts || 0
@@ -316,8 +487,66 @@ async function carregarPerfil() {
   }
 }
 
+async function carregarMeusProjetos() {
+  try {
+    carregandoProjetos.value = true
+    erroProjetos.value = ''
+
+    const response = await api.get('/api/projects/meus', {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+
+    projetos.value = response.data
+  } catch (error) {
+    console.error('Erro ao carregar meus projetos:', error)
+
+    if (error.response) {
+      erroProjetos.value =
+        error.response.data?.detalhes ||
+        error.response.data?.erro ||
+        'Erro ao carregar seus projetos.'
+    } else {
+      erroProjetos.value = 'Erro ao conectar com a API.'
+    }
+  } finally {
+    carregandoProjetos.value = false
+  }
+}
+
+async function carregarMeusPosts() {
+  try {
+    carregandoPosts.value = true
+    erroPosts.value = ''
+
+    const response = await api.get('/api/posts/meus', {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+
+    posts.value = response.data
+  } catch (error) {
+    console.error('Erro ao carregar meus posts:', error)
+
+    if (error.response) {
+      erroPosts.value =
+        error.response.data?.detalhes ||
+        error.response.data?.erro ||
+        'Erro ao carregar seus posts.'
+    } else {
+      erroPosts.value = 'Erro ao conectar com a API.'
+    }
+  } finally {
+    carregandoPosts.value = false
+  }
+}
+
 onMounted(() => {
   carregarPerfil()
+  carregarMeusProjetos()
+  carregarMeusPosts()
 })
 
 function trocarFoto(event) {
@@ -362,6 +591,8 @@ async function salvarPerfil() {
 
     formData.append('nome', dadosEditados.value.nome.trim())
     formData.append('bio', dadosEditados.value.bio || '')
+    formData.append('curso', dadosEditados.value.curso || '')
+    formData.append('semestre', dadosEditados.value.semestre || '')
 
     if (arquivoFoto.value) {
       formData.append('foto', arquivoFoto.value)
@@ -377,8 +608,8 @@ async function salvarPerfil() {
     const usuarioAtualizado = {
       ...usuario.value,
       ...response.data.usuario,
-      curso: dadosEditados.value.curso || '',
-      semestre: dadosEditados.value.semestre || '',
+      curso: response.data.usuario?.curso || dadosEditados.value.curso || '',
+      semestre: response.data.usuario?.semestre || dadosEditados.value.semestre || '',
       seguidores: usuario.value?.seguidores || 0,
       seguindo: usuario.value?.seguindo || 0,
       posts: usuario.value?.posts || 0
@@ -399,23 +630,11 @@ async function salvarPerfil() {
   } catch (error) {
     console.error('Erro ao salvar perfil:', error)
 
-    const usuarioAtualizadoLocal = {
-      ...usuario.value,
-      nome: dadosEditados.value.nome,
-      email: dadosEditados.value.email,
-      curso: dadosEditados.value.curso,
-      semestre: dadosEditados.value.semestre,
-      bio: dadosEditados.value.bio
-    }
-
-    usuario.value = usuarioAtualizadoLocal
-
-    localStorage.setItem('usuario', JSON.stringify(usuarioAtualizadoLocal))
-    window.dispatchEvent(new Event('usuario-atualizado'))
-
-    perfilEditando.value = false
-
-    alert('Os dados locais foram salvos, mas a API não respondeu corretamente.')
+    alert(
+      error.response?.data?.detalhes ||
+      error.response?.data?.erro ||
+      'Erro ao salvar perfil na API.'
+    )
   } finally {
     salvando.value = false
   }
@@ -436,21 +655,4 @@ function confirmarLogout() {
 <style>
 @import "../assets/css/geral.css";
 @import "../assets/css/perfil.css";
-
-.btn-admin-usuarios {
-  width: 100%;
-  padding: 12px 16px;
-  border: none;
-  border-radius: 14px;
-  background: linear-gradient(135deg, #0b5fa5, #1ca4a6);
-  color: #ffffff;
-  font-weight: 800;
-  cursor: pointer;
-  transition: 0.25s ease;
-}
-
-.btn-admin-usuarios:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 12px 24px rgba(28, 164, 166, 0.22);
-}
 </style>

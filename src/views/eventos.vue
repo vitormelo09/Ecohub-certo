@@ -89,7 +89,7 @@
       </section>
 
       <section>
-        <h2 class="section-title">Próximos Eventos</h2>
+        <h2 class="section-title"> Próximos Eventos</h2>
 
         <p v-if="carregando" class="mensagem-eventos">
           Carregando eventos...

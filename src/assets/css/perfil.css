@@ -1,13 +1,14 @@
 /* ================================
-   PERFIL - CSS COMPLETO
-   Modo escuro igual ao Feed
+   PERFIL - CSS COMPLETO ORGANIZADO
 ================================ */
 
 * {
   box-sizing: border-box;
 }
 
-/* ===== LAYOUT ===== */
+/* ================================
+   LAYOUT PRINCIPAL
+================================ */
 
 .perfil-layout {
   min-height: calc(100vh - 70px);
@@ -40,7 +41,9 @@
   gap: 20px;
 }
 
-/* ===== CARDS ===== */
+/* ================================
+   CARDS
+================================ */
 
 .card-perfil-main,
 .tweet-card-fake {
@@ -67,37 +70,42 @@
     #ffffff;
 }
 
-/* ===== PERFIL ===== */
+/* ================================
+   PERFIL LATERAL
+================================ */
 
 .foto-grande {
+  display: block;
   width: 150px;
   height: 150px;
+  margin: 0 auto 18px;
   border-radius: 50%;
   object-fit: cover;
   border: 5px solid #ffffff;
   box-shadow: 0 12px 24px rgba(11, 95, 165, 0.22);
-  margin-bottom: 18px;
 }
 
 .perfil-badge {
-  display: inline-flex;
+  display: flex;
+  width: fit-content;
   align-items: center;
   justify-content: center;
+  margin: 0 auto 14px;
+  padding: 6px 12px;
+  border-radius: 999px;
   background: rgba(11, 95, 165, 0.08);
   color: #0b5fa5;
   border: 1px solid rgba(11, 95, 165, 0.12);
-  padding: 6px 12px;
-  border-radius: 999px;
   font-size: 12px;
   font-weight: 800;
-  margin-bottom: 14px;
 }
 
 .card-perfil-main h2 {
-  font-size: 28px;
-  color: #122033;
   margin-bottom: 6px;
+  color: #122033;
+  font-size: 28px;
   line-height: 1.2;
+  text-align: center;
 }
 
 .username {
@@ -106,6 +114,7 @@
   font-weight: 700;
   margin-bottom: 14px;
   word-break: break-word;
+  text-align: center;
 }
 
 .bio {
@@ -113,9 +122,45 @@
   color: #6b7280;
   line-height: 1.7;
   font-size: 14px;
+  text-align: center;
 }
 
-/* ===== INFO PERFIL ===== */
+/* ================================
+   TIPO DO USUÁRIO
+================================ */
+
+.tipo-usuario-badge {
+  display: inline-block;
+  margin: 6px 0 10px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.tipo-admin {
+  background: rgba(22, 163, 74, 0.14);
+  color: #15803d;
+  border: 1px solid rgba(22, 163, 74, 0.25);
+}
+
+.tipo-professor {
+  background: rgba(37, 99, 235, 0.14);
+  color: #1d4ed8;
+  border: 1px solid rgba(37, 99, 235, 0.25);
+}
+
+.tipo-aluno {
+  background: rgba(245, 158, 11, 0.16);
+  color: #b45309;
+  border: 1px solid rgba(245, 158, 11, 0.28);
+}
+
+/* ================================
+   INFORMAÇÕES DO PERFIL
+================================ */
 
 .perfil-info-list {
   display: flex;
@@ -129,52 +174,56 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
   background: #f8fbfd;
   border: 1px solid #dbe5ee;
-  border-radius: 14px;
-  padding: 12px 14px;
   color: #445164;
   font-size: 14px;
   word-break: break-word;
 }
 
 .info-item i {
-  color: #1ca4a6;
   width: 18px;
   flex-shrink: 0;
+  color: #1ca4a6;
 }
 
 .info-item span {
   color: #445164;
 }
 
-/* ===== STATS ===== */
+/* ================================
+   ESTATÍSTICAS
+================================ */
 
 .perfil-stats {
   display: flex;
   justify-content: space-around;
   gap: 14px;
   margin: 24px 0;
+  padding: 18px 0;
   border-top: 1px solid #edf2f7;
   border-bottom: 1px solid #edf2f7;
-  padding: 18px 0;
 }
 
 .stat {
-  font-size: 0.9rem;
   color: #6b7280;
+  font-size: 0.9rem;
   font-weight: 500;
 }
 
 .stat span {
   display: block;
-  font-size: 1.5rem;
-  color: #122033;
-  font-weight: 800;
   margin-bottom: 4px;
+  color: #122033;
+  font-size: 1.5rem;
+  font-weight: 800;
 }
 
-/* ===== BOTÕES ===== */
+/* ================================
+   BOTÕES
+================================ */
 
 .acoes-perfil {
   display: flex;
@@ -185,7 +234,8 @@
 
 .btn-editar,
 .btn-sair,
-.btn-secundario {
+.btn-secundario,
+.btn-admin-usuarios {
   padding: 12px 18px;
   border-radius: 14px;
   border: none;
@@ -227,7 +277,20 @@
   color: #ffffff;
 }
 
-/* ===== CARDS DA TIMELINE ===== */
+.btn-admin-usuarios {
+  width: 100%;
+  background: linear-gradient(135deg, #0b5fa5, #1ca4a6);
+  color: #ffffff;
+}
+
+.btn-admin-usuarios:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px rgba(28, 164, 166, 0.22);
+}
+
+/* ================================
+   CABEÇALHOS DOS CARDS
+================================ */
 
 .section-head {
   display: flex;
@@ -248,24 +311,26 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  padding: 6px 12px;
+  border-radius: 999px;
   background: rgba(11, 95, 165, 0.08);
   color: #0b5fa5;
   border: 1px solid rgba(11, 95, 165, 0.12);
-  padding: 6px 12px;
-  border-radius: 999px;
   font-size: 12px;
   font-weight: 800;
   white-space: nowrap;
 }
 
 .tweet-text-fake {
+  margin: 0;
   color: #6b7280;
   font-size: 15px;
   line-height: 1.8;
-  margin: 0;
 }
 
-/* ===== FORMULÁRIO ===== */
+/* ================================
+   FORMULÁRIO DO PERFIL
+================================ */
 
 .form-grid {
   display: grid;
@@ -284,38 +349,70 @@
 }
 
 .grupo-campo label {
-  color: #445164;
+  display: block;
+  margin-bottom: 8px;
+  color: #314155;
   font-size: 14px;
-  font-weight: 800;
+  font-weight: 700;
 }
 
+.form-grid input,
+.form-grid select,
+.form-grid textarea,
 .grupo-campo input,
+.grupo-campo select,
 .grupo-campo textarea {
   width: 100%;
-  border: 1px solid #dbe5ee;
+  padding: 13px 15px;
+  border: 1px solid #d9e2ec;
   border-radius: 14px;
-  background: #f8fbfd;
-  padding: 12px 14px;
-  font-size: 14px;
-  color: #1f2937;
+  background: #ffffff;
+  color: #122033;
+  font-size: 15px;
+  font-family: inherit;
   outline: none;
   transition: 0.25s ease;
-  font-family: inherit;
 }
 
+.form-grid select,
+.grupo-campo select {
+  cursor: pointer;
+}
+
+.form-grid textarea,
 .grupo-campo textarea {
   resize: vertical;
   min-height: 110px;
 }
 
+.form-grid input:focus,
+.form-grid select:focus,
+.form-grid textarea:focus,
 .grupo-campo input:focus,
+.grupo-campo select:focus,
 .grupo-campo textarea:focus {
-  background: #ffffff;
   border-color: #1ca4a6;
-  box-shadow: 0 0 0 4px rgba(28, 164, 166, 0.12);
+  box-shadow: 0 0 0 3px rgba(28, 164, 166, 0.18);
 }
 
-/* ===== ATIVIDADE ===== */
+.form-grid input:hover,
+.form-grid select:hover,
+.form-grid textarea:hover,
+.grupo-campo input:hover,
+.grupo-campo select:hover,
+.grupo-campo textarea:hover {
+  border-color: #1ca4a6;
+}
+
+.form-grid option,
+.grupo-campo option {
+  background: #ffffff;
+  color: #122033;
+}
+
+/* ================================
+   ATIVIDADE RECENTE
+================================ */
 
 .atividade-lista {
   display: flex;
@@ -327,10 +424,10 @@
   display: flex;
   gap: 14px;
   align-items: flex-start;
+  padding: 16px;
+  border-radius: 18px;
   background: #f8fbfd;
   border: 1px solid #e5edf4;
-  border-radius: 18px;
-  padding: 16px;
 }
 
 .atividade-icone {
@@ -347,9 +444,9 @@
 
 .atividade-item strong {
   display: block;
+  margin-bottom: 4px;
   color: #122033;
   font-size: 15px;
-  margin-bottom: 4px;
 }
 
 .atividade-item p {
@@ -359,7 +456,156 @@
   line-height: 1.6;
 }
 
-/* ===== COMPATIBILIDADE COM TWEETS ANTIGOS ===== */
+/* ================================
+   MENSAGENS
+================================ */
+
+.mensagem-perfil,
+.mensagem-projetos {
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: rgba(28, 164, 166, 0.08);
+  color: #445164;
+  font-weight: 600;
+}
+
+.mensagem-perfil.erro,
+.mensagem-projetos.erro {
+  background: #ffe5e5;
+  color: #9f1d1d;
+}
+
+/* ================================
+   MEUS POSTS
+================================ */
+
+.meus-posts-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.meu-post-card {
+  padding: 18px;
+  border-radius: 18px;
+  border: 1px solid #e5edf4;
+  background: #ffffff;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
+}
+
+.meu-post-topo {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+  color: #445164;
+  font-size: 14px;
+}
+
+.meu-post-topo strong {
+  color: #122033;
+}
+
+.meu-post-conteudo {
+  margin-bottom: 12px;
+  color: #334155;
+  line-height: 1.7;
+}
+
+.meu-post-img {
+  width: 100%;
+  max-height: 260px;
+  overflow: hidden;
+  border-radius: 16px;
+  margin-bottom: 12px;
+}
+
+.meu-post-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.meu-post-footer {
+  color: #445164;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* ================================
+   MEUS PROJETOS
+================================ */
+
+.meus-projetos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 18px;
+  margin-top: 18px;
+}
+
+.meu-projeto-card {
+  overflow: hidden;
+  border-radius: 18px;
+  border: 1px solid #e5edf4;
+  background: #ffffff;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
+}
+
+.meu-projeto-img {
+  width: 100%;
+  height: 150px;
+  overflow: hidden;
+}
+
+.meu-projeto-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.meu-projeto-body {
+  padding: 16px;
+}
+
+.meu-projeto-body h4 {
+  margin-bottom: 8px;
+  color: #122033;
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.meu-projeto-body p {
+  margin-bottom: 12px;
+  color: #6b7280;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.projeto-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+  color: #445164;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.btn-github {
+  display: inline-block;
+  padding: 9px 13px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #0b5fa5, #1ca4a6);
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 800;
+  font-size: 13px;
+}
+
+/* ================================
+   COMPATIBILIDADE COM TWEETS ANTIGOS
+================================ */
 
 .tweet-user strong {
   color: #122033;
@@ -382,7 +628,7 @@
 }
 
 /* ================================
-   DARK MODE IGUAL AO FEED
+   DARK MODE
 ================================ */
 
 body.dark-mode .perfil-layout {
@@ -427,7 +673,9 @@ body.dark-mode .card-perfil-main h2,
 body.dark-mode .section-head h3,
 body.dark-mode .stat span,
 body.dark-mode .atividade-item strong,
-body.dark-mode .tweet-user strong {
+body.dark-mode .tweet-user strong,
+body.dark-mode .meu-post-topo strong,
+body.dark-mode .meu-projeto-body h4 {
   color: #f8fafc;
 }
 
@@ -440,8 +688,13 @@ body.dark-mode .stat,
 body.dark-mode .tweet-text-fake,
 body.dark-mode .atividade-item p,
 body.dark-mode .tweet-user span,
-body.dark-mode .tweet-action {
-  color: #94a3b8;
+body.dark-mode .tweet-action,
+body.dark-mode .meu-post-topo,
+body.dark-mode .meu-post-footer,
+body.dark-mode .meu-post-conteudo,
+body.dark-mode .meu-projeto-body p,
+body.dark-mode .projeto-meta {
+  color: #cbd5e1;
 }
 
 body.dark-mode .perfil-stats {
@@ -464,11 +717,6 @@ body.dark-mode .info-item i {
   color: #5eead4;
 }
 
-body.dark-mode .atividade-icone {
-  background: linear-gradient(135deg, #0b5fa5, #1ca4a6);
-  color: #ffffff;
-}
-
 body.dark-mode .tweet-content {
   color: #e2e8f0;
 }
@@ -477,38 +725,65 @@ body.dark-mode .tweet-action:hover {
   color: #5eead4;
 }
 
-/* ===== DARK MODE INPUTS ===== */
+/* Tipo de usuário no dark mode */
+
+body.dark-mode .tipo-admin {
+  background: rgba(34, 197, 94, 0.16);
+  color: #86efac;
+}
+
+body.dark-mode .tipo-professor {
+  background: rgba(59, 130, 246, 0.16);
+  color: #93c5fd;
+}
+
+body.dark-mode .tipo-aluno {
+  background: rgba(245, 158, 11, 0.18);
+  color: #fde68a;
+}
+
+/* Formulário no dark mode */
 
 body.dark-mode .grupo-campo label {
   color: #94a3b8;
 }
 
+body.dark-mode .form-grid input,
+body.dark-mode .form-grid select,
+body.dark-mode .form-grid textarea,
 body.dark-mode .grupo-campo input,
-body.dark-mode .grupo-campo textarea,
-body.dark-mode input,
-body.dark-mode textarea {
+body.dark-mode .grupo-campo select,
+body.dark-mode .grupo-campo textarea {
   background: #0f172a;
   color: #e2e8f0;
   border-color: #334155;
 }
 
+body.dark-mode .form-grid option,
+body.dark-mode .grupo-campo option {
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+body.dark-mode .form-grid input::placeholder,
+body.dark-mode .form-grid textarea::placeholder,
 body.dark-mode .grupo-campo input::placeholder,
-body.dark-mode .grupo-campo textarea::placeholder,
-body.dark-mode input::placeholder,
-body.dark-mode textarea::placeholder {
+body.dark-mode .grupo-campo textarea::placeholder {
   color: #64748b;
 }
 
+body.dark-mode .form-grid input:focus,
+body.dark-mode .form-grid select:focus,
+body.dark-mode .form-grid textarea:focus,
 body.dark-mode .grupo-campo input:focus,
-body.dark-mode .grupo-campo textarea:focus,
-body.dark-mode input:focus,
-body.dark-mode textarea:focus {
+body.dark-mode .grupo-campo select:focus,
+body.dark-mode .grupo-campo textarea:focus {
   background: #020617;
   border-color: #1ca4a6;
   box-shadow: 0 0 0 4px rgba(28, 164, 166, 0.14);
 }
 
-/* ===== DARK MODE BOTÕES ===== */
+/* Botões no dark mode */
 
 body.dark-mode .btn-editar {
   background: linear-gradient(135deg, #0b5fa5, #1ca4a6);
@@ -539,6 +814,26 @@ body.dark-mode .btn-sair {
 body.dark-mode .btn-sair:hover {
   background: #ef4444;
   color: #ffffff;
+}
+
+/* Mensagens, posts e projetos no dark mode */
+
+body.dark-mode .mensagem-perfil,
+body.dark-mode .mensagem-projetos {
+  background: rgba(28, 164, 166, 0.13);
+  color: #cbd5e1;
+}
+
+body.dark-mode .mensagem-perfil.erro,
+body.dark-mode .mensagem-projetos.erro {
+  background: rgba(220, 38, 38, 0.18);
+  color: #fecaca;
+}
+
+body.dark-mode .meu-post-card,
+body.dark-mode .meu-projeto-card {
+  background: #1e293b;
+  border-color: #334155;
 }
 
 /* ================================
@@ -576,7 +871,8 @@ body.dark-mode .btn-sair:hover {
 
   .btn-editar,
   .btn-sair,
-  .btn-secundario {
+  .btn-secundario,
+  .btn-admin-usuarios {
     width: 100%;
   }
 
@@ -588,29 +884,8 @@ body.dark-mode .btn-sair:hover {
     flex-direction: column;
     align-items: flex-start;
   }
-}
 
-/* ================================
-   CORREÇÃO CENTRALIZAÇÃO PERFIL
-================================ */
-
-.foto-grande {
-  display: block;
-  margin: 0 auto 18px;
-}
-
-.perfil-badge {
-  display: flex;
-  width: fit-content;
-  margin: 0 auto 14px;
-}
-
-.card-perfil-main {
-  text-align: center;
-}
-
-.card-perfil-main h2,
-.card-perfil-main .username,
-.card-perfil-main .bio {
-  text-align: center;
+  .meu-post-topo {
+    flex-direction: column;
+  }
 }

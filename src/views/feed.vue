@@ -178,7 +178,9 @@
               </button>
 
               <button class="action-button" @click="toggleComentarios(post)">
-                <i class="fa-solid fa-comment"></i> Comentar
+                <i class="fa-solid fa-comment"></i>
+                {{ post.mostrarComentarios ? 'Ocultar' : 'Comentar' }}
+                <span class="count-badge">{{ post.totalComentarios || 0 }}</span>
               </button>
             </div>
 
@@ -508,16 +510,22 @@ async function carregarPosts() {
   try {
     const response = await api.get('/api/posts', authHeaders.value)
 
-    posts.value = response.data.map(post => ({
+    const postsMapeados = response.data.map(post => ({
       ...post,
       comentarios: [],
+      totalComentarios: Number(post.totalComentarios || post.comentarios_count || 0),
       novoComentario: '',
       mostrarComentarios: false,
       carregandoComentarios: false,
       carregandoComentario: false,
+      comentariosCarregados: false,
       editando: false,
       conteudoEditado: post.conteudo || ''
     }))
+
+    posts.value = postsMapeados
+
+    await carregarQuantidadeComentariosDosPosts()
 
     ordenarPostsPorCurtidas()
   } catch (error) {
@@ -525,6 +533,24 @@ async function carregarPosts() {
   } finally {
     carregandoPosts.value = false
   }
+}
+
+async function carregarQuantidadeComentariosDosPosts() {
+  await Promise.all(
+    posts.value.map(async (post) => {
+      try {
+        const response = await api.get(
+          `/api/comments/post/${post.id}`,
+          authHeaders.value
+        )
+
+        post.totalComentarios = response.data.length
+      } catch (error) {
+        console.error(`Erro ao contar comentários do post ${post.id}:`, error)
+        post.totalComentarios = 0
+      }
+    })
+  )
 }
 
 async function publicarPost() {
@@ -571,7 +597,7 @@ async function salvarEdicaoPost(post) {
     ordenarPostsPorCurtidas()
   } catch (error) {
     console.error('Erro ao editar post:', error)
-    alert('A API ainda não tem a rota para editar post. Depois fazemos essa parte.')
+    alert('Erro ao editar post.')
   }
 }
 
@@ -635,9 +661,13 @@ async function carregarComentarios(post) {
       textoEditado: comentario.texto,
       editando: false
     }))
+
+    post.totalComentarios = post.comentarios.length
+    post.comentariosCarregados = true
   } catch (error) {
     console.error('Erro ao carregar comentários:', error)
     post.comentarios = []
+    post.totalComentarios = 0
   } finally {
     post.carregandoComentarios = false
   }
@@ -718,6 +748,8 @@ async function excluirComentario(post, comentarioId) {
     post.comentarios = post.comentarios.filter(
       comentario => Number(comentario.id) !== Number(comentarioId)
     )
+
+    post.totalComentarios = post.comentarios.length
   } catch (error) {
     console.error('Erro ao excluir comentário:', error)
     alert('Erro ao excluir comentário.')

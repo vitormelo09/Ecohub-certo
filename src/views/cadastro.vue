@@ -53,11 +53,67 @@
                 <label>Curso</label>
                 <select v-model="curso" required>
                   <option value="" disabled>Selecione</option>
-                  <option value="eng_software">Eng. Software</option>
-                  <option value="ciencia_computacao">Ciência da Computação</option>
-                  <option value="sistemas_info">Sistemas de Informação</option>
-                  <option value="analise_dev">Análise e Desenvolvimento</option>
-                  <option value="redes">Redes de Computadores</option>
+
+                  <optgroup label="Tecnologia">
+                    <option value="engenharia_software">Engenharia de Software</option>
+                    <option value="ciencia_computacao">Ciência da Computação</option>
+                    <option value="sistemas_informacao">Sistemas de Informação</option>
+                    <option value="analise_desenvolvimento_sistemas">Análise e Desenvolvimento de Sistemas</option>
+                    <option value="gestao_tecnologia_informacao">Gestão da Tecnologia da Informação</option>
+                    <option value="engenharia_computacao">Engenharia de Computação</option>
+                    <option value="redes_computadores">Redes de Computadores</option>
+                  </optgroup>
+
+                  <optgroup label="Engenharias">
+                    <option value="engenharia_ambiental">Engenharia Ambiental</option>
+                    <option value="engenharia_controle_automacao">Engenharia de Controle e Automação</option>
+                    <option value="engenharia_producao">Engenharia de Produção</option>
+                    <option value="engenharia_eletrica">Engenharia Elétrica</option>
+                    <option value="engenharia_industrial_mecanica">Engenharia Industrial Mecânica</option>
+                    <option value="engenharia_mecanica">Engenharia Mecânica</option>
+                    <option value="engenharia_mecatronica">Engenharia Mecatrônica</option>
+                    <option value="engenharia_civil">Engenharia Civil</option>
+                  </optgroup>
+
+                  <optgroup label="Gestão e Negócios">
+                    <option value="administracao">Administração</option>
+                    <option value="ciencias_contabeis">Ciências Contábeis</option>
+                    <option value="gestao_comercial">Gestão Comercial</option>
+                    <option value="gestao_recursos_humanos">Gestão de Recursos Humanos</option>
+                    <option value="gestao_financeira">Gestão Financeira</option>
+                    <option value="gestao_qualidade">Gestão da Qualidade</option>
+                    <option value="logistica">Logística</option>
+                    <option value="gestao_publica">Gestão Pública</option>
+                    <option value="marketing">Marketing</option>
+                    <option value="processos_gerenciais">Processos Gerenciais</option>
+                    <option value="empreendedorismo">Empreendedorismo</option>
+                  </optgroup>
+
+                  <optgroup label="Indústria e Construção">
+                    <option value="gestao_ambiental">Gestão Ambiental</option>
+                    <option value="manutencao_industrial">Manutenção Industrial</option>
+                    <option value="mecatronica_industrial">Mecatrônica Industrial</option>
+                    <option value="seguranca_trabalho">Segurança do Trabalho</option>
+                    <option value="eletronica_industrial">Eletrônica Industrial</option>
+                    <option value="gestao_producao_industrial">Gestão da Produção Industrial</option>
+                    <option value="construcao_edificios">Construção de Edifícios</option>
+                  </optgroup>
+
+                  <optgroup label="Educação">
+                    <option value="educacao_fisica">Educação Física</option>
+                    <option value="pedagogia">Pedagogia</option>
+                    <option value="licenciatura_educacao_especial">Licenciatura em Educação Especial</option>
+                    <option value="licenciatura_letras">Licenciatura em Letras</option>
+                    <option value="licenciatura_matematica">Licenciatura em Matemática</option>
+                  </optgroup>
+
+                  <optgroup label="Saúde">
+                    <option value="medicina">Medicina</option>
+                    <option value="odontologia">Odontologia</option>
+                    <option value="gestao_hospitalar">Gestão Hospitalar</option>
+                    <option value="radiologia">Radiologia</option>
+                    <option value="enfermagem">Enfermagem</option>
+                  </optgroup>
                 </select>
               </div>
 
@@ -73,6 +129,10 @@
                   <option value="6">6º Semestre</option>
                   <option value="7">7º Semestre</option>
                   <option value="8">8º Semestre</option>
+                  <option value="9">9º Semestre</option>
+                  <option value="10">10º Semestre</option>
+                  <option value="11">11º Semestre</option>
+                  <option value="12">12º Semestre</option>
                 </select>
               </div>
             </div>
