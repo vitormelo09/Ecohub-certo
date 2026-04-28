@@ -71,8 +71,8 @@
             required
           ></textarea>
 
-          <button type="submit" class="btn-publicar">
-            Publicar Notícia
+          <button type="submit" class="btn-publicar" :disabled="publicando">
+            {{ publicando ? 'Publicando...' : 'Publicar Notícia' }}
           </button>
         </form>
       </section>
@@ -113,7 +113,9 @@
         </div>
 
         <div class="destaque-conteudo">
-          <span class="tag-destaque">{{ noticiaPrincipal.categoria || 'Geral' }}</span>
+          <span class="tag-destaque">
+            {{ noticiaPrincipal.categoria || 'Geral' }}
+          </span>
 
           <h2>{{ noticiaPrincipal.titulo }}</h2>
 
@@ -122,14 +124,16 @@
           </p>
 
           <p class="destaque-texto">
-            {{ noticiaPrincipal.conteudo }}
+            {{ noticiaPrincipal.conteudo || noticiaPrincipal.conteudo_completo }}
           </p>
 
           <div class="destaque-footer">
-            <span>{{ formatarData(noticiaPrincipal.data_publicacao) }}</span>
+            <span>
+              {{ formatarData(noticiaPrincipal.data_noticia || noticiaPrincipal.data || noticiaPrincipal.data_publicacao) }}
+            </span>
 
             <a
-              :href="noticiaPrincipal.link || '#'"
+              :href="linkNoticia(noticiaPrincipal)"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -166,7 +170,10 @@
             <div class="card-body">
               <div class="card-meta">
                 <span class="tag">{{ noticia.categoria || 'Geral' }}</span>
-                <span class="data">{{ formatarData(noticia.data_publicacao) }}</span>
+
+                <span class="data">
+                  {{ formatarData(noticia.data_noticia || noticia.data || noticia.data_publicacao) }}
+                </span>
               </div>
 
               <h3>{{ noticia.titulo }}</h3>
@@ -177,7 +184,7 @@
 
               <transition name="fade-expand">
                 <div v-if="noticia.ativo" class="conteudo-extra">
-                  <p>{{ noticia.conteudo }}</p>
+                  <p>{{ noticia.conteudo || noticia.conteudo_completo }}</p>
                 </div>
               </transition>
 
@@ -187,7 +194,7 @@
                 </button>
 
                 <a
-                  :href="noticia.link || '#'"
+                  :href="linkNoticia(noticia)"
                   target="_blank"
                   rel="noopener noreferrer"
                   class="link-externo"
@@ -207,7 +214,7 @@
           </article>
         </div>
 
-        <div v-else class="sem-noticias">
+        <div v-else-if="!carregando && !erroNoticias" class="sem-noticias">
           Nenhuma notícia encontrada com esse filtro.
         </div>
       </section>
@@ -226,6 +233,7 @@ export default {
       busca: "",
       noticias: [],
       carregando: false,
+      publicando: false,
       erroNoticias: "",
 
       novaNoticia: {
@@ -247,7 +255,6 @@ export default {
 
     podePublicar() {
       if (!this.usuario) return false
-
       return this.usuario.tipo === "admin"
     },
 
@@ -256,30 +263,55 @@ export default {
     },
 
     noticiasFiltradas() {
-      const termo = this.busca.toLowerCase()
+      const termo = this.busca.toLowerCase().trim()
+
+      if (!termo) {
+        return this.noticias
+      }
 
       return this.noticias.filter((noticia) => {
         return (
           String(noticia.titulo || "").toLowerCase().includes(termo) ||
           String(noticia.resumo || "").toLowerCase().includes(termo) ||
-          String(noticia.categoria || "").toLowerCase().includes(termo)
+          String(noticia.categoria || "").toLowerCase().includes(termo) ||
+          String(noticia.conteudo || "").toLowerCase().includes(termo) ||
+          String(noticia.conteudo_completo || "").toLowerCase().includes(termo)
         )
       })
     }
   },
 
   methods: {
+    pegarListaDaResposta(dados) {
+      if (Array.isArray(dados)) return dados
+      if (Array.isArray(dados.news)) return dados.news
+      if (Array.isArray(dados.noticias)) return dados.noticias
+      if (Array.isArray(dados.data)) return dados.data
+      if (Array.isArray(dados.results)) return dados.results
+      return []
+    },
+
     async carregarNoticias() {
       try {
         this.carregando = true
         this.erroNoticias = ""
 
         const resposta = await api.get("/api/news")
+        const listaNoticias = this.pegarListaDaResposta(resposta.data)
 
-        this.noticias = resposta.data.map((noticia) => {
+        this.noticias = listaNoticias.map((noticia) => {
           return {
             ...noticia,
-            ativo: false
+            ativo: false,
+            conteudo: noticia.conteudo || noticia.conteudo_completo || "",
+            imagem: noticia.imagem || noticia.imagem_url || "",
+            link: noticia.link || noticia.link_fonte || noticia.fonte_url || noticia.fonte || "",
+            data_publicacao:
+              noticia.data_publicacao ||
+              noticia.data_noticia ||
+              noticia.data ||
+              noticia.created_at ||
+              noticia.data_criacao
           }
         })
       } catch (erro) {
@@ -289,6 +321,7 @@ export default {
           this.erroNoticias =
             erro.response.data?.detalhes ||
             erro.response.data?.erro ||
+            erro.response.data?.message ||
             "Não foi possível carregar as notícias."
         } else {
           this.erroNoticias = "Não foi possível conectar com a API."
@@ -305,14 +338,30 @@ export default {
       }
 
       try {
+        this.publicando = true
+
+        const dataNoticia = this.novaNoticia.data_publicacao || null
+
         await api.post("/api/news", {
           titulo: this.novaNoticia.titulo,
           resumo: this.novaNoticia.resumo,
+
           conteudo: this.novaNoticia.conteudo,
+          conteudo_completo: this.novaNoticia.conteudo,
+
           imagem: this.novaNoticia.imagem,
+          imagem_url: this.novaNoticia.imagem,
+
           link: this.novaNoticia.link,
+          fonte: this.novaNoticia.link,
+          link_fonte: this.novaNoticia.link,
+          fonte_url: this.novaNoticia.link,
+
           categoria: this.novaNoticia.categoria || "Geral",
-          data_publicacao: this.novaNoticia.data_publicacao || null
+
+          data_publicacao: dataNoticia,
+          data_noticia: dataNoticia,
+          data: dataNoticia
         })
 
         this.novaNoticia = {
@@ -325,8 +374,9 @@ export default {
           data_publicacao: ""
         }
 
+        await this.carregarNoticias()
+
         alert("Notícia publicada com sucesso!")
-        this.carregarNoticias()
       } catch (erro) {
         console.error("Erro ao publicar notícia:", erro)
 
@@ -334,11 +384,14 @@ export default {
           alert(
             erro.response.data?.detalhes ||
             erro.response.data?.erro ||
+            erro.response.data?.message ||
             "Erro ao publicar notícia."
           )
         } else {
           alert("Erro ao conectar com a API.")
         }
+      } finally {
+        this.publicando = false
       }
     },
 
@@ -355,8 +408,9 @@ export default {
       try {
         await api.delete(`/api/news/${id}`)
 
+        await this.carregarNoticias()
+
         alert("Notícia excluída com sucesso!")
-        this.carregarNoticias()
       } catch (erro) {
         console.error("Erro ao excluir notícia:", erro)
 
@@ -364,6 +418,7 @@ export default {
           alert(
             erro.response.data?.detalhes ||
             erro.response.data?.erro ||
+            erro.response.data?.message ||
             "Erro ao excluir notícia."
           )
         } else {
@@ -374,7 +429,7 @@ export default {
 
     toggleConteudo(id) {
       this.noticias = this.noticias.map((noticia) => {
-        if (noticia.id === id) {
+        if (Number(noticia.id) === Number(id)) {
           return {
             ...noticia,
             ativo: !noticia.ativo
@@ -391,15 +446,33 @@ export default {
       const dataLimpa = String(data).split("T")[0]
       const dataFormatada = new Date(dataLimpa + "T00:00:00")
 
+      if (Number.isNaN(dataFormatada.getTime())) {
+        return "Data inválida"
+      }
+
       return dataFormatada.toLocaleDateString("pt-BR")
     },
 
     imagemNoticia(noticia) {
-      if (noticia.imagem && noticia.imagem.trim() !== "") {
+      if (noticia.imagem && String(noticia.imagem).trim() !== "") {
         return noticia.imagem
       }
 
+      if (noticia.imagem_url && String(noticia.imagem_url).trim() !== "") {
+        return noticia.imagem_url
+      }
+
       return "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80"
+    },
+
+    linkNoticia(noticia) {
+      return (
+        noticia.link ||
+        noticia.link_fonte ||
+        noticia.fonte_url ||
+        noticia.fonte ||
+        "#"
+      )
     }
   },
 
@@ -412,6 +485,8 @@ export default {
 <style scoped>
 @import "../assets/css/noticias.css";
 
-
-
+.btn-publicar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 </style>

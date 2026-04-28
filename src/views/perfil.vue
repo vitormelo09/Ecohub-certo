@@ -22,6 +22,10 @@
           style="display:none"
         >
 
+        <small class="texto-foto">
+          Clique na foto para alterar
+        </small>
+
         <div class="perfil-badge">Meu Perfil</div>
 
         <h2>
@@ -215,9 +219,9 @@
             :key="projeto.id"
             class="meu-projeto-card"
           >
-            <div v-if="projeto.imagem" class="meu-projeto-img">
+            <div v-if="projeto.imagem || projeto.imagem_url" class="meu-projeto-img">
               <img
-                :src="montarImagemProjeto(projeto.imagem)"
+                :src="montarImagemProjeto(projeto.imagem || projeto.imagem_url)"
                 alt="Imagem do projeto"
               >
             </div>
@@ -234,8 +238,8 @@
                   ❤️ {{ projeto.curtidas || 0 }} curtida(s)
                 </span>
 
-                <span v-if="projeto.tecnologias_usadas">
-                  🛠 {{ projeto.tecnologias_usadas }}
+                <span v-if="projeto.tecnologias_usadas || projeto.tecnologias">
+                  🛠 {{ projeto.tecnologias_usadas || projeto.tecnologias }}
                 </span>
               </div>
 
@@ -282,15 +286,18 @@
           >
             <div class="meu-post-topo">
               <strong>{{ post.nome }}</strong>
-              <span>{{ formatarData(post.data_publicacao) }}</span>
+              <span>{{ formatarData(post.data_publicacao || post.data_criacao) }}</span>
             </div>
 
             <p class="meu-post-conteudo">
               {{ post.conteudo }}
             </p>
 
-            <div v-if="post.imagem_post_url" class="meu-post-img">
-              <img :src="post.imagem_post_url" alt="Imagem do post">
+            <div v-if="post.imagem_post_url || post.imagem_url || post.imagem" class="meu-post-img">
+              <img
+                :src="montarImagemProjeto(post.imagem_post_url || post.imagem_url || post.imagem)"
+                alt="Imagem do post"
+              >
             </div>
 
             <div class="meu-post-footer">
@@ -310,6 +317,8 @@ import api from '../services/api'
 import fotoPadrao from '../assets/img/perfil.jpg'
 
 const router = useRouter()
+
+const API_URL = 'http://localhost:3000'
 
 const usuario = ref(null)
 const perfilEditando = ref(false)
@@ -385,36 +394,43 @@ function nomeSemestre(semestre) {
   return `${semestre}º Semestre`
 }
 
+function montarUrlArquivo(caminho) {
+  if (!caminho) return null
+
+  if (String(caminho).startsWith('blob:')) {
+    return caminho
+  }
+
+  if (String(caminho).startsWith('http')) {
+    return caminho
+  }
+
+  if (String(caminho).startsWith('/uploads')) {
+    return `${API_URL}${caminho}`
+  }
+
+  if (String(caminho).startsWith('uploads')) {
+    return `${API_URL}/${caminho}`
+  }
+
+  return caminho
+}
+
 function montarFotoPerfil(user) {
   if (!user) return null
 
-  if (user.foto_perfil_url) {
-    return user.foto_perfil_url
-  }
+  const foto =
+    user.foto_perfil_url ||
+    user.foto_perfil ||
+    user.foto ||
+    user.avatar ||
+    null
 
-  if (user.foto_perfil && user.foto_perfil.startsWith('http')) {
-    return user.foto_perfil
-  }
-
-  if (user.foto_perfil && user.foto_perfil.startsWith('/uploads')) {
-    return `http://localhost:3000${user.foto_perfil}`
-  }
-
-  if (user.foto) {
-    return user.foto
-  }
-
-  return null
+  return montarUrlArquivo(foto)
 }
 
 function montarImagemProjeto(imagem) {
-  if (!imagem) return ''
-
-  if (imagem.startsWith('http')) {
-    return imagem
-  }
-
-  return `http://localhost:3000${imagem}`
+  return montarUrlArquivo(imagem) || ''
 }
 
 function formatarData(data) {
@@ -422,6 +438,10 @@ function formatarData(data) {
 
   const dataLimpa = String(data).split('T')[0]
   const dataFormatada = new Date(dataLimpa + 'T00:00:00')
+
+  if (Number.isNaN(dataFormatada.getTime())) {
+    return 'Data inválida'
+  }
 
   return dataFormatada.toLocaleDateString('pt-BR')
 }
@@ -438,6 +458,15 @@ function preencherDados(user) {
   }
 
   fotoPerfil.value = montarFotoPerfil(user)
+}
+
+function pegarListaDaResposta(dados) {
+  if (Array.isArray(dados)) return dados
+  if (Array.isArray(dados.projetos)) return dados.projetos
+  if (Array.isArray(dados.posts)) return dados.posts
+  if (Array.isArray(dados.data)) return dados.data
+  if (Array.isArray(dados.results)) return dados.results
+  return []
 }
 
 async function carregarPerfil() {
@@ -498,7 +527,7 @@ async function carregarMeusProjetos() {
       }
     })
 
-    projetos.value = response.data
+    projetos.value = pegarListaDaResposta(response.data)
   } catch (error) {
     console.error('Erro ao carregar meus projetos:', error)
 
@@ -506,6 +535,7 @@ async function carregarMeusProjetos() {
       erroProjetos.value =
         error.response.data?.detalhes ||
         error.response.data?.erro ||
+        error.response.data?.message ||
         'Erro ao carregar seus projetos.'
     } else {
       erroProjetos.value = 'Erro ao conectar com a API.'
@@ -526,7 +556,7 @@ async function carregarMeusPosts() {
       }
     })
 
-    posts.value = response.data
+    posts.value = pegarListaDaResposta(response.data)
   } catch (error) {
     console.error('Erro ao carregar meus posts:', error)
 
@@ -534,6 +564,7 @@ async function carregarMeusPosts() {
       erroPosts.value =
         error.response.data?.detalhes ||
         error.response.data?.erro ||
+        error.response.data?.message ||
         'Erro ao carregar seus posts.'
     } else {
       erroPosts.value = 'Erro ao conectar com a API.'
@@ -543,16 +574,31 @@ async function carregarMeusPosts() {
   }
 }
 
-onMounted(() => {
-  carregarPerfil()
-  carregarMeusProjetos()
-  carregarMeusPosts()
-})
-
 function trocarFoto(event) {
   const file = event.target.files[0]
 
   if (!file) return
+
+  const tiposPermitidos = [
+    'image/jpeg',
+    'image/jpg',
+    'image/png',
+    'image/webp'
+  ]
+
+  if (!tiposPermitidos.includes(file.type)) {
+    alert('Escolha uma imagem JPG, PNG ou WEBP.')
+    event.target.value = ''
+    return
+  }
+
+  const tamanhoMaximo = 5 * 1024 * 1024
+
+  if (file.size > tamanhoMaximo) {
+    alert('A imagem precisa ter no máximo 5MB.')
+    event.target.value = ''
+    return
+  }
 
   arquivoFoto.value = file
   fotoPerfil.value = URL.createObjectURL(file)
@@ -600,16 +646,17 @@ async function salvarPerfil() {
 
     const response = await api.put('/api/users/me', formData, {
       headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'multipart/form-data'
+        Authorization: `Bearer ${token}`
       }
     })
 
+    const usuarioResposta = response.data.usuario || response.data
+
     const usuarioAtualizado = {
       ...usuario.value,
-      ...response.data.usuario,
-      curso: response.data.usuario?.curso || dadosEditados.value.curso || '',
-      semestre: response.data.usuario?.semestre || dadosEditados.value.semestre || '',
+      ...usuarioResposta,
+      curso: usuarioResposta?.curso || dadosEditados.value.curso || '',
+      semestre: usuarioResposta?.semestre || dadosEditados.value.semestre || '',
       seguidores: usuario.value?.seguidores || 0,
       seguindo: usuario.value?.seguindo || 0,
       posts: usuario.value?.posts || 0
@@ -633,6 +680,7 @@ async function salvarPerfil() {
     alert(
       error.response?.data?.detalhes ||
       error.response?.data?.erro ||
+      error.response?.data?.message ||
       'Erro ao salvar perfil na API.'
     )
   } finally {
@@ -650,9 +698,23 @@ function confirmarLogout() {
   window.dispatchEvent(new Event('usuario-atualizado'))
   router.push('/login')
 }
+
+onMounted(() => {
+  carregarPerfil()
+  carregarMeusProjetos()
+  carregarMeusPosts()
+})
 </script>
 
 <style>
 @import "../assets/css/geral.css";
 @import "../assets/css/perfil.css";
+
+.texto-foto {
+  display: block;
+  margin-top: 8px;
+  font-size: 12px;
+  color: #64748b;
+  text-align: center;
+}
 </style>

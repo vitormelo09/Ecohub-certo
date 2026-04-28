@@ -78,8 +78,8 @@
             placeholder="Capacidade total. Ex: 70"
           >
 
-          <button type="submit" class="button confirm-btn">
-            Publicar Evento
+          <button type="submit" class="button confirm-btn" :disabled="publicando">
+            {{ publicando ? 'Publicando...' : 'Publicar Evento' }}
           </button>
         </form>
       </section>
@@ -89,7 +89,7 @@
       </section>
 
       <section>
-        <h2 class="section-title"> Próximos Eventos</h2>
+        <h2 class="section-title">Próximos Eventos</h2>
 
         <p v-if="carregando" class="mensagem-eventos">
           Carregando eventos...
@@ -114,9 +114,10 @@
             </div>
 
             <div class="event-content">
-              <span class="badge">{{ evento.tipo || 'Evento' }}</span>
+              <span class="badge">{{ evento.tipo || evento.categoria || 'Evento' }}</span>
+
               <span class="capacity">
-                {{ evento.participantes || 0 }}/{{ capacidadeTotal(evento.capacidade) }}
+                {{ evento.participantes || 0 }}/{{ capacidadeTotal(evento) }}
               </span>
 
               <h3 class="event-title">{{ evento.titulo }}</h3>
@@ -127,12 +128,12 @@
                 📅 {{ formatarData(evento.data || evento.data_evento) }}
               </p>
 
-              <p v-if="evento.horario" class="event-info">
-                ⏰ {{ evento.horario }}
+              <p v-if="evento.horario || evento.hora" class="event-info">
+                ⏰ {{ evento.horario || evento.hora }}
               </p>
 
               <p class="event-info">
-                📍 {{ evento.local }}
+                📍 {{ evento.local || 'Local não informado' }}
               </p>
 
               <button
@@ -176,13 +177,13 @@ const token = localStorage.getItem('token')
 
 const podePublicar = computed(() => {
   if (!usuario.value) return false
-
   return usuario.value.tipo === 'admin'
 })
 
 const eventos = ref([])
 const meusEventosIds = ref([])
 const carregando = ref(false)
+const publicando = ref(false)
 const erroEventos = ref('')
 
 const novoEvento = ref({
@@ -196,24 +197,47 @@ const novoEvento = ref({
   capacidade: ''
 })
 
+const pegarListaDaResposta = (dados) => {
+  if (Array.isArray(dados)) return dados
+  if (Array.isArray(dados.eventos)) return dados.eventos
+  if (Array.isArray(dados.data)) return dados.data
+  if (Array.isArray(dados.results)) return dados.results
+  return []
+}
+
 const carregarEventos = async () => {
   try {
     carregando.value = true
     erroEventos.value = ''
 
     const resposta = await api.get('/api/events')
-    let listaEventos = resposta.data
+    let listaEventos = pegarListaDaResposta(resposta.data)
+
+    meusEventosIds.value = []
 
     if (token) {
-      const meusEventosResposta = await api.get('/api/events/meus-eventos')
-      meusEventosIds.value = meusEventosResposta.data.map(evento => evento.id)
+      try {
+        const meusEventosResposta = await api.get('/api/events/meus-eventos')
+        const listaMeusEventos = pegarListaDaResposta(meusEventosResposta.data)
 
-      listaEventos = listaEventos.map(evento => {
-        return {
-          ...evento,
-          confirmado: meusEventosIds.value.includes(evento.id)
-        }
-      })
+        meusEventosIds.value = listaMeusEventos.map(evento => Number(evento.id))
+
+        listaEventos = listaEventos.map(evento => {
+          return {
+            ...evento,
+            confirmado: meusEventosIds.value.includes(Number(evento.id))
+          }
+        })
+      } catch (erroMeusEventos) {
+        console.warn('Não foi possível carregar meus eventos:', erroMeusEventos)
+
+        listaEventos = listaEventos.map(evento => {
+          return {
+            ...evento,
+            confirmado: false
+          }
+        })
+      }
     }
 
     eventos.value = listaEventos
@@ -224,6 +248,7 @@ const carregarEventos = async () => {
       erroEventos.value =
         erro.response.data?.detalhes ||
         erro.response.data?.erro ||
+        erro.response.data?.message ||
         'Não foi possível carregar os eventos.'
     } else {
       erroEventos.value = 'Não foi possível conectar com a API. Verifique se a API está ligada.'
@@ -240,15 +265,27 @@ const publicarEvento = async () => {
   }
 
   try {
+    publicando.value = true
+
     await api.post('/api/events', {
       titulo: novoEvento.value.titulo,
       descricao: novoEvento.value.descricao,
       tipo: novoEvento.value.tipo || 'Evento',
+      categoria: novoEvento.value.tipo || 'Evento',
+
       data: novoEvento.value.data,
+      data_evento: novoEvento.value.data,
+
       horario: novoEvento.value.horario,
+      hora: novoEvento.value.horario,
+
       local: novoEvento.value.local,
+
       imagem: novoEvento.value.imagem,
-      capacidade: novoEvento.value.capacidade
+      imagem_url: novoEvento.value.imagem,
+
+      capacidade: Number(novoEvento.value.capacidade) || null,
+      vagas: Number(novoEvento.value.capacidade) || null
     })
 
     novoEvento.value = {
@@ -262,8 +299,9 @@ const publicarEvento = async () => {
       capacidade: ''
     }
 
+    await carregarEventos()
+
     alert('Evento publicado com sucesso!')
-    carregarEventos()
   } catch (erro) {
     console.error('Erro ao publicar evento:', erro)
 
@@ -271,11 +309,14 @@ const publicarEvento = async () => {
       alert(
         erro.response.data?.detalhes ||
         erro.response.data?.erro ||
+        erro.response.data?.message ||
         'Erro ao publicar evento.'
       )
     } else {
       alert('Erro ao conectar com a API. Verifique se a API está ligada.')
     }
+  } finally {
+    publicando.value = false
   }
 }
 
@@ -287,7 +328,6 @@ const confirmarPresenca = async (id) => {
 
   try {
     await api.post(`/api/events/${id}/confirmar`)
-
     await carregarEventos()
   } catch (erro) {
     console.error('Erro ao confirmar presença:', erro)
@@ -296,6 +336,7 @@ const confirmarPresenca = async (id) => {
       alert(
         erro.response.data?.detalhes ||
         erro.response.data?.erro ||
+        erro.response.data?.message ||
         'Erro ao confirmar presença.'
       )
     } else {
@@ -312,7 +353,6 @@ const cancelarPresenca = async (id) => {
 
   try {
     await api.delete(`/api/events/${id}/confirmar`)
-
     await carregarEventos()
   } catch (erro) {
     console.error('Erro ao cancelar presença:', erro)
@@ -321,6 +361,7 @@ const cancelarPresenca = async (id) => {
       alert(
         erro.response.data?.detalhes ||
         erro.response.data?.erro ||
+        erro.response.data?.message ||
         'Erro ao cancelar presença.'
       )
     } else {
@@ -336,14 +377,12 @@ const excluirEvento = async (id) => {
   }
 
   const confirmar = confirm('Tem certeza que deseja excluir este evento?')
-
   if (!confirmar) return
 
   try {
     await api.delete(`/api/events/${id}`)
-
+    await carregarEventos()
     alert('Evento excluído com sucesso!')
-    carregarEventos()
   } catch (erro) {
     console.error('Erro ao excluir evento:', erro)
 
@@ -351,6 +390,7 @@ const excluirEvento = async (id) => {
       alert(
         erro.response.data?.detalhes ||
         erro.response.data?.erro ||
+        erro.response.data?.message ||
         'Erro ao excluir evento.'
       )
     } else {
@@ -365,6 +405,10 @@ const formatarData = (data) => {
   const dataLimpa = String(data).split('T')[0]
   const dataFormatada = new Date(dataLimpa + 'T00:00:00')
 
+  if (Number.isNaN(dataFormatada.getTime())) {
+    return 'Data inválida'
+  }
+
   return dataFormatada.toLocaleDateString('pt-BR', {
     weekday: 'long',
     day: '2-digit',
@@ -374,18 +418,20 @@ const formatarData = (data) => {
 }
 
 const imagemEvento = (evento) => {
-  if (evento.imagem && evento.imagem.trim() !== '') {
+  if (evento.imagem && String(evento.imagem).trim() !== '') {
     return evento.imagem
   }
 
-  if (evento.imagem_url && evento.imagem_url.trim() !== '') {
+  if (evento.imagem_url && String(evento.imagem_url).trim() !== '') {
     return evento.imagem_url
   }
 
   return 'https://images.unsplash.com/photo-1519389950473-47ba0277781c'
 }
 
-const capacidadeTotal = (capacidade) => {
+const capacidadeTotal = (evento) => {
+  const capacidade = evento.capacidade || evento.vagas
+
   if (!capacidade) return '∞'
 
   const texto = String(capacidade)
@@ -505,6 +551,11 @@ onMounted(() => {
 .eventos-page .delete-btn:hover {
   background: #b02a37;
   box-shadow: 0 16px 30px rgba(220, 53, 69, 0.25);
+}
+
+.eventos-page .button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 /* ================= MODO ESCURO ================= */
