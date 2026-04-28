@@ -477,7 +477,12 @@ export default {
   },
 
   mounted() {
+    document.body.classList.add("pagina-noticias-body")
     this.carregarNoticias()
+  },
+
+  beforeUnmount() {
+    document.body.classList.remove("pagina-noticias-body")
   }
 }
 </script>
@@ -485,8 +490,5 @@ export default {
 <style scoped>
 @import "../assets/css/noticias.css";
 
-.btn-publicar:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
+
 </style>

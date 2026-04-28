@@ -258,7 +258,8 @@ body {
   background: #2788C8;
 }
 
-.day-dot.feriado,
+
+ .day-dot.feriado,
 .legenda-dot.feriado {
   background: #22c55e;
 }

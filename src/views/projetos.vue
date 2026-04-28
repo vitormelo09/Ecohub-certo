@@ -76,7 +76,7 @@
             <input
               id="imagem"
               type="file"
-              accept="image/*"
+              accept="image/png,image/jpeg,image/jpg,image/webp"
               @change="selecionarImagem"
             >
           </div>
@@ -156,7 +156,7 @@
         >
           <div class="card-top">
             <span class="tag">
-              {{ projeto.tecnologias_usadas || 'Projeto' }}
+              {{ projeto.tecnologias_usadas || projeto.tecnologias || 'Projeto' }}
             </span>
 
             <span class="nivel">
@@ -165,8 +165,8 @@
           </div>
 
           <img
-            v-if="projeto.imagem"
-            :src="montarUrlImagem(projeto.imagem)"
+            v-if="projeto.imagem || projeto.imagem_url"
+            :src="montarUrlImagem(projeto.imagem || projeto.imagem_url)"
             alt="Imagem do projeto"
             class="projeto-imagem"
           >
@@ -180,12 +180,12 @@
           <div class="meta">
             <span>
               <strong>Tecnologias:</strong>
-              {{ projeto.tecnologias_usadas || 'Não informado' }}
+              {{ projeto.tecnologias_usadas || projeto.tecnologias || 'Não informado' }}
             </span>
 
             <span>
               <strong>Autor:</strong>
-              {{ projeto.autor_nome || projeto.usuario_id || 'Não informado' }}
+              {{ projeto.autor_nome || projeto.nome || projeto.usuario_id || projeto.user_id || 'Não informado' }}
             </span>
           </div>
 
@@ -194,6 +194,7 @@
               v-if="projeto.link_github"
               :href="projeto.link_github"
               target="_blank"
+              rel="noopener noreferrer"
               class="btn-card"
             >
               GitHub
@@ -231,7 +232,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import api from '../services/api'
 
 const usuarioLogado = JSON.parse(localStorage.getItem('usuario')) || null
@@ -258,7 +259,9 @@ const novoProjeto = ref({
 })
 
 const isDonoProjeto = (projeto) => {
-  return Number(projeto.usuario_id) === Number(usuarioLogado?.id)
+  const idUsuarioProjeto = projeto.usuario_id || projeto.user_id
+
+  return Number(idUsuarioProjeto) === Number(usuarioLogado?.id)
 }
 
 const abrirFormulario = () => {
@@ -289,17 +292,58 @@ const selecionarImagem = (event) => {
     return
   }
 
+  const tiposPermitidos = [
+    'image/jpeg',
+    'image/jpg',
+    'image/png',
+    'image/webp'
+  ]
+
+  if (!tiposPermitidos.includes(arquivo.type)) {
+    mensagemErro.value = 'Escolha uma imagem JPG, PNG ou WEBP.'
+    event.target.value = ''
+    imagemSelecionada.value = null
+    return
+  }
+
+  const tamanhoMaximo = 5 * 1024 * 1024
+
+  if (arquivo.size > tamanhoMaximo) {
+    mensagemErro.value = 'A imagem precisa ter no máximo 5MB.'
+    event.target.value = ''
+    imagemSelecionada.value = null
+    return
+  }
+
+  mensagemErro.value = ''
   imagemSelecionada.value = arquivo
 }
 
 const montarUrlImagem = (imagem) => {
   if (!imagem) return ''
 
-  if (imagem.startsWith('http')) {
+  if (String(imagem).startsWith('http')) {
     return imagem
   }
 
-  return `http://localhost:3000${imagem}`
+  if (String(imagem).startsWith('/uploads')) {
+    return `http://localhost:3000${imagem}`
+  }
+
+  if (String(imagem).startsWith('uploads')) {
+    return `http://localhost:3000/${imagem}`
+  }
+
+  return imagem
+}
+
+const pegarListaDaResposta = (dados) => {
+  if (Array.isArray(dados)) return dados
+  if (Array.isArray(dados.projetos)) return dados.projetos
+  if (Array.isArray(dados.projects)) return dados.projects
+  if (Array.isArray(dados.data)) return dados.data
+  if (Array.isArray(dados.results)) return dados.results
+  return []
 }
 
 const carregarProjetos = async () => {
@@ -307,7 +351,7 @@ const carregarProjetos = async () => {
     carregando.value = true
 
     const resposta = await api.get('/api/projects')
-    projetos.value = resposta.data || []
+    projetos.value = pegarListaDaResposta(resposta.data)
   } catch (error) {
     console.error('Erro ao carregar projetos:', error)
     projetos.value = []
@@ -336,20 +380,17 @@ const publicarProjeto = async () => {
 
     const formData = new FormData()
 
-    formData.append('titulo', novoProjeto.value.titulo)
-    formData.append('descricao', novoProjeto.value.descricao)
-    formData.append('link_github', novoProjeto.value.link_github)
-    formData.append('tecnologias_usadas', novoProjeto.value.tecnologias_usadas)
+    formData.append('titulo', novoProjeto.value.titulo.trim())
+    formData.append('descricao', novoProjeto.value.descricao.trim())
+    formData.append('link_github', novoProjeto.value.link_github.trim())
+    formData.append('tecnologias_usadas', novoProjeto.value.tecnologias_usadas.trim())
+    formData.append('tecnologias', novoProjeto.value.tecnologias_usadas.trim())
 
     if (imagemSelecionada.value) {
       formData.append('imagem', imagemSelecionada.value)
     }
 
-    await api.post('/api/projects', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    })
+    await api.post('/api/projects', formData)
 
     mensagemSucesso.value = 'Projeto publicado com sucesso!'
 
@@ -362,8 +403,10 @@ const publicarProjeto = async () => {
     console.error('Erro ao publicar projeto:', error)
 
     mensagemErro.value =
+      error.response?.data?.detalhes ||
       error.response?.data?.erro ||
       error.response?.data?.mensagem ||
+      error.response?.data?.message ||
       'Erro ao publicar projeto.'
   } finally {
     salvando.value = false
@@ -388,8 +431,10 @@ const curtirProjeto = async (id) => {
     console.error('Erro ao curtir projeto:', error)
 
     alert(
+      error.response?.data?.detalhes ||
       error.response?.data?.erro ||
       error.response?.data?.mensagem ||
+      error.response?.data?.message ||
       'Erro ao curtir projeto.'
     )
   } finally {
@@ -423,8 +468,10 @@ const excluirProjeto = async (id) => {
     console.error('Erro ao excluir projeto:', error)
 
     alert(
+      error.response?.data?.detalhes ||
       error.response?.data?.erro ||
       error.response?.data?.mensagem ||
+      error.response?.data?.message ||
       'Erro ao excluir projeto.'
     )
   } finally {
@@ -433,12 +480,16 @@ const excluirProjeto = async (id) => {
 }
 
 const projetosFiltrados = computed(() => {
-  const textoBusca = busca.value.toLowerCase()
+  const textoBusca = busca.value.toLowerCase().trim()
+
+  if (!textoBusca) {
+    return projetos.value
+  }
 
   return projetos.value.filter((projeto) => {
     const titulo = projeto.titulo || ''
     const descricao = projeto.descricao || ''
-    const tecnologias = projeto.tecnologias_usadas || ''
+    const tecnologias = projeto.tecnologias_usadas || projeto.tecnologias || ''
 
     return (
       titulo.toLowerCase().includes(textoBusca) ||
@@ -459,10 +510,16 @@ const totalCurtidas = computed(() => {
 })
 
 onMounted(() => {
+  document.body.classList.add('pagina-projetos')
   carregarProjetos()
+})
+
+onBeforeUnmount(() => {
+  document.body.classList.remove('pagina-projetos')
 })
 </script>
 
 <style scoped>
 @import "../assets/css/projetos.css";
+
 </style>

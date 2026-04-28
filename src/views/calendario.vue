@@ -138,6 +138,10 @@
                 Meu lembrete
               </span>
 
+              <p v-if="evento.descricao">
+                {{ evento.descricao }}
+              </p>
+
               <p v-if="evento.horario">
                 Horário: {{ evento.horario }}
               </p>
@@ -180,6 +184,8 @@
 import api from "../services/api"
 
 export default {
+  name: "CalendarioEventos",
+
   data() {
     return {
       currentDate: new Date(),
@@ -356,7 +362,16 @@ export default {
     },
 
     formatDate(date) {
-      return new Date(date + "T00:00:00").toLocaleDateString("pt-BR")
+      if (!date) return "Data não informada"
+
+      const dataLimpa = String(date).split("T")[0]
+      const dataFormatada = new Date(dataLimpa + "T00:00:00")
+
+      if (Number.isNaN(dataFormatada.getTime())) {
+        return "Data inválida"
+      }
+
+      return dataFormatada.toLocaleDateString("pt-BR")
     },
 
     limparData(data) {
@@ -365,17 +380,31 @@ export default {
       return String(data).split("T")[0]
     },
 
+    pegarListaDaResposta(dados) {
+      if (Array.isArray(dados)) return dados
+      if (Array.isArray(dados.eventos)) return dados.eventos
+      if (Array.isArray(dados.events)) return dados.events
+      if (Array.isArray(dados.data)) return dados.data
+      if (Array.isArray(dados.results)) return dados.results
+      return []
+    },
+
     async carregarEventosDaApi() {
       try {
         this.carregandoEventos = true
 
         const response = await api.get("/api/events")
-        const eventosBanco = response.data
+        const eventosBanco = this.pegarListaDaResposta(response.data)
 
         const eventosOrganizados = {}
 
         eventosBanco.forEach((evento) => {
-          const dataEvento = this.limparData(evento.data_evento || evento.data)
+          const dataEvento = this.limparData(
+            evento.data_evento ||
+            evento.data ||
+            evento.dataEvento ||
+            evento.date
+          )
 
           if (!dataEvento) return
 
@@ -385,11 +414,11 @@ export default {
 
           eventosOrganizados[dataEvento].push({
             id: `api-${evento.id}`,
-            title: evento.titulo,
+            title: evento.titulo || evento.title || "Evento sem título",
             type: "eniac",
-            horario: evento.horario,
-            local: evento.local,
-            descricao: evento.descricao
+            horario: evento.horario || evento.hora || "",
+            local: evento.local || "",
+            descricao: evento.descricao || ""
           })
         })
 
@@ -405,7 +434,12 @@ export default {
       const eventosSalvos = localStorage.getItem(this.chaveLocalStorage)
 
       if (eventosSalvos) {
-        this.eventosPessoais = JSON.parse(eventosSalvos)
+        try {
+          this.eventosPessoais = JSON.parse(eventosSalvos) || {}
+        } catch (error) {
+          console.error("Erro ao ler lembretes salvos:", error)
+          this.eventosPessoais = {}
+        }
       }
     },
 
@@ -433,11 +467,16 @@ export default {
         type: "pessoal"
       }
 
-      if (!this.eventosPessoais[this.selectedDate]) {
-        this.eventosPessoais[this.selectedDate] = []
-      }
+      const eventosDoDia = this.eventosPessoais[this.selectedDate]
+        ? [...this.eventosPessoais[this.selectedDate]]
+        : []
 
-      this.eventosPessoais[this.selectedDate].push(novoEvento)
+      eventosDoDia.push(novoEvento)
+
+      this.eventosPessoais = {
+        ...this.eventosPessoais,
+        [this.selectedDate]: eventosDoDia
+      }
 
       this.salvarEventosPessoais()
       this.novoEventoTitulo = ""
@@ -450,12 +489,21 @@ export default {
 
       if (!confirmar) return
 
-      this.eventosPessoais[this.selectedDate] =
-        this.eventosPessoais[this.selectedDate].filter((evento) => evento.id !== id)
+      const eventosDoDia = this.eventosPessoais[this.selectedDate] || []
 
-      if (this.eventosPessoais[this.selectedDate].length === 0) {
-        delete this.eventosPessoais[this.selectedDate]
+      const eventosAtualizados = eventosDoDia.filter((evento) => evento.id !== id)
+
+      const novosEventosPessoais = {
+        ...this.eventosPessoais
       }
+
+      if (eventosAtualizados.length === 0) {
+        delete novosEventosPessoais[this.selectedDate]
+      } else {
+        novosEventosPessoais[this.selectedDate] = eventosAtualizados
+      }
+
+      this.eventosPessoais = novosEventosPessoais
 
       this.salvarEventosPessoais()
     },

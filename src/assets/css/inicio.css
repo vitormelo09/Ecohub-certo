@@ -388,3 +388,4 @@ body.dark-mode .ver-tudo:hover { border-color: #38bdf8; }
 @media (max-width: 480px) {
     .estatisticas { grid-template-columns: 1fr; }
 }
+
