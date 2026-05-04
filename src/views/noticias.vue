@@ -29,45 +29,53 @@
         <h2>Publicar nova notícia</h2>
 
         <form class="form-noticia" @submit.prevent="publicarNoticia">
+          <label>Título da notícia</label>
           <input
             v-model="novaNoticia.titulo"
             type="text"
-            placeholder="Título da notícia"
+            placeholder="Digite o título da notícia"
             required
           >
 
+          <label>Categoria da notícia</label>
           <input
             v-model="novaNoticia.categoria"
             type="text"
-            placeholder="Categoria. Ex: Tecnologia, Educação, Eventos"
+            placeholder="Ex: Tecnologia, Educação, Eventos"
           >
 
+          <label>Data da publicação</label>
           <input
             v-model="novaNoticia.data_publicacao"
             type="date"
           >
 
+          <label>Imagem da notícia (obrigatório)</label>
           <input
             v-model="novaNoticia.imagem"
             type="text"
-            placeholder="Link da imagem"
+            placeholder="Cole aqui o link da imagem"
+            required
           >
 
+          <label>Link da fonte</label>
           <input
             v-model="novaNoticia.link"
             type="text"
-            placeholder="Link da fonte da notícia"
+            placeholder="Cole aqui o link da fonte da notícia"
           >
 
+          <label>Resumo da notícia</label>
           <textarea
             v-model="novaNoticia.resumo"
-            placeholder="Resumo da notícia"
+            placeholder="Escreva um resumo curto da notícia"
             required
           ></textarea>
 
+          <label>Conteúdo completo da notícia</label>
           <textarea
             v-model="novaNoticia.conteudo"
-            placeholder="Conteúdo completo da notícia"
+            placeholder="Escreva o conteúdo completo da notícia"
             required
           ></textarea>
 
@@ -93,6 +101,12 @@
             type="text"
             placeholder="Buscar notícia..."
           >
+
+          <select v-model="ordem" @change="carregarNoticias">
+            <option value="mais-novas">Mais novas</option>
+            <option value="mais-antigas">Mais antigas</option>
+            <option value="mais-curtidas">Mais curtidas</option>
+          </select>
         </div>
       </div>
 
@@ -132,6 +146,10 @@
               {{ formatarData(noticiaPrincipal.data_noticia || noticiaPrincipal.data || noticiaPrincipal.data_publicacao) }}
             </span>
 
+            <span>
+              👍 {{ noticiaPrincipal.curtidas || 0 }} curtidas
+            </span>
+
             <a
               :href="linkNoticia(noticiaPrincipal)"
               target="_blank"
@@ -140,6 +158,13 @@
               Ler notícia completa →
             </a>
           </div>
+
+          <button
+            class="btn-vermais"
+            @click="curtirNoticia(noticiaPrincipal.id)"
+          >
+            Curtir
+          </button>
 
           <button
             v-if="podePublicar"
@@ -182,6 +207,10 @@
                 {{ noticia.resumo }}
               </p>
 
+              <p class="resumo">
+                👍 {{ noticia.curtidas || 0 }} curtidas
+              </p>
+
               <transition name="fade-expand">
                 <div v-if="noticia.ativo" class="conteudo-extra">
                   <p>{{ noticia.conteudo || noticia.conteudo_completo }}</p>
@@ -191,6 +220,10 @@
               <div class="card-acoes">
                 <button class="btn-vermais" @click="toggleConteudo(noticia.id)">
                   {{ noticia.ativo ? 'Ver menos' : 'Ver mais' }}
+                </button>
+
+                <button class="btn-vermais" @click="curtirNoticia(noticia.id)">
+                  Curtir
                 </button>
 
                 <a
@@ -231,6 +264,7 @@ export default {
   data() {
     return {
       busca: "",
+      ordem: "mais-novas",
       noticias: [],
       carregando: false,
       publicando: false,
@@ -296,7 +330,7 @@ export default {
         this.carregando = true
         this.erroNoticias = ""
 
-        const resposta = await api.get("/api/news")
+        const resposta = await api.get(`/api/news?ordem=${this.ordem}`)
         const listaNoticias = this.pegarListaDaResposta(resposta.data)
 
         this.noticias = listaNoticias.map((noticia) => {
@@ -306,6 +340,7 @@ export default {
             conteudo: noticia.conteudo || noticia.conteudo_completo || "",
             imagem: noticia.imagem || noticia.imagem_url || "",
             link: noticia.link || noticia.link_fonte || noticia.fonte_url || noticia.fonte || "",
+            curtidas: noticia.curtidas || 0,
             data_publicacao:
               noticia.data_publicacao ||
               noticia.data_noticia ||
@@ -334,6 +369,11 @@ export default {
     async publicarNoticia() {
       if (!this.podePublicar) {
         alert("Você não tem permissão para publicar notícias.")
+        return
+      }
+
+      if (!this.novaNoticia.imagem || this.novaNoticia.imagem.trim() === "") {
+        alert("A imagem da notícia é obrigatória.")
         return
       }
 
@@ -392,6 +432,33 @@ export default {
         }
       } finally {
         this.publicando = false
+      }
+    },
+
+    async curtirNoticia(id) {
+      const token = localStorage.getItem("token")
+
+      if (!token) {
+        alert("Você precisa estar logado para curtir notícias.")
+        return
+      }
+
+      try {
+        await api.post(`/api/news/${id}/like`)
+        await this.carregarNoticias()
+      } catch (erro) {
+        console.error("Erro ao curtir notícia:", erro)
+
+        if (erro.response) {
+          alert(
+            erro.response.data?.detalhes ||
+            erro.response.data?.erro ||
+            erro.response.data?.message ||
+            "Erro ao curtir notícia."
+          )
+        } else {
+          alert("Erro ao conectar com a API.")
+        }
       }
     },
 
@@ -490,5 +557,40 @@ export default {
 <style scoped>
 @import "../assets/css/noticias.css";
 
+.form-noticia label {
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: -6px;
+}
 
+.busca-box {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.busca-box select {
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #d9d9d9;
+  font-size: 15px;
+  outline: none;
+  background: #ffffff;
+  color: #1f2937;
+}
+
+.busca-box select:focus {
+  border-color: #1ca4a6;
+}
+
+body.dark-mode .form-noticia label {
+  color: #e2e8f0;
+}
+
+body.dark-mode .busca-box select {
+  background: #0f172a;
+  color: #f8fafc;
+  border-color: #334155;
+}
 </style>

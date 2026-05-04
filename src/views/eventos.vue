@@ -24,63 +24,42 @@
         </RouterLink>
       </section>
 
+      <!-- ================= FORM ================= -->
       <section v-if="podePublicar" class="publicar-evento">
-        <h2 class="section-title">Publicar novo evento</h2>
+        <h2 class="section-title">
+          {{ editando ? 'Editar evento' : 'Publicar novo evento' }}
+        </h2>
 
-        <form class="form-evento" @submit.prevent="publicarEvento">
-          <input
-            v-model="novoEvento.titulo"
-            type="text"
-            placeholder="Título do evento"
-            required
-          >
+        <form class="form-evento" @submit.prevent="salvarEvento">
 
-          <textarea
-            v-model="novoEvento.descricao"
-            placeholder="Descrição do evento"
-            required
-          ></textarea>
+          <label>Título do evento</label>
+          <input v-model="novoEvento.titulo" type="text" required>
 
-          <input
-            v-model="novoEvento.tipo"
-            type="text"
-            placeholder="Tipo do evento. Ex: Workshop, Palestra"
-          >
+          <label>Descrição do evento</label>
+          <textarea v-model="novoEvento.descricao" required></textarea>
 
-          <input
-            v-model="novoEvento.data"
-            type="date"
-            required
-          >
+          <label>Tipo do evento</label>
+          <input v-model="novoEvento.tipo" type="text">
 
-          <input
-            v-model="novoEvento.horario"
-            type="text"
-            placeholder="Horário. Ex: 14:00 - 18:00"
-          >
+          <label>Data do evento</label>
+          <input v-model="novoEvento.data" type="date" required>
 
-          <input
-            v-model="novoEvento.local"
-            type="text"
-            placeholder="Local do evento"
-            required
-          >
+          <label>Horário</label>
+          <input v-model="novoEvento.horario" type="text">
 
-          <input
-            v-model="novoEvento.imagem"
-            type="text"
-            placeholder="Link da imagem do evento"
-          >
+          <label>Local</label>
+          <input v-model="novoEvento.local" type="text" required>
 
-          <input
-            v-model="novoEvento.capacidade"
-            type="number"
-            placeholder="Capacidade total. Ex: 70"
-          >
+          <label>Imagem (URL)</label>
+          <input v-model="novoEvento.imagem" type="text" required>
 
-          <button type="submit" class="button confirm-btn" :disabled="publicando">
-            {{ publicando ? 'Publicando...' : 'Publicar Evento' }}
+          <label>Capacidade</label>
+          <input v-model="novoEvento.capacidade" type="number" required>
+
+          <button type="submit" class="button confirm-btn">
+            {{ editando ? 'Salvar edição' : 'Publicar Evento' }}
           </button>
+
         </form>
       </section>
 
@@ -88,36 +67,28 @@
         <p>Você pode visualizar os eventos, mas não tem permissão para publicar novos eventos.</p>
       </section>
 
+      <!-- ================= LISTA ================= -->
       <section>
         <h2 class="section-title">Próximos Eventos</h2>
 
-        <p v-if="carregando" class="mensagem-eventos">
-          Carregando eventos...
-        </p>
-
-        <p v-else-if="erroEventos" class="mensagem-erro">
-          {{ erroEventos }}
-        </p>
-
-        <p v-else-if="eventos.length === 0" class="mensagem-eventos">
+        <div v-if="eventos.length === 0" class="mensagem-eventos">
           Nenhum evento cadastrado ainda.
-        </p>
+        </div>
 
         <div v-else class="events">
-          <div
-            v-for="evento in eventos"
-            :key="evento.id"
-            class="event-card"
-          >
+          <div v-for="evento in eventos" :key="evento.id" class="event-card">
+
             <div class="event-image">
-              <img :src="imagemEvento(evento)" alt="Imagem do evento">
+              <img :src="imagemEvento(evento)">
             </div>
 
             <div class="event-content">
-              <span class="badge">{{ evento.tipo || evento.categoria || 'Evento' }}</span>
 
+              <span class="badge">{{ evento.tipo }}</span>
+
+              <!-- 🔥 CONTADOR CORRIGIDO -->
               <span class="capacity">
-                {{ evento.participantes || 0 }}/{{ capacidadeTotal(evento) }}
+                {{ evento.confirmados || 0 }}/{{ evento.capacidade }}
               </span>
 
               <h3 class="event-title">{{ evento.titulo }}</h3>
@@ -125,15 +96,11 @@
               <p class="event-desc">{{ evento.descricao }}</p>
 
               <p class="event-info">
-                📅 {{ formatarData(evento.data || evento.data_evento) }}
-              </p>
-
-              <p v-if="evento.horario || evento.hora" class="event-info">
-                ⏰ {{ evento.horario || evento.hora }}
+                📅 {{ formatarData(evento.data_evento) }}
               </p>
 
               <p class="event-info">
-                📍 {{ evento.local || 'Local não informado' }}
+                📍 {{ evento.local }}
               </p>
 
               <button
@@ -152,6 +119,15 @@
                 Cancelar Presença
               </button>
 
+              <!-- ✅ EDITAR -->
+              <button
+                v-if="podePublicar"
+                class="button edit-btn"
+                @click="editarEvento(evento)"
+              >
+                Editar
+              </button>
+
               <button
                 v-if="podePublicar"
                 class="button delete-btn"
@@ -159,6 +135,7 @@
               >
                 Excluir Evento
               </button>
+
             </div>
           </div>
         </div>
@@ -173,20 +150,13 @@ import { ref, computed, onMounted } from 'vue'
 import api from '../services/api'
 
 const usuario = ref(JSON.parse(localStorage.getItem('usuario')) || null)
-const token = localStorage.getItem('token')
-
-const podePublicar = computed(() => {
-  if (!usuario.value) return false
-  return usuario.value.tipo === 'admin'
-})
+const podePublicar = computed(() => usuario.value?.tipo === 'admin')
 
 const eventos = ref([])
-const meusEventosIds = ref([])
-const carregando = ref(false)
-const publicando = ref(false)
-const erroEventos = ref('')
+const editando = ref(false)
 
 const novoEvento = ref({
+  id: null,
   titulo: '',
   descricao: '',
   tipo: '',
@@ -197,403 +167,74 @@ const novoEvento = ref({
   capacidade: ''
 })
 
-const pegarListaDaResposta = (dados) => {
-  if (Array.isArray(dados)) return dados
-  if (Array.isArray(dados.eventos)) return dados.eventos
-  if (Array.isArray(dados.data)) return dados.data
-  if (Array.isArray(dados.results)) return dados.results
-  return []
-}
-
 const carregarEventos = async () => {
-  try {
-    carregando.value = true
-    erroEventos.value = ''
-
-    const resposta = await api.get('/api/events')
-    let listaEventos = pegarListaDaResposta(resposta.data)
-
-    meusEventosIds.value = []
-
-    if (token) {
-      try {
-        const meusEventosResposta = await api.get('/api/events/meus-eventos')
-        const listaMeusEventos = pegarListaDaResposta(meusEventosResposta.data)
-
-        meusEventosIds.value = listaMeusEventos.map(evento => Number(evento.id))
-
-        listaEventos = listaEventos.map(evento => {
-          return {
-            ...evento,
-            confirmado: meusEventosIds.value.includes(Number(evento.id))
-          }
-        })
-      } catch (erroMeusEventos) {
-        console.warn('Não foi possível carregar meus eventos:', erroMeusEventos)
-
-        listaEventos = listaEventos.map(evento => {
-          return {
-            ...evento,
-            confirmado: false
-          }
-        })
-      }
-    }
-
-    eventos.value = listaEventos
-  } catch (erro) {
-    console.error('Erro ao carregar eventos:', erro)
-
-    if (erro.response) {
-      erroEventos.value =
-        erro.response.data?.detalhes ||
-        erro.response.data?.erro ||
-        erro.response.data?.message ||
-        'Não foi possível carregar os eventos.'
-    } else {
-      erroEventos.value = 'Não foi possível conectar com a API. Verifique se a API está ligada.'
-    }
-  } finally {
-    carregando.value = false
-  }
+  const res = await api.get('/api/events')
+  eventos.value = res.data
 }
 
-const publicarEvento = async () => {
-  if (!podePublicar.value) {
-    alert('Você não tem permissão para publicar eventos.')
+const salvarEvento = async () => {
+  if (!novoEvento.value.imagem) {
+    alert("Imagem obrigatória")
     return
   }
 
-  try {
-    publicando.value = true
-
-    await api.post('/api/events', {
-      titulo: novoEvento.value.titulo,
-      descricao: novoEvento.value.descricao,
-      tipo: novoEvento.value.tipo || 'Evento',
-      categoria: novoEvento.value.tipo || 'Evento',
-
-      data: novoEvento.value.data,
-      data_evento: novoEvento.value.data,
-
-      horario: novoEvento.value.horario,
-      hora: novoEvento.value.horario,
-
-      local: novoEvento.value.local,
-
-      imagem: novoEvento.value.imagem,
-      imagem_url: novoEvento.value.imagem,
-
-      capacidade: Number(novoEvento.value.capacidade) || null,
-      vagas: Number(novoEvento.value.capacidade) || null
-    })
-
-    novoEvento.value = {
-      titulo: '',
-      descricao: '',
-      tipo: '',
-      data: '',
-      horario: '',
-      local: '',
-      imagem: '',
-      capacidade: ''
-    }
-
-    await carregarEventos()
-
-    alert('Evento publicado com sucesso!')
-  } catch (erro) {
-    console.error('Erro ao publicar evento:', erro)
-
-    if (erro.response) {
-      alert(
-        erro.response.data?.detalhes ||
-        erro.response.data?.erro ||
-        erro.response.data?.message ||
-        'Erro ao publicar evento.'
-      )
-    } else {
-      alert('Erro ao conectar com a API. Verifique se a API está ligada.')
-    }
-  } finally {
-    publicando.value = false
+  if (editando.value) {
+    await api.put(`/api/events/${novoEvento.value.id}`, novoEvento.value)
+  } else {
+    await api.post('/api/events', novoEvento.value)
   }
+
+  editando.value = false
+
+  novoEvento.value = {
+    id: null,
+    titulo: '',
+    descricao: '',
+    tipo: '',
+    data: '',
+    horario: '',
+    local: '',
+    imagem: '',
+    capacidade: ''
+  }
+
+  carregarEventos()
+}
+
+const editarEvento = (evento) => {
+  novoEvento.value = {
+    ...evento,
+    data: evento.data_evento?.split('T')[0]
+  }
+  editando.value = true
 }
 
 const confirmarPresenca = async (id) => {
-  if (!token) {
-    alert('Você precisa estar logado para confirmar presença.')
-    return
-  }
-
-  try {
-    await api.post(`/api/events/${id}/confirmar`)
-    await carregarEventos()
-  } catch (erro) {
-    console.error('Erro ao confirmar presença:', erro)
-
-    if (erro.response) {
-      alert(
-        erro.response.data?.detalhes ||
-        erro.response.data?.erro ||
-        erro.response.data?.message ||
-        'Erro ao confirmar presença.'
-      )
-    } else {
-      alert('Erro ao conectar com a API.')
-    }
-  }
+  await api.post(`/api/events/${id}/confirmar`)
+  carregarEventos()
 }
 
 const cancelarPresenca = async (id) => {
-  if (!token) {
-    alert('Você precisa estar logado.')
-    return
-  }
-
-  try {
-    await api.delete(`/api/events/${id}/confirmar`)
-    await carregarEventos()
-  } catch (erro) {
-    console.error('Erro ao cancelar presença:', erro)
-
-    if (erro.response) {
-      alert(
-        erro.response.data?.detalhes ||
-        erro.response.data?.erro ||
-        erro.response.data?.message ||
-        'Erro ao cancelar presença.'
-      )
-    } else {
-      alert('Erro ao conectar com a API.')
-    }
-  }
+  await api.delete(`/api/events/${id}/confirmar`)
+  carregarEventos()
 }
 
 const excluirEvento = async (id) => {
-  if (!podePublicar.value) {
-    alert('Você não tem permissão para excluir eventos.')
-    return
-  }
-
-  const confirmar = confirm('Tem certeza que deseja excluir este evento?')
-  if (!confirmar) return
-
-  try {
-    await api.delete(`/api/events/${id}`)
-    await carregarEventos()
-    alert('Evento excluído com sucesso!')
-  } catch (erro) {
-    console.error('Erro ao excluir evento:', erro)
-
-    if (erro.response) {
-      alert(
-        erro.response.data?.detalhes ||
-        erro.response.data?.erro ||
-        erro.response.data?.message ||
-        'Erro ao excluir evento.'
-      )
-    } else {
-      alert('Erro ao conectar com a API.')
-    }
-  }
+  await api.delete(`/api/events/${id}`)
+  carregarEventos()
 }
 
 const formatarData = (data) => {
-  if (!data) return 'Data não informada'
-
-  const dataLimpa = String(data).split('T')[0]
-  const dataFormatada = new Date(dataLimpa + 'T00:00:00')
-
-  if (Number.isNaN(dataFormatada.getTime())) {
-    return 'Data inválida'
-  }
-
-  return dataFormatada.toLocaleDateString('pt-BR', {
-    weekday: 'long',
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric'
-  })
+  return new Date(data).toLocaleDateString('pt-BR')
 }
 
 const imagemEvento = (evento) => {
-  if (evento.imagem && String(evento.imagem).trim() !== '') {
-    return evento.imagem
-  }
-
-  if (evento.imagem_url && String(evento.imagem_url).trim() !== '') {
-    return evento.imagem_url
-  }
-
-  return 'https://images.unsplash.com/photo-1519389950473-47ba0277781c'
+  return evento.imagem || evento.imagem_url
 }
 
-const capacidadeTotal = (evento) => {
-  const capacidade = evento.capacidade || evento.vagas
-
-  if (!capacidade) return '∞'
-
-  const texto = String(capacidade)
-
-  if (texto.includes('/')) {
-    return texto.split('/')[1]
-  }
-
-  return texto
-}
-
-onMounted(() => {
-  carregarEventos()
-})
+onMounted(carregarEventos)
 </script>
 
 <style scoped>
 @import "../assets/css/eventos.css";
-
-.eventos-page .event-image {
-  width: 100%;
-  height: 230px;
-  overflow: hidden;
-}
-
-.eventos-page .event-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-/* ================= PUBLICAR EVENTO ================= */
-
-.eventos-page .publicar-evento {
-  margin-top: 30px;
-  margin-bottom: 40px;
-  padding: 25px;
-  border-radius: 16px;
-  background: #ffffff;
-  border: 1px solid #e5edf4;
-  box-shadow: 0 14px 40px rgba(15, 23, 42, 0.07);
-}
-
-.eventos-page .form-evento {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.eventos-page .form-evento input,
-.eventos-page .form-evento textarea {
-  width: 100%;
-  padding: 13px 15px;
-  border: 1px solid #d9d9d9;
-  border-radius: 10px;
-  font-size: 15px;
-  outline: none;
-}
-
-.eventos-page .form-evento textarea {
-  min-height: 100px;
-  resize: vertical;
-}
-
-.eventos-page .form-evento input:focus,
-.eventos-page .form-evento textarea:focus {
-  border-color: #1ca4a6;
-}
-
-/* ================= AVISOS ================= */
-
-.eventos-page .sem-permissao {
-  margin: 25px 0;
-  padding: 15px;
-  border-radius: 12px;
-  background: #fff3cd;
-  color: #856404;
-  font-weight: 500;
-}
-
-.eventos-page .mensagem-eventos {
-  padding: 18px;
-  border-radius: 12px;
-  background: #ffffff;
-  color: #445164;
-  border: 1px solid #e5edf4;
-}
-
-.eventos-page .mensagem-erro {
-  padding: 18px;
-  border-radius: 12px;
-  background: #ffe5e5;
-  color: #9f1d1d;
-  border: 1px solid #ffb4b4;
-  font-weight: 600;
-}
-
-/* ================= BOTÕES ================= */
-
-.eventos-page .cancelar-btn {
-  background: #f59e0b;
-  box-shadow: 0 12px 24px rgba(245, 158, 11, 0.18);
-}
-
-.eventos-page .cancelar-btn:hover {
-  background: #d97706;
-  box-shadow: 0 16px 30px rgba(245, 158, 11, 0.25);
-}
-
-.eventos-page .delete-btn {
-  margin-top: 10px;
-  background: #dc3545;
-  box-shadow: 0 12px 24px rgba(220, 53, 69, 0.18);
-}
-
-.eventos-page .delete-btn:hover {
-  background: #b02a37;
-  box-shadow: 0 16px 30px rgba(220, 53, 69, 0.25);
-}
-
-.eventos-page .button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-/* ================= MODO ESCURO ================= */
-
-body.dark-mode .eventos-page .publicar-evento,
-body.dark-mode .eventos-page .mensagem-eventos {
-  background: #1e293b;
-  color: #e2e8f0;
-  border-color: #334155;
-  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.38);
-}
-
-body.dark-mode .eventos-page .form-evento input,
-body.dark-mode .eventos-page .form-evento textarea {
-  background: #0f172a;
-  color: #f8fafc;
-  border-color: #334155;
-}
-
-body.dark-mode .eventos-page .form-evento input::placeholder,
-body.dark-mode .eventos-page .form-evento textarea::placeholder {
-  color: #94a3b8;
-}
-
-body.dark-mode .eventos-page .sem-permissao {
-  background: rgba(234, 179, 8, 0.16);
-  color: #fde68a;
-}
-
-body.dark-mode .eventos-page .mensagem-erro {
-  background: rgba(220, 38, 38, 0.18);
-  color: #fecaca;
-  border-color: rgba(248, 113, 113, 0.35);
-}
-
-@media (max-width: 480px) {
-  .eventos-page .event-image {
-    height: 190px;
-  }
-}
 </style>
