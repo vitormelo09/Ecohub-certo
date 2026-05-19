@@ -15,6 +15,7 @@
     </section>
 
     <section v-else class="perfil-publico-layout">
+      <!-- ESQUERDA -->
       <aside class="perfil-publico-card perfil-info">
         <div class="perfil-cover"></div>
 
@@ -37,6 +38,10 @@
             @{{ perfil.email?.split('@')[0] || 'usuario' }}
           </p>
 
+          <p class="perfil-funcao">
+            {{ perfil.tipo || perfil.funcao || 'Usuário' }}
+          </p>
+
           <p class="perfil-bio">
             {{ perfil.bio || 'Este usuário ainda não adicionou uma bio.' }}
           </p>
@@ -53,7 +58,7 @@
             </div>
 
             <div class="stat">
-              <strong>{{ perfil.posts || 0 }}</strong>
+              <strong>{{ postsUsuario.length }}</strong>
               <span>Posts</span>
             </div>
           </div>
@@ -77,32 +82,123 @@
         </div>
       </aside>
 
-      <section class="perfil-publico-card perfil-detalhes">
-        <div class="section-head">
-          <h2>Sobre</h2>
-          <span>EcoHub</span>
-        </div>
-
-        <div class="info-lista">
-          <div class="info-item">
-            <i class="fa-solid fa-user"></i>
-            <span>{{ perfil.nome || 'Usuário' }}</span>
+      <!-- DIREITA -->
+      <section class="perfil-conteudo-direita">
+        <!-- SOBRE -->
+        <section class="perfil-publico-card perfil-detalhes">
+          <div class="section-head">
+            <h2>Sobre</h2>
+            <span>EcoHub</span>
           </div>
 
-          <div class="info-item">
-            <i class="fa-solid fa-envelope"></i>
-            <span>{{ perfil.email || 'E-mail não informado' }}</span>
+          <div class="info-lista">
+            <div class="info-item">
+              <i class="fa-solid fa-user"></i>
+              <span>{{ perfil.nome || 'Usuário' }}</span>
+            </div>
+
+            <div class="info-item">
+              <i class="fa-solid fa-envelope"></i>
+              <span>{{ perfil.email || 'E-mail não informado' }}</span>
+            </div>
+
+            <div class="info-item">
+              <i class="fa-solid fa-briefcase"></i>
+              <span>{{ perfil.tipo || perfil.funcao || 'Função não informada' }}</span>
+            </div>
+
+            <div class="info-item">
+              <i class="fa-solid fa-align-left"></i>
+              <span>{{ perfil.bio || 'Nenhuma bio cadastrada.' }}</span>
+            </div>
           </div>
 
-          <div class="info-item">
-            <i class="fa-solid fa-align-left"></i>
-            <span>{{ perfil.bio || 'Nenhuma bio cadastrada.' }}</span>
-          </div>
-        </div>
+          <RouterLink to="/feed" class="btn-voltar">
+            Voltar para o Feed
+          </RouterLink>
+        </section>
 
-        <RouterLink to="/feed" class="btn-voltar">
-          Voltar para o Feed
-        </RouterLink>
+        <!-- PROJETOS -->
+        <section class="perfil-publico-card perfil-detalhes">
+          <div class="section-head">
+            <h2>Projetos</h2>
+            <span>{{ projetosUsuario.length }} projeto(s)</span>
+          </div>
+
+          <div v-if="carregandoProjetos" class="estado-menor">
+            Carregando projetos...
+          </div>
+
+          <div v-else-if="projetosUsuario.length" class="projetos-lista">
+            <article
+              v-for="projeto in projetosUsuario"
+              :key="projeto.id"
+              class="projeto-card"
+            >
+              <h3>{{ projeto.titulo || projeto.nome || 'Projeto sem título' }}</h3>
+
+              <p>
+                {{ projeto.descricao || projeto.resumo || 'Sem descrição cadastrada.' }}
+              </p>
+
+              <span v-if="projeto.data_criacao || projeto.created_at">
+                {{ formatarData(projeto.data_criacao || projeto.created_at) }}
+              </span>
+            </article>
+          </div>
+
+          <p v-else class="empty-text">
+            Esse usuário ainda não possui projetos publicados.
+          </p>
+        </section>
+
+        <!-- POSTS -->
+        <section class="perfil-publico-card perfil-detalhes">
+          <div class="section-head">
+            <h2>Posts</h2>
+            <span>{{ postsUsuario.length }} post(s)</span>
+          </div>
+
+          <div v-if="carregandoPosts" class="estado-menor">
+            Carregando posts...
+          </div>
+
+          <div v-else-if="postsUsuario.length" class="posts-perfil-lista">
+            <article
+              v-for="post in postsUsuario"
+              :key="post.id"
+              class="post-perfil-card"
+            >
+              <p v-if="post.conteudo">
+                {{ post.conteudo }}
+              </p>
+
+              <div v-if="getImagemPost(post)" class="post-perfil-img">
+                <img :src="getImagemPost(post)" alt="Imagem do post">
+              </div>
+
+              <div class="post-perfil-footer">
+                <span>
+                  {{ formatarData(post.data_publicacao || post.created_at) }}
+                </span>
+
+                <span>
+                  <i class="fa-solid fa-heart"></i>
+                  {{ post.likes || post.totalCurtidas || 0 }}
+                </span>
+
+                <span>
+                  <i class="fa-solid fa-comment"></i>
+                  {{ post.totalComentarios || post.comentarios_count || 0 }}
+                </span>
+              </div>
+            </article>
+          </div>
+
+          <p v-else class="empty-text">
+            Esse usuário ainda não publicou nenhum post.
+          </p>
+        </section>
       </section>
     </section>
   </main>
@@ -116,7 +212,12 @@ import api from '../services/api'
 const route = useRoute()
 
 const perfil = ref({})
+const postsUsuario = ref([])
+const projetosUsuario = ref([])
+
 const carregando = ref(false)
+const carregandoPosts = ref(false)
+const carregandoProjetos = ref(false)
 const erro = ref('')
 
 const token = localStorage.getItem('token') || ''
@@ -131,7 +232,8 @@ const authHeaders = computed(() => ({
 }))
 
 const souEu = computed(() => {
-  return Number(usuarioLogado.value?.id) === Number(route.params.id)
+  const idLogado = usuarioLogado.value?.id || usuarioLogado.value?._id
+  return Number(idLogado) === Number(route.params.id)
 })
 
 const fotoPerfil = computed(() => {
@@ -157,7 +259,34 @@ function montarUrlFoto(user) {
     return user.foto
   }
 
+  if (user.foto && user.foto.startsWith('/uploads')) {
+    return `${API_URL}${user.foto}`
+  }
+
   return null
+}
+
+function montarUrlImagem(caminho) {
+  if (!caminho) return null
+
+  if (caminho.startsWith('http')) {
+    return caminho
+  }
+
+  if (caminho.startsWith('/uploads')) {
+    return `${API_URL}${caminho}`
+  }
+
+  return `${API_URL}/uploads/${caminho}`
+}
+
+function getImagemPost(post) {
+  return montarUrlImagem(
+    post.imagem_url ||
+    post.imagem ||
+    post.foto_post ||
+    post.post_image
+  )
 }
 
 function getInitials(nome) {
@@ -168,6 +297,15 @@ function getInitials(nome) {
     .slice(0, 2)
     .map(parte => parte[0]?.toUpperCase())
     .join('')
+}
+
+function formatarData(data) {
+  if (!data) return 'Agora'
+
+  return new Date(data).toLocaleString('pt-BR', {
+    dateStyle: 'short',
+    timeStyle: 'short'
+  })
 }
 
 async function carregarPerfilPublico() {
@@ -186,6 +324,42 @@ async function carregarPerfilPublico() {
     erro.value = 'Não foi possível carregar esse perfil.'
   } finally {
     carregando.value = false
+  }
+}
+
+async function carregarPostsDoUsuario() {
+  carregandoPosts.value = true
+
+  try {
+    const response = await api.get(
+      `/api/users/${route.params.id}/posts`,
+      authHeaders.value
+    )
+
+    postsUsuario.value = response.data
+  } catch (error) {
+    console.error('Erro ao carregar posts do usuário:', error)
+    postsUsuario.value = []
+  } finally {
+    carregandoPosts.value = false
+  }
+}
+
+async function carregarProjetosDoUsuario() {
+  carregandoProjetos.value = true
+
+  try {
+    const response = await api.get(
+      `/api/users/${route.params.id}/projects`,
+      authHeaders.value
+    )
+
+    projetosUsuario.value = response.data
+  } catch (error) {
+    console.error('Erro ao carregar projetos do usuário:', error)
+    projetosUsuario.value = []
+  } finally {
+    carregandoProjetos.value = false
   }
 }
 
@@ -208,8 +382,10 @@ async function toggleSeguir() {
   }
 }
 
-onMounted(() => {
-  carregarPerfilPublico()
+onMounted(async () => {
+  await carregarPerfilPublico()
+  carregarPostsDoUsuario()
+  carregarProjetosDoUsuario()
 })
 </script>
 
@@ -223,12 +399,18 @@ onMounted(() => {
 }
 
 .perfil-publico-layout {
-  max-width: 1100px;
+  max-width: 1180px;
   margin: 0 auto;
   display: grid;
   grid-template-columns: 360px 1fr;
   gap: 24px;
   align-items: start;
+}
+
+.perfil-conteudo-direita {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
 .perfil-publico-card {
@@ -288,7 +470,21 @@ onMounted(() => {
 .perfil-email {
   color: #0b5fa5;
   font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.perfil-funcao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(11, 95, 165, 0.08);
+  color: #0b5fa5;
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 800;
   margin-bottom: 14px;
+  text-transform: capitalize;
 }
 
 .perfil-bio {
@@ -359,6 +555,7 @@ onMounted(() => {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 22px;
+  gap: 12px;
 }
 
 .section-head h2 {
@@ -373,6 +570,7 @@ onMounted(() => {
   border-radius: 999px;
   font-size: 12px;
   font-weight: 800;
+  white-space: nowrap;
 }
 
 .info-lista {
@@ -397,58 +595,171 @@ onMounted(() => {
   color: #1ca4a6;
 }
 
+.estado-menor,
+.empty-text {
+  background: #f8fbfd;
+  border: 1px dashed #dbe5ee;
+  border-radius: 16px;
+  padding: 18px;
+  color: #64748b;
+  text-align: center;
+}
+
+.projetos-lista,
+.posts-perfil-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.projeto-card,
+.post-perfil-card {
+  background: #f8fbfd;
+  border: 1px solid #dbe5ee;
+  border-radius: 18px;
+  padding: 18px;
+}
+
+.projeto-card h3 {
+  color: #122033;
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+
+.projeto-card p,
+.post-perfil-card p {
+  color: #445164;
+  line-height: 1.7;
+  margin-bottom: 10px;
+}
+
+.projeto-card span {
+  color: #64748b;
+  font-size: 13px;
+}
+
+.post-perfil-img {
+  margin-top: 12px;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.post-perfil-img img {
+  width: 100%;
+  max-height: 360px;
+  object-fit: cover;
+  display: block;
+  border-radius: 16px;
+}
+
+.post-perfil-footer {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 700;
+  margin-top: 12px;
+}
+
+.post-perfil-footer i {
+  color: #1ca4a6;
+  margin-right: 4px;
+}
+
 /* DARK MODE */
-body.dark-mode .perfil-publico-page {
+body.dark-mode .perfil-publico-page,
+body.dark .perfil-publico-page {
   background:
     radial-gradient(circle at top left, rgba(28, 164, 166, 0.16), transparent 25%),
     linear-gradient(180deg, #0f172a 0%, #020617 100%);
 }
 
-body.dark-mode .perfil-publico-card {
+body.dark-mode .perfil-publico-card,
+body.dark .perfil-publico-card {
   background: #1e293b;
   border-color: #334155;
   box-shadow: 0 14px 40px rgba(0, 0, 0, 0.38);
 }
 
-body.dark-mode .foto-publica {
+body.dark-mode .foto-publica,
+body.dark .foto-publica {
   border-color: #1e293b;
 }
 
 body.dark-mode .perfil-conteudo h1,
 body.dark-mode .stat strong,
-body.dark-mode .section-head h2 {
+body.dark-mode .section-head h2,
+body.dark-mode .projeto-card h3,
+body.dark .perfil-conteudo h1,
+body.dark .stat strong,
+body.dark .section-head h2,
+body.dark .projeto-card h3 {
   color: #f8fafc;
 }
 
 body.dark-mode .perfil-bio,
-body.dark-mode .stat span {
+body.dark-mode .stat span,
+body.dark-mode .projeto-card p,
+body.dark-mode .post-perfil-card p,
+body.dark .perfil-bio,
+body.dark .stat span,
+body.dark .projeto-card p,
+body.dark .post-perfil-card p {
   color: #94a3b8;
 }
 
-body.dark-mode .perfil-email {
+body.dark-mode .perfil-email,
+body.dark .perfil-email {
   color: #38bdf8;
 }
 
-body.dark-mode .perfil-stats {
+body.dark-mode .perfil-funcao,
+body.dark .perfil-funcao {
+  background: rgba(56, 189, 248, 0.14);
+  color: #38bdf8;
+}
+
+body.dark-mode .perfil-stats,
+body.dark .perfil-stats {
   border-top-color: #334155;
   border-bottom-color: #334155;
 }
 
-body.dark-mode .info-item {
+body.dark-mode .info-item,
+body.dark-mode .projeto-card,
+body.dark-mode .post-perfil-card,
+body.dark-mode .estado-menor,
+body.dark-mode .empty-text,
+body.dark .info-item,
+body.dark .projeto-card,
+body.dark .post-perfil-card,
+body.dark .estado-menor,
+body.dark .empty-text {
   background: #0f172a;
   border-color: #334155;
   color: #cbd5e1;
 }
 
-body.dark-mode .section-head span {
+body.dark-mode .section-head span,
+body.dark .section-head span {
   background: rgba(56, 189, 248, 0.14);
   color: #38bdf8;
 }
 
-body.dark-mode .btn-seguir.seguindo {
+body.dark-mode .btn-seguir.seguindo,
+body.dark .btn-seguir.seguindo {
   background: #0f172a;
   color: #38bdf8;
   border-color: #334155;
+}
+
+body.dark-mode .post-perfil-footer,
+body.dark-mode .projeto-card span,
+body.dark .post-perfil-footer,
+body.dark .projeto-card span {
+  color: #94a3b8;
 }
 
 @media (max-width: 900px) {

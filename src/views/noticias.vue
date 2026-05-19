@@ -24,7 +24,6 @@
 
     <section class="noticias-conteudo">
 
-      <!-- FORMULÁRIO DE PUBLICAR NOTÍCIA -->
       <section v-if="podePublicar" class="publicar-noticia">
         <h2>Publicar nova notícia</h2>
 
@@ -48,14 +47,16 @@
           <input
             v-model="novaNoticia.data_publicacao"
             type="date"
+            :min="dataMinima"
+            required
           >
 
           <label>Imagem da notícia (obrigatório)</label>
           <input
-            v-model="novaNoticia.imagem"
-            type="text"
-            placeholder="Cole aqui o link da imagem"
+            type="file"
+            accept="image/*"
             required
+            @change="selecionarImagem"
           >
 
           <label>Link da fonte</label>
@@ -118,10 +119,7 @@
         {{ erroNoticias }}
       </p>
 
-      <section
-        v-else-if="noticiaPrincipal"
-        class="noticia-destaque"
-      >
+      <section v-else-if="noticiaPrincipal" class="noticia-destaque">
         <div class="destaque-imagem">
           <img :src="imagemNoticia(noticiaPrincipal)" :alt="noticiaPrincipal.titulo">
         </div>
@@ -269,6 +267,7 @@ export default {
       carregando: false,
       publicando: false,
       erroNoticias: "",
+      imagemArquivo: null,
 
       novaNoticia: {
         titulo: "",
@@ -290,6 +289,10 @@ export default {
     podePublicar() {
       if (!this.usuario) return false
       return this.usuario.tipo === "admin"
+    },
+
+    dataMinima() {
+      return new Date().toISOString().split("T")[0]
     },
 
     noticiaPrincipal() {
@@ -323,6 +326,24 @@ export default {
       if (Array.isArray(dados.data)) return dados.data
       if (Array.isArray(dados.results)) return dados.results
       return []
+    },
+
+    selecionarImagem(event) {
+      const arquivo = event.target.files[0]
+
+      if (!arquivo) {
+        this.imagemArquivo = null
+        return
+      }
+
+      if (!arquivo.type.startsWith("image/")) {
+        alert("Selecione apenas arquivos de imagem.")
+        event.target.value = ""
+        this.imagemArquivo = null
+        return
+      }
+
+      this.imagemArquivo = arquivo
     },
 
     async carregarNoticias() {
@@ -372,37 +393,51 @@ export default {
         return
       }
 
-      if (!this.novaNoticia.imagem || this.novaNoticia.imagem.trim() === "") {
+      if (!this.imagemArquivo) {
         alert("A imagem da notícia é obrigatória.")
+        return
+      }
+
+      if (!this.novaNoticia.data_publicacao) {
+        alert("A data da publicação é obrigatória.")
+        return
+      }
+
+      const hoje = new Date()
+      hoje.setHours(0, 0, 0, 0)
+
+      const dataSelecionada = new Date(this.novaNoticia.data_publicacao + "T00:00:00")
+
+      if (dataSelecionada < hoje) {
+        alert("Não é permitido publicar notícia com data anterior à data atual.")
         return
       }
 
       try {
         this.publicando = true
 
-        const dataNoticia = this.novaNoticia.data_publicacao || null
+        const formData = new FormData()
 
-        await api.post("/api/news", {
-          titulo: this.novaNoticia.titulo,
-          resumo: this.novaNoticia.resumo,
+        formData.append("titulo", this.novaNoticia.titulo)
+        formData.append("resumo", this.novaNoticia.resumo)
 
-          conteudo: this.novaNoticia.conteudo,
-          conteudo_completo: this.novaNoticia.conteudo,
+        formData.append("conteudo", this.novaNoticia.conteudo)
+        formData.append("conteudo_completo", this.novaNoticia.conteudo)
 
-          imagem: this.novaNoticia.imagem,
-          imagem_url: this.novaNoticia.imagem,
+        formData.append("link", this.novaNoticia.link || "")
+        formData.append("fonte", this.novaNoticia.link || "")
+        formData.append("link_fonte", this.novaNoticia.link || "")
+        formData.append("fonte_url", this.novaNoticia.link || "")
 
-          link: this.novaNoticia.link,
-          fonte: this.novaNoticia.link,
-          link_fonte: this.novaNoticia.link,
-          fonte_url: this.novaNoticia.link,
+        formData.append("categoria", this.novaNoticia.categoria || "Geral")
 
-          categoria: this.novaNoticia.categoria || "Geral",
+        formData.append("data_publicacao", this.novaNoticia.data_publicacao)
+        formData.append("data_noticia", this.novaNoticia.data_publicacao)
+        formData.append("data", this.novaNoticia.data_publicacao)
 
-          data_publicacao: dataNoticia,
-          data_noticia: dataNoticia,
-          data: dataNoticia
-        })
+        formData.append("imagem", this.imagemArquivo)
+
+        await api.post("/api/news", formData)
 
         this.novaNoticia = {
           titulo: "",
@@ -413,6 +448,8 @@ export default {
           categoria: "",
           data_publicacao: ""
         }
+
+        this.imagemArquivo = null
 
         await this.carregarNoticias()
 

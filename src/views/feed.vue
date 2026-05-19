@@ -63,18 +63,45 @@
             ></textarea>
           </div>
 
+          <div v-if="previewImagemPost" class="post-image-preview">
+            <img :src="previewImagemPost" alt="Preview da imagem do post">
+
+            <button type="button" @click="removerImagemPost">
+              Remover imagem
+            </button>
+          </div>
+
+          <input
+            ref="inputImagemPost"
+            type="file"
+            accept="image/*"
+            hidden
+            @change="selecionarImagemPost"
+          >
+
           <div class="create-post-bottom">
             <span class="post-hint">
               Poste ideias, projetos, eventos ou novidades.
             </span>
 
-            <button
-              class="publish-button"
-              @click="publicarPost"
-              :disabled="carregandoPublicacao || !novoPost.trim()"
-            >
-              {{ carregandoPublicacao ? 'Publicando...' : 'Publicar' }}
-            </button>
+            <div class="create-post-actions">
+              <button
+                type="button"
+                class="image-button"
+                @click="abrirSeletorImagem"
+              >
+                <i class="fa-solid fa-image"></i>
+                Foto/Imagem
+              </button>
+
+              <button
+                class="publish-button"
+                @click="publicarPost"
+                :disabled="carregandoPublicacao || (!novoPost.trim() && !imagemPost)"
+              >
+                {{ carregandoPublicacao ? 'Publicando...' : 'Publicar' }}
+              </button>
+            </div>
           </div>
         </div>
 
@@ -161,7 +188,11 @@
               </template>
 
               <template v-else>
-                <p>{{ post.conteudo }}</p>
+                <p v-if="post.conteudo">{{ post.conteudo }}</p>
+
+                <div v-if="getImagemPost(post)" class="post-image-box">
+                  <img :src="getImagemPost(post)" alt="Imagem do post">
+                </div>
               </template>
             </div>
 
@@ -186,6 +217,19 @@
 
             <!-- COMENTÁRIOS -->
             <div v-if="post.mostrarComentarios" class="comentarios-box">
+              <div class="comentarios-header">
+                <strong>Comentários</strong>
+
+                <select
+                  v-model="post.ordemComentarios"
+                  @change="ordenarComentarios(post)"
+                  class="comentarios-select"
+                >
+                  <option value="recentes">Mais recentes</option>
+                  <option value="curtidos">Mais curtidos</option>
+                </select>
+              </div>
+
               <div class="comentario-input">
                 <input
                   v-model="post.novoComentario"
@@ -257,23 +301,35 @@
                     <template v-else>
                       <p>{{ comentario.texto }}</p>
 
-                      <div
-                        v-if="isDonoComentario(comentario)"
-                        class="comentario-acoes"
-                      >
+                      <div class="comentario-footer">
                         <button
-                          class="comentario-btn editar"
-                          @click="editarComentario(comentario)"
+                          class="comentario-like-btn"
+                          :class="{ liked: Number(comentario.curtidoPorMim) === 1 }"
+                          @click="toggleLikeComentario(post, comentario)"
                         >
-                          Editar
+                          <i class="fa-solid fa-heart"></i>
+                          {{ Number(comentario.curtidoPorMim) === 1 ? 'Curtido' : 'Curtir' }}
+                          <span>{{ comentario.likes || 0 }}</span>
                         </button>
 
-                        <button
-                          class="comentario-btn excluir"
-                          @click="excluirComentario(post, comentario.id)"
+                        <div
+                          v-if="isDonoComentario(comentario)"
+                          class="comentario-acoes"
                         >
-                          Excluir
-                        </button>
+                          <button
+                            class="comentario-btn editar"
+                            @click="editarComentario(comentario)"
+                          >
+                            Editar
+                          </button>
+
+                          <button
+                            class="comentario-btn excluir"
+                            @click="excluirComentario(post, comentario.id)"
+                          >
+                            Excluir
+                          </button>
+                        </div>
                       </div>
                     </template>
                   </div>
@@ -290,6 +346,57 @@
 
       <!-- DIREITA -->
       <aside class="right-column">
+        <div class="side-card">
+          <h4>Sugestões para seguir</h4>
+
+          <div v-if="carregandoSugestoes" class="users-state">
+            Carregando sugestões...
+          </div>
+
+          <div v-else-if="sugestoesUsuarios.length === 0" class="users-state">
+            Nenhuma sugestão no momento.
+          </div>
+
+          <div v-else class="users-list">
+            <div
+              v-for="item in sugestoesUsuarios"
+              :key="item.id"
+              class="user-result-card"
+            >
+              <RouterLink
+                :to="`/perfil/${item.id}`"
+                class="user-result-left user-result-link"
+              >
+                <div class="user-result-avatar">
+                  <img
+                    v-if="getFotoGenerica(item)"
+                    :src="getFotoGenerica(item)"
+                    alt="Foto do usuário"
+                    class="avatar-img"
+                  >
+
+                  <span v-else>
+                    {{ getInitials(item.nome || 'U') }}
+                  </span>
+                </div>
+
+                <div class="user-result-meta">
+                  <strong>{{ item.nome }}</strong>
+                  <span>{{ item.tipo || item.funcao || 'Usuário' }}</span>
+                </div>
+              </RouterLink>
+
+              <button
+                class="follow-button"
+                :class="{ following: Number(item.seguindo) === 1 }"
+                @click="toggleSeguir(item)"
+              >
+                {{ Number(item.seguindo) === 1 ? 'Seguindo' : 'Seguir' }}
+              </button>
+            </div>
+          </div>
+        </div>
+
         <div class="side-card">
           <h4>Buscar usuários</h4>
 
@@ -377,10 +484,17 @@ const novoPost = ref('')
 const carregandoPosts = ref(false)
 const carregandoPublicacao = ref(false)
 
+const inputImagemPost = ref(null)
+const imagemPost = ref(null)
+const previewImagemPost = ref('')
+
 const buscaUsuarios = ref('')
 const usuariosEncontrados = ref([])
 const carregandoBusca = ref(false)
 let debounceBusca = null
+
+const sugestoesUsuarios = ref([])
+const carregandoSugestoes = ref(false)
 
 const iniciaisUsuario = computed(() => {
   return getInitials(usuario.value?.nome || 'Usuário')
@@ -428,6 +542,29 @@ function montarUrlFoto(item) {
   }
 
   return null
+}
+
+function montarUrlImagem(caminho) {
+  if (!caminho) return null
+
+  if (caminho.startsWith('http')) {
+    return caminho
+  }
+
+  if (caminho.startsWith('/uploads')) {
+    return `${API_URL}${caminho}`
+  }
+
+  return `${API_URL}/uploads/${caminho}`
+}
+
+function getImagemPost(post) {
+  return montarUrlImagem(
+    post.imagem_url ||
+    post.imagem ||
+    post.foto_post ||
+    post.post_image
+  )
 }
 
 function getFotoGenerica(item) {
@@ -501,6 +638,54 @@ function ordenarPostsPorCurtidas() {
   })
 }
 
+function ordenarComentarios(post) {
+  post.comentarios.sort((a, b) => {
+    if (post.ordemComentarios === 'curtidos') {
+      const likesA = Number(a.likes || 0)
+      const likesB = Number(b.likes || 0)
+
+      if (likesB !== likesA) {
+        return likesB - likesA
+      }
+    }
+
+    const dataA = new Date(a.data_criacao || a.data_comentario || 0).getTime()
+    const dataB = new Date(b.data_criacao || b.data_comentario || 0).getTime()
+
+    return dataB - dataA
+  })
+}
+
+/* ================================
+   IMAGEM DO POST
+================================ */
+function abrirSeletorImagem() {
+  inputImagemPost.value?.click()
+}
+
+function selecionarImagemPost(event) {
+  const file = event.target.files?.[0]
+
+  if (!file) return
+
+  if (!file.type.startsWith('image/')) {
+    alert('Selecione apenas arquivos de imagem.')
+    return
+  }
+
+  imagemPost.value = file
+  previewImagemPost.value = URL.createObjectURL(file)
+}
+
+function removerImagemPost() {
+  imagemPost.value = null
+  previewImagemPost.value = ''
+
+  if (inputImagemPost.value) {
+    inputImagemPost.value.value = ''
+  }
+}
+
 /* ================================
    POSTS
 ================================ */
@@ -519,6 +704,7 @@ async function carregarPosts() {
       carregandoComentarios: false,
       carregandoComentario: false,
       comentariosCarregados: false,
+      ordemComentarios: 'recentes',
       editando: false,
       conteudoEditado: post.conteudo || ''
     }))
@@ -554,18 +740,28 @@ async function carregarQuantidadeComentariosDosPosts() {
 }
 
 async function publicarPost() {
-  if (!novoPost.value.trim()) return
+  if (!novoPost.value.trim() && !imagemPost.value) return
 
   carregandoPublicacao.value = true
 
   try {
-    await api.post(
-      '/api/posts',
-      { conteudo: novoPost.value.trim() },
-      authHeaders.value
-    )
+    const formData = new FormData()
+
+    formData.append('conteudo', novoPost.value.trim())
+
+    if (imagemPost.value) {
+      formData.append('imagem', imagemPost.value)
+    }
+
+    await api.post('/api/posts', formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data'
+      }
+    })
 
     novoPost.value = ''
+    removerImagemPost()
     await carregarPosts()
   } catch (error) {
     console.error('Erro ao publicar post:', error)
@@ -637,7 +833,7 @@ async function toggleLike(post) {
 }
 
 /* ================================
-   COMENTÁRIOS COM BANCO
+   COMENTÁRIOS
 ================================ */
 async function toggleComentarios(post) {
   post.mostrarComentarios = !post.mostrarComentarios
@@ -658,9 +854,13 @@ async function carregarComentarios(post) {
 
     post.comentarios = response.data.map(comentario => ({
       ...comentario,
+      likes: Number(comentario.likes || comentario.totalCurtidas || 0),
+      curtidoPorMim: Number(comentario.curtidoPorMim || 0),
       textoEditado: comentario.texto,
       editando: false
     }))
+
+    ordenarComentarios(post)
 
     post.totalComentarios = post.comentarios.length
     post.comentariosCarregados = true
@@ -695,6 +895,24 @@ async function adicionarComentario(post) {
     alert('Erro ao adicionar comentário.')
   } finally {
     post.carregandoComentario = false
+  }
+}
+
+async function toggleLikeComentario(post, comentario) {
+  try {
+    const response = await api.post(
+      `/api/comments/${comentario.id}/like`,
+      {},
+      authHeaders.value
+    )
+
+    comentario.curtidoPorMim = response.data.curtidoPorMim ? 1 : 0
+    comentario.likes = response.data.totalCurtidas
+
+    ordenarComentarios(post)
+  } catch (error) {
+    console.error('Erro ao curtir comentário:', error)
+    alert('Essa parte precisa da rota de curtida de comentário na API.')
   }
 }
 
@@ -786,6 +1004,23 @@ async function buscarUsuarios() {
   }, 300)
 }
 
+/* ================================
+   SUGESTÕES DE USUÁRIOS
+================================ */
+async function carregarSugestoesUsuarios() {
+  carregandoSugestoes.value = true
+
+  try {
+    const response = await api.get('/api/users/suggestions', authHeaders.value)
+    sugestoesUsuarios.value = response.data
+  } catch (error) {
+    console.error('Erro ao carregar sugestões:', error)
+    sugestoesUsuarios.value = []
+  } finally {
+    carregandoSugestoes.value = false
+  }
+}
+
 async function toggleSeguir(item) {
   try {
     if (Number(item.seguindo) === 1) {
@@ -795,6 +1030,8 @@ async function toggleSeguir(item) {
       await api.post(`/api/users/${item.id}/follow`, {}, authHeaders.value)
       item.seguindo = 1
     }
+
+    await carregarSugestoesUsuarios()
   } catch (error) {
     console.error('Erro ao seguir/deixar de seguir:', error)
   }
@@ -803,6 +1040,7 @@ async function toggleSeguir(item) {
 onMounted(() => {
   atualizarUsuarioLocal()
   carregarPosts()
+  carregarSugestoesUsuarios()
 
   window.addEventListener('usuario-atualizado', atualizarUsuarioLocal)
   window.addEventListener('storage', atualizarUsuarioLocal)
