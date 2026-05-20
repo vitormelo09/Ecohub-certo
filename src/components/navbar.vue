@@ -10,9 +10,8 @@
       <RouterLink to="/noticias" active-class="ativo">Notícias</RouterLink>
       <RouterLink to="/feed" active-class="ativo">Feed</RouterLink>
       <RouterLink to="/sobre" active-class="ativo">Sobre</RouterLink>
-       <RouterLink to="/projetos" active-class="ativo">Projeto</RouterLink>
+      <RouterLink to="/projetos" active-class="ativo">Projeto</RouterLink>
     </nav>
-
 
     <div class="header-direita">
       <!-- Só aparece se NÃO tiver usuário logado -->
@@ -33,6 +32,7 @@
         <img
           :src="fotoPerfil"
           alt="Perfil"
+          class="foto-navbar"
           @error="usarFotoPadrao"
         >
       </RouterLink>
@@ -138,3 +138,35 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.perfil {
+  width: 45px;
+  height: 45px;
+  min-width: 45px;
+  min-height: 45px;
+  max-width: 45px;
+  max-height: 45px;
+
+  border-radius: 50%;
+  overflow: hidden;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+}
+
+.foto-navbar {
+  width: 100% !important;
+  height: 100% !important;
+
+  object-fit: cover !important;
+  object-position: center;
+
+  border-radius: 50%;
+
+  display: block;
+}
+</style>
