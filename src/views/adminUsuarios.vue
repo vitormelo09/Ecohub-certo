@@ -4,7 +4,7 @@
       <div class="admin-header">
         <div>
           <h1>Gerenciar Usuários</h1>
-          <p>Promova usuários para admin ou altere o tipo da conta.</p>
+          <p>Gerencie permissões e admins específicos do sistema.</p>
         </div>
 
         <button class="btn-atualizar" @click="carregarUsuarios">
@@ -41,7 +41,7 @@
                 class="badge"
                 :class="usuarioItem.tipo"
               >
-                {{ usuarioItem.tipo }}
+                {{ formatarTipo(usuarioItem.tipo) }}
               </span>
             </div>
           </div>
@@ -52,7 +52,39 @@
               class="btn-admin"
               @click="alterarTipo(usuarioItem.id, 'admin')"
             >
-              Tornar admin
+              Admin Geral
+            </button>
+
+            <button
+              v-if="usuarioItem.tipo !== 'admin_eventos'"
+              class="btn-eventos"
+              @click="alterarTipo(usuarioItem.id, 'admin_eventos')"
+            >
+              Admin Eventos
+            </button>
+
+            <button
+              v-if="usuarioItem.tipo !== 'admin_noticias'"
+              class="btn-noticias"
+              @click="alterarTipo(usuarioItem.id, 'admin_noticias')"
+            >
+              Admin Notícias
+            </button>
+
+            <button
+              v-if="usuarioItem.tipo !== 'admin_projetos'"
+              class="btn-projetos"
+              @click="alterarTipo(usuarioItem.id, 'admin_projetos')"
+            >
+              Admin Projetos
+            </button>
+
+            <button
+              v-if="usuarioItem.tipo !== 'admin_feed'"
+              class="btn-feed"
+              @click="alterarTipo(usuarioItem.id, 'admin_feed')"
+            >
+              Admin Feed
             </button>
 
             <button
@@ -60,7 +92,7 @@
               class="btn-professor"
               @click="alterarTipo(usuarioItem.id, 'professor')"
             >
-              Tornar professor
+              Professor
             </button>
 
             <button
@@ -68,7 +100,7 @@
               class="btn-aluno"
               @click="alterarTipo(usuarioItem.id, 'aluno')"
             >
-              Tornar aluno
+              Aluno
             </button>
           </div>
         </div>
@@ -115,7 +147,7 @@ const alterarTipo = async (id, tipo) => {
   if (!confirmar) return
 
   try {
-    await api.put(`/api/admin/users/${id}/tipo`, {
+    await api.put(`/api/users/${id}/tipo`, {
       tipo
     })
 
@@ -148,6 +180,20 @@ const fotoUsuario = (usuario) => {
   return "https://ui-avatars.com/api/?name=" + encodeURIComponent(usuario.nome || "Usuário")
 }
 
+const formatarTipo = (tipo) => {
+  const tipos = {
+    admin: "ADMIN",
+    admin_eventos: "ADMIN EVENTOS",
+    admin_noticias: "ADMIN NOTÍCIAS",
+    admin_projetos: "ADMIN PROJETOS",
+    admin_feed: "ADMIN FEED",
+    professor: "PROFESSOR",
+    aluno: "ALUNO"
+  }
+
+  return tipos[tipo] || tipo
+}
+
 onMounted(() => {
   carregarUsuarios()
 })
@@ -157,17 +203,16 @@ onMounted(() => {
 .admin-page {
   min-height: calc(100vh - 70px);
   padding: 40px 20px;
-  background: #f4f8fb;
+  background: #081225;
 }
 
 .admin-card {
-  max-width: 1100px;
+  max-width: 1300px;
   margin: 0 auto;
-  background: #ffffff;
+  background: #18253d;
   border-radius: 24px;
   padding: 30px;
-  border: 1px solid #e5edf4;
-  box-shadow: 0 14px 40px rgba(15, 23, 42, 0.07);
+  border: 1px solid #2d3f61;
 }
 
 .admin-header {
@@ -179,12 +224,12 @@ onMounted(() => {
 }
 
 .admin-header h1 {
-  color: #122033;
+  color: #ffffff;
   margin-bottom: 8px;
 }
 
 .admin-header p {
-  color: #6b7280;
+  color: #cbd5e1;
 }
 
 .btn-atualizar {
@@ -212,48 +257,49 @@ onMounted(() => {
 .usuarios-lista {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
 }
 
 .usuario-card {
   display: flex;
   justify-content: space-between;
   gap: 20px;
-  padding: 18px;
-  border: 1px solid #e5edf4;
-  border-radius: 18px;
-  background: #ffffff;
+  padding: 22px;
+  border: 1px solid #314568;
+  border-radius: 22px;
+  background: #1b2942;
 }
 
 .usuario-info {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 16px;
 }
 
 .usuario-foto {
-  width: 58px;
-  height: 58px;
+  width: 70px;
+  height: 70px;
   border-radius: 50%;
   object-fit: cover;
 }
 
 .usuario-info h3 {
-  color: #122033;
+  color: #ffffff;
   margin-bottom: 4px;
+  font-size: 20px;
 }
 
 .usuario-info p {
-  color: #6b7280;
-  margin-bottom: 8px;
+  color: #d7e0ec;
+  margin-bottom: 10px;
 }
 
 .badge {
   display: inline-block;
-  padding: 5px 10px;
+  padding: 7px 14px;
   border-radius: 999px;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 900;
   text-transform: uppercase;
 }
 
@@ -262,9 +308,29 @@ onMounted(() => {
   color: #166534;
 }
 
-.badge.professor {
+.badge.admin_eventos {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.badge.admin_noticias {
   background: #dbeafe;
   color: #1d4ed8;
+}
+
+.badge.admin_projetos {
+  background: #ede9fe;
+  color: #6d28d9;
+}
+
+.badge.admin_feed {
+  background: #fce7f3;
+  color: #be185d;
+}
+
+.badge.professor {
+  background: #cffafe;
+  color: #155e75;
 }
 
 .badge.aluno {
@@ -278,10 +344,11 @@ onMounted(() => {
   gap: 10px;
   align-items: center;
   justify-content: flex-end;
+  max-width: 540px;
 }
 
 .acoes button {
-  padding: 10px 13px;
+  padding: 10px 14px;
   border: none;
   border-radius: 12px;
   color: #ffffff;
@@ -293,43 +360,38 @@ onMounted(() => {
   background: #16a34a;
 }
 
-.btn-professor {
+.btn-eventos {
+  background: #dc2626;
+}
+
+.btn-noticias {
   background: #2563eb;
+}
+
+.btn-projetos {
+  background: #7c3aed;
+}
+
+.btn-feed {
+  background: #db2777;
+}
+
+.btn-professor {
+  background: #0891b2;
 }
 
 .btn-aluno {
   background: #f59e0b;
 }
 
-body.dark-mode .admin-page {
-  background: #0f172a;
-}
-
-body.dark-mode .admin-card,
-body.dark-mode .usuario-card {
-  background: #1e293b;
-  border-color: #334155;
-}
-
-body.dark-mode .admin-header h1,
-body.dark-mode .usuario-info h3 {
-  color: #f8fafc;
-}
-
-body.dark-mode .admin-header p,
-body.dark-mode .usuario-info p {
-  color: #cbd5e1;
-}
-
-@media (max-width: 768px) {
-  .admin-header,
+@media (max-width: 900px) {
   .usuario-card {
     flex-direction: column;
-    align-items: stretch;
   }
 
   .acoes {
     justify-content: flex-start;
+    max-width: 100%;
   }
 }
 </style>

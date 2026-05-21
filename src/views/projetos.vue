@@ -11,18 +11,22 @@
         </p>
 
         <div class="hero-actions">
-          <button class="btn-primary" @click="abrirFormulario">
+          <button
+            v-if="podeGerenciarProjetos"
+            class="btn-primary"
+            @click="abrirFormulario"
+          >
             Publicar projeto
           </button>
 
-          <button class="btn-secondary">
+          <button class="btn-secondary" @click="ordem = 'curtidos'; carregarProjetos()">
             Ver destaques
           </button>
         </div>
       </div>
     </section>
 
-    <section v-if="mostrarFormulario" class="form-projeto-section">
+    <section v-if="mostrarFormulario && podeGerenciarProjetos" class="form-projeto-section">
       <div class="form-projeto-card">
         <div class="form-header">
           <h2>Publicar novo projeto</h2>
@@ -72,12 +76,13 @@
           </div>
 
           <div class="form-group">
-            <label for="imagem">Imagem do projeto</label>
+            <label for="imagem">Imagem do projeto <strong>*</strong></label>
             <input
               id="imagem"
               type="file"
               accept="image/png,image/jpeg,image/jpg,image/webp"
               @change="selecionarImagem"
+              required
             >
           </div>
 
@@ -102,6 +107,12 @@
       </div>
     </section>
 
+    <section v-if="!podeGerenciarProjetos" class="sem-permissao-projetos">
+      <p>
+        Você pode visualizar e curtir projetos, mas não tem permissão para publicar, destacar ou excluir.
+      </p>
+    </section>
+
     <section class="filtros-section">
       <div class="filtros-topo">
         <h2>Projetos em destaque</h2>
@@ -117,6 +128,15 @@
             v-model="busca"
             placeholder="Digite o nome do projeto"
           >
+        </div>
+
+        <div class="filtro-box">
+          <label for="ordem">Ordenar projetos</label>
+          <select id="ordem" v-model="ordem" @change="carregarProjetos">
+            <option value="recentes">Mais recentes</option>
+            <option value="antigos">Mais antigos</option>
+            <option value="curtidos">Mais curtidos</option>
+          </select>
         </div>
       </div>
     </section>
@@ -153,6 +173,7 @@
           v-for="projeto in projetosFiltrados"
           :key="projeto.id"
           class="projeto-card"
+          :class="{ 'projeto-destaque': Number(projeto.destaque) === 1 }"
         >
           <div class="card-top">
             <span class="tag">
@@ -164,9 +185,23 @@
             </span>
           </div>
 
+          <button
+            v-if="podeGerenciarProjetos"
+            class="btn-estrela"
+            @click="alternarDestaque(projeto.id)"
+            :disabled="destacandoId === projeto.id"
+            :title="Number(projeto.destaque) === 1 ? 'Remover destaque' : 'Destacar projeto'"
+          >
+            {{ Number(projeto.destaque) === 1 ? '★' : '☆' }}
+          </button>
+
+          <span v-if="Number(projeto.destaque) === 1" class="badge-destaque">
+            Projeto em destaque
+          </span>
+
           <img
             v-if="projeto.imagem || projeto.imagem_url"
-            :src="montarUrlImagem(projeto.imagem || projeto.imagem_url)"
+            :src="montarUrlImagem(projeto.imagem_url || projeto.imagem)"
             alt="Imagem do projeto"
             class="projeto-imagem"
           >
@@ -213,7 +248,7 @@
             </button>
 
             <button
-              v-if="isDonoProjeto(projeto)"
+              v-if="podeGerenciarProjetos"
               class="btn-card-danger"
               @click="excluirProjeto(projeto.id)"
               :disabled="excluindoId === projeto.id"
@@ -235,15 +270,17 @@
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import api from '../services/api'
 
-const usuarioLogado = JSON.parse(localStorage.getItem('usuario')) || null
+const usuarioLogado = ref(JSON.parse(localStorage.getItem('usuario')) || null)
 
 const busca = ref('')
+const ordem = ref('recentes')
 
 const projetos = ref([])
 const carregando = ref(false)
 const salvando = ref(false)
 const excluindoId = ref(null)
 const curtindoId = ref(null)
+const destacandoId = ref(null)
 
 const mostrarFormulario = ref(false)
 const mensagemErro = ref('')
@@ -258,13 +295,23 @@ const novoProjeto = ref({
   tecnologias_usadas: ''
 })
 
-const isDonoProjeto = (projeto) => {
-  const idUsuarioProjeto = projeto.usuario_id || projeto.user_id
+const podeGerenciarProjetos = computed(() => {
+  return (
+    usuarioLogado.value?.tipo === 'admin' ||
+    usuarioLogado.value?.tipo === 'admin_projetos'
+  )
+})
 
-  return Number(idUsuarioProjeto) === Number(usuarioLogado?.id)
+const atualizarUsuarioLocal = () => {
+  usuarioLogado.value = JSON.parse(localStorage.getItem('usuario')) || null
 }
 
 const abrirFormulario = () => {
+  if (!podeGerenciarProjetos.value) {
+    alert('Você não tem permissão para publicar projetos.')
+    return
+  }
+
   mostrarFormulario.value = true
   mensagemErro.value = ''
   mensagemSucesso.value = ''
@@ -350,7 +397,12 @@ const carregarProjetos = async () => {
   try {
     carregando.value = true
 
-    const resposta = await api.get('/api/projects')
+    const resposta = await api.get('/api/projects', {
+      params: {
+        ordem: ordem.value
+      }
+    })
+
     projetos.value = pegarListaDaResposta(resposta.data)
   } catch (error) {
     console.error('Erro ao carregar projetos:', error)
@@ -362,6 +414,11 @@ const carregarProjetos = async () => {
 
 const publicarProjeto = async () => {
   try {
+    if (!podeGerenciarProjetos.value) {
+      mensagemErro.value = 'Você não tem permissão para publicar projetos.'
+      return
+    }
+
     salvando.value = true
     mensagemErro.value = ''
     mensagemSucesso.value = ''
@@ -378,6 +435,11 @@ const publicarProjeto = async () => {
       return
     }
 
+    if (!imagemSelecionada.value) {
+      mensagemErro.value = 'A imagem do projeto é obrigatória.'
+      return
+    }
+
     const formData = new FormData()
 
     formData.append('titulo', novoProjeto.value.titulo.trim())
@@ -385,10 +447,7 @@ const publicarProjeto = async () => {
     formData.append('link_github', novoProjeto.value.link_github.trim())
     formData.append('tecnologias_usadas', novoProjeto.value.tecnologias_usadas.trim())
     formData.append('tecnologias', novoProjeto.value.tecnologias_usadas.trim())
-
-    if (imagemSelecionada.value) {
-      formData.append('imagem', imagemSelecionada.value)
-    }
+    formData.append('imagem', imagemSelecionada.value)
 
     await api.post('/api/projects', formData)
 
@@ -442,8 +501,47 @@ const curtirProjeto = async (id) => {
   }
 }
 
+const alternarDestaque = async (id) => {
+  try {
+    if (!podeGerenciarProjetos.value) {
+      alert('Você não tem permissão para destacar projetos.')
+      return
+    }
+
+    const token = localStorage.getItem('token')
+
+    if (!token) {
+      alert('Você precisa estar logado para destacar um projeto.')
+      return
+    }
+
+    destacandoId.value = id
+
+    await api.put(`/api/projects/${id}/destaque`)
+
+    await carregarProjetos()
+  } catch (error) {
+    console.error('Erro ao destacar projeto:', error)
+
+    alert(
+      error.response?.data?.detalhes ||
+      error.response?.data?.erro ||
+      error.response?.data?.mensagem ||
+      error.response?.data?.message ||
+      'Erro ao destacar projeto.'
+    )
+  } finally {
+    destacandoId.value = null
+  }
+}
+
 const excluirProjeto = async (id) => {
   try {
+    if (!podeGerenciarProjetos.value) {
+      alert('Você não tem permissão para excluir projetos.')
+      return
+    }
+
     const token = localStorage.getItem('token')
 
     if (!token) {
@@ -511,15 +609,80 @@ const totalCurtidas = computed(() => {
 
 onMounted(() => {
   document.body.classList.add('pagina-projetos')
+  atualizarUsuarioLocal()
   carregarProjetos()
+
+  window.addEventListener('storage', atualizarUsuarioLocal)
+  window.addEventListener('usuario-atualizado', atualizarUsuarioLocal)
 })
 
 onBeforeUnmount(() => {
   document.body.classList.remove('pagina-projetos')
+
+  window.removeEventListener('storage', atualizarUsuarioLocal)
+  window.removeEventListener('usuario-atualizado', atualizarUsuarioLocal)
 })
 </script>
 
 <style scoped>
 @import "../assets/css/projetos.css";
 
+.projeto-card {
+  position: relative;
+}
+
+.sem-permissao-projetos {
+  max-width: 1100px;
+  margin: 25px auto 0;
+  padding: 18px 22px;
+  border-radius: 16px;
+  background: #fff7ed;
+  color: #9a3412;
+  font-weight: 700;
+}
+
+.btn-estrela {
+  position: absolute;
+  top: 54px;
+  right: 16px;
+  width: 38px;
+  height: 38px;
+  border: none;
+  border-radius: 50%;
+  background: #ffffff;
+  color: #f5b301;
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+  z-index: 2;
+}
+
+.btn-estrela:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.projeto-destaque {
+  border: 2px solid #f5b301;
+}
+
+.badge-destaque {
+  display: inline-block;
+  margin-bottom: 12px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #fff4c2;
+  color: #7a5a00;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.filtro-box select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #d8dde6;
+  border-radius: 12px;
+  outline: none;
+  font-family: inherit;
+}
 </style>

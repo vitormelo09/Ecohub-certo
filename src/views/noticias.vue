@@ -23,7 +23,6 @@
     </section>
 
     <section class="noticias-conteudo">
-
       <section v-if="podePublicar" class="publicar-noticia">
         <h2>Publicar nova notícia</h2>
 
@@ -288,7 +287,11 @@ export default {
 
     podePublicar() {
       if (!this.usuario) return false
-      return this.usuario.tipo === "admin"
+
+      return (
+        this.usuario.tipo === "admin" ||
+        this.usuario.tipo === "admin_noticias"
+      )
     },
 
     dataMinima() {

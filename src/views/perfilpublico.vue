@@ -20,7 +20,7 @@
         <div class="perfil-cover"></div>
 
         <div class="perfil-conteudo">
-          <div class="foto-publica">
+          <div class="foto-publica" @click="abrirFotoMaior">
             <img
               v-if="fotoPerfil"
               :src="fotoPerfil"
@@ -201,6 +201,18 @@
         </section>
       </section>
     </section>
+
+    <div
+      v-if="fotoAberta"
+      class="modal-foto-overlay"
+      @click.self="fecharFotoMaior"
+    >
+      <img
+        :src="fotoAberta"
+        class="foto-modal"
+        alt="Foto ampliada"
+      >
+    </div>
   </main>
 </template>
 
@@ -219,6 +231,7 @@ const carregando = ref(false)
 const carregandoPosts = ref(false)
 const carregandoProjetos = ref(false)
 const erro = ref('')
+const fotoAberta = ref(null)
 
 const token = localStorage.getItem('token') || ''
 const usuarioLogado = ref(JSON.parse(localStorage.getItem('usuario')) || null)
@@ -239,6 +252,16 @@ const souEu = computed(() => {
 const fotoPerfil = computed(() => {
   return montarUrlFoto(perfil.value)
 })
+
+function abrirFotoMaior() {
+  if (!fotoPerfil.value) return
+
+  fotoAberta.value = fotoPerfil.value
+}
+
+function fecharFotoMaior() {
+  fotoAberta.value = null
+}
 
 function montarUrlFoto(user) {
   if (!user) return null
@@ -453,6 +476,7 @@ onMounted(async () => {
   font-size: 36px;
   font-weight: 800;
   box-shadow: 0 12px 24px rgba(11, 95, 165, 0.22);
+  cursor: pointer;
 }
 
 .foto-publica img {
@@ -766,5 +790,21 @@ body.dark .projeto-card span {
   .perfil-publico-layout {
     grid-template-columns: 1fr;
   }
+}
+
+.modal-foto-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.foto-modal {
+  max-width: 90vw;
+  max-height: 90vh;
+  border-radius: 20px;
 }
 </style>

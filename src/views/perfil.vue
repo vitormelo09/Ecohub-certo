@@ -3,28 +3,31 @@
     <aside class="sidebar-perfil">
       <div class="card-perfil-main">
 
-        <!-- FOTO CLICÁVEL -->
-        <label for="inputFoto">
+        <!-- FOTO DE PERFIL -->
+        <div class="foto-perfil-area">
           <img
             :src="fotoPerfil || fotoPadrao"
             alt="Foto de Perfil"
             class="foto-grande"
-            style="cursor:pointer"
+            @click="abrirFotoMaior"
           >
-        </label>
 
-        <!-- INPUT OCULTO -->
-        <input
-          type="file"
-          id="inputFoto"
-          accept="image/png,image/jpeg,image/jpg,image/webp"
-          @change="trocarFoto"
-          style="display:none"
-        >
+          <button class="btn-trocar-foto" type="button" @click="abrirSeletorFoto">
+            Alterar foto
+          </button>
 
-        <small class="texto-foto">
-          Clique na foto para alterar
-        </small>
+          <input
+            ref="inputFoto"
+            type="file"
+            accept="image/png,image/jpeg,image/jpg,image/webp"
+            @change="trocarFoto"
+            style="display:none"
+          >
+
+          <small class="texto-foto">
+            Clique na foto para ver maior
+          </small>
+        </div>
 
         <div class="perfil-badge">Meu Perfil</div>
 
@@ -134,6 +137,14 @@
             Gerenciar Administradores
           </button>
 
+          <button
+            v-if="usuario?.tipo === 'admin'"
+            class="btn-ver-denuncias"
+            @click="irParaDenuncias"
+          >
+            Ver Denúncias
+          </button>
+
           <button class="btn-sair" @click="confirmarLogout">
             Sair (Logout)
           </button>
@@ -221,7 +232,7 @@
           >
             <div v-if="projeto.imagem || projeto.imagem_url" class="meu-projeto-img">
               <img
-                :src="montarImagemProjeto(projeto.imagem || projeto.imagem_url)"
+                :src="montarImagemProjeto(projeto.imagem_url || projeto.imagem)"
                 alt="Imagem do projeto"
               >
             </div>
@@ -307,6 +318,25 @@
         </div>
       </div>
     </main>
+
+    <!-- MODAL FOTO MAIOR -->
+    <div
+      v-if="modalFotoAberto"
+      class="modal-foto-overlay"
+      @click.self="fecharFotoMaior"
+    >
+      <div class="modal-foto-card">
+        <button class="btn-fechar-modal" @click="fecharFotoMaior">
+          ×
+        </button>
+
+        <img
+          :src="fotoPerfil || fotoPadrao"
+          alt="Foto de perfil ampliada"
+          class="foto-modal"
+        >
+      </div>
+    </div>
   </div>
 </template>
 
@@ -324,6 +354,8 @@ const usuario = ref(null)
 const perfilEditando = ref(false)
 const fotoPerfil = ref(null)
 const arquivoFoto = ref(null)
+const inputFoto = ref(null)
+const modalFotoAberto = ref(false)
 const salvando = ref(false)
 
 const projetos = ref([])
@@ -345,35 +377,35 @@ const dadosEditados = ref({
 })
 
 const tipoUsuarioTexto = computed(() => {
-  if (!usuario.value || !usuario.value.tipo) {
-    return 'Aluno'
+  const tipo = usuario.value?.tipo
+
+  const tipos = {
+    admin: 'Administrador',
+    admin_eventos: 'Admin Eventos',
+    admin_noticias: 'Admin Notícias',
+    admin_projetos: 'Admin Projetos',
+    admin_feed: 'Admin Feed',
+    professor: 'Professor',
+    aluno: 'Aluno'
   }
 
-  if (usuario.value.tipo === 'admin') {
-    return 'Administrador'
-  }
-
-  if (usuario.value.tipo === 'professor') {
-    return 'Professor'
-  }
-
-  return 'Aluno'
+  return tipos[tipo] || 'Aluno'
 })
 
 const tipoUsuarioClasse = computed(() => {
-  if (!usuario.value || !usuario.value.tipo) {
-    return 'tipo-aluno'
+  const tipo = usuario.value?.tipo
+
+  const classes = {
+    admin: 'tipo-admin',
+    admin_eventos: 'tipo-admin-eventos',
+    admin_noticias: 'tipo-admin-noticias',
+    admin_projetos: 'tipo-admin-projetos',
+    admin_feed: 'tipo-admin-feed',
+    professor: 'tipo-professor',
+    aluno: 'tipo-aluno'
   }
 
-  if (usuario.value.tipo === 'admin') {
-    return 'tipo-admin'
-  }
-
-  if (usuario.value.tipo === 'professor') {
-    return 'tipo-professor'
-  }
-
-  return 'tipo-aluno'
+  return classes[tipo] || 'tipo-aluno'
 })
 
 function nomeCurso(curso) {
@@ -390,28 +422,16 @@ function nomeCurso(curso) {
 
 function nomeSemestre(semestre) {
   if (!semestre) return 'Semestre não informado'
-
   return `${semestre}º Semestre`
 }
 
 function montarUrlArquivo(caminho) {
   if (!caminho) return null
 
-  if (String(caminho).startsWith('blob:')) {
-    return caminho
-  }
-
-  if (String(caminho).startsWith('http')) {
-    return caminho
-  }
-
-  if (String(caminho).startsWith('/uploads')) {
-    return `${API_URL}${caminho}`
-  }
-
-  if (String(caminho).startsWith('uploads')) {
-    return `${API_URL}/${caminho}`
-  }
+  if (String(caminho).startsWith('blob:')) return caminho
+  if (String(caminho).startsWith('http')) return caminho
+  if (String(caminho).startsWith('/uploads')) return `${API_URL}${caminho}`
+  if (String(caminho).startsWith('uploads')) return `${API_URL}/${caminho}`
 
   return caminho
 }
@@ -574,6 +594,18 @@ async function carregarMeusPosts() {
   }
 }
 
+function abrirSeletorFoto() {
+  inputFoto.value?.click()
+}
+
+function abrirFotoMaior() {
+  modalFotoAberto.value = true
+}
+
+function fecharFotoMaior() {
+  modalFotoAberto.value = false
+}
+
 function trocarFoto(event) {
   const file = event.target.files[0]
 
@@ -602,6 +634,10 @@ function trocarFoto(event) {
 
   arquivoFoto.value = file
   fotoPerfil.value = URL.createObjectURL(file)
+
+  if (!perfilEditando.value) {
+    perfilEditando.value = true
+  }
 }
 
 function abrirEdicao() {
@@ -657,9 +693,9 @@ async function salvarPerfil() {
       ...usuarioResposta,
       curso: usuarioResposta?.curso || dadosEditados.value.curso || '',
       semestre: usuarioResposta?.semestre || dadosEditados.value.semestre || '',
-      seguidores: usuario.value?.seguidores || 0,
-      seguindo: usuario.value?.seguindo || 0,
-      posts: usuario.value?.posts || 0
+      seguidores: usuarioResposta?.seguidores || usuario.value?.seguidores || 0,
+      seguindo: usuarioResposta?.seguindo || usuario.value?.seguindo || 0,
+      posts: usuarioResposta?.posts || usuario.value?.posts || 0
     }
 
     usuario.value = usuarioAtualizado
@@ -692,6 +728,10 @@ function irParaAdminUsuarios() {
   router.push('/admin-usuarios')
 }
 
+function irParaDenuncias() {
+  router.push('/denuncias')
+}
+
 function confirmarLogout() {
   localStorage.removeItem('usuario')
   localStorage.removeItem('token')
@@ -710,11 +750,114 @@ onMounted(() => {
 @import "../assets/css/geral.css";
 @import "../assets/css/perfil.css";
 
+.foto-perfil-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.foto-grande {
+  cursor: zoom-in;
+}
+
+.btn-trocar-foto {
+  margin-top: 10px;
+  border: none;
+  border-radius: 999px;
+  padding: 8px 16px;
+  background: #2788C8;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-trocar-foto:hover {
+  background: #1f6fa3;
+}
+
 .texto-foto {
   display: block;
   margin-top: 8px;
   font-size: 12px;
   color: #64748b;
   text-align: center;
+}
+
+.tipo-admin-eventos {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.tipo-admin-noticias {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.tipo-admin-projetos {
+  background: #ede9fe;
+  color: #6d28d9;
+}
+
+.tipo-admin-feed {
+  background: #fce7f3;
+  color: #be185d;
+}
+
+.btn-ver-denuncias {
+  width: 100%;
+  margin-top: 10px;
+  border: none;
+  border-radius: 14px;
+  padding: 12px;
+  background: linear-gradient(135deg, #dc2626, #ef4444);
+  color: white;
+  font-weight: 800;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-ver-denuncias:hover {
+  transform: translateY(-2px);
+  opacity: 0.95;
+}
+
+.modal-foto-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.modal-foto-card {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+}
+
+.foto-modal {
+  max-width: 90vw;
+  max-height: 85vh;
+  border-radius: 20px;
+  object-fit: contain;
+  background: #fff;
+}
+
+.btn-fechar-modal {
+  position: absolute;
+  top: -14px;
+  right: -14px;
+  width: 38px;
+  height: 38px;
+  border: none;
+  border-radius: 50%;
+  background: #fff;
+  color: #111827;
+  font-size: 26px;
+  font-weight: 700;
+  cursor: pointer;
 }
 </style>

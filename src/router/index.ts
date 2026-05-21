@@ -14,6 +14,7 @@ import Perfil from '../views/perfil.vue'
 import Projetos from '../views/projetos.vue'
 import Perfilpublico from '../views/perfilpublico.vue'
 import AdminUsuarios from '../views/adminUsuarios.vue'
+import Denuncias from '../views/denuncias.vue'
 
 const routes = [
   { path: '/', redirect: '/inicio' },
@@ -30,14 +31,28 @@ const routes = [
   { path: '/esqueci', name: 'esqueci', component: Esqueci },
   { path: '/perfil', name: 'perfil', component: Perfil },
   { path: '/projetos', name: 'projetos', component: Projetos },
+
+  /* ADMIN */
   { path: '/admin-usuarios', name: 'admin-usuarios', component: AdminUsuarios },
 
-  { path: '/perfil/:id', name: 'perfilpublico', component: Perfilpublico }
+  /* DENÚNCIAS */
+  { path: '/denuncias', name: 'denuncias', component: Denuncias },
+
+  /* PERFIL PÚBLICO */
+  { path: '/perfil/:id', name: 'perfilpublico', component: Perfilpublico },
 ]
 
 const router = createRouter({
   history: createWebHistory(),
-  routes
+  routes,
+
+  scrollBehavior() {
+    return {
+      top: 0,
+      left: 0,
+      behavior: 'smooth'
+    }
+  }
 })
 
 export default router

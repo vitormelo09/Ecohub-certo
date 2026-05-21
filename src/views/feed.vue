@@ -42,7 +42,7 @@
 
       <!-- CENTRO -->
       <main class="center-column">
-        <div class="create-post-card">
+        <div v-if="podePublicarFeed" class="create-post-card">
           <div class="create-post-top">
             <div class="mini-avatar">
               <img
@@ -105,6 +105,13 @@
           </div>
         </div>
 
+        <div v-else class="side-card">
+          <h4>Feed</h4>
+          <p>
+            Você pode visualizar, curtir e comentar posts, mas não tem permissão para publicar no feed.
+          </p>
+        </div>
+
         <div class="feed-title">
           <h3>Publicações em destaque</h3>
           <span>Posts com mais curtidas aparecem primeiro</span>
@@ -117,7 +124,7 @@
 
         <div v-else-if="posts.length === 0" class="feed-state">
           <div class="empty-icon">📝</div>
-          <p>Nenhum post ainda. Seja o primeiro a publicar.</p>
+          <p>Nenhum post ainda.</p>
         </div>
 
         <div v-else class="posts-list">
@@ -143,8 +150,9 @@
                 </div>
               </div>
 
-              <div v-if="isDonoPost(post)" class="post-actions-top">
+              <div class="post-actions-top">
                 <button
+                  v-if="podeGerenciarPost(post)"
                   class="post-action-edit"
                   @click="editarPost(post)"
                   title="Editar post"
@@ -153,11 +161,21 @@
                 </button>
 
                 <button
+                  v-if="podeGerenciarPost(post)"
                   class="post-action-delete"
                   @click="deletarPost(post.id)"
                   title="Excluir post"
                 >
                   Excluir
+                </button>
+
+                <button
+                  v-if="!isDonoPost(post)"
+                  class="post-action-report"
+                  @click="abrirModalDenuncia(post)"
+                  title="Denunciar post"
+                >
+                  Denunciar
                 </button>
               </div>
             </div>
@@ -196,7 +214,6 @@
               </template>
             </div>
 
-            <!-- FOOTER -->
             <div class="post-card-footer">
               <button
                 class="action-button"
@@ -215,7 +232,6 @@
               </button>
             </div>
 
-            <!-- COMENTÁRIOS -->
             <div v-if="post.mostrarComentarios" class="comentarios-box">
               <div class="comentarios-header">
                 <strong>Comentários</strong>
@@ -468,6 +484,62 @@
         </div>
       </aside>
     </div>
+
+    <!-- MODAL DENÚNCIA -->
+    <div
+      v-if="modalDenunciaAberto"
+      class="denuncia-overlay"
+      @click.self="fecharModalDenuncia"
+    >
+      <div class="denuncia-card">
+        <div class="denuncia-header">
+          <h3>Denunciar publicação</h3>
+
+          <button type="button" @click="fecharModalDenuncia">
+            ×
+          </button>
+        </div>
+
+        <p class="denuncia-texto">
+          Informe o motivo da denúncia. Um administrador poderá analisar depois.
+        </p>
+
+        <label>Motivo</label>
+        <select v-model="denuncia.motivo">
+          <option value="">Selecione um motivo</option>
+          <option value="Conteúdo ofensivo">Conteúdo ofensivo</option>
+          <option value="Spam">Spam</option>
+          <option value="Informação falsa">Informação falsa</option>
+          <option value="Assédio ou bullying">Assédio ou bullying</option>
+          <option value="Outro">Outro</option>
+        </select>
+
+        <label>Descrição</label>
+        <textarea
+          v-model="denuncia.descricao"
+          placeholder="Explique melhor o problema, se quiser..."
+        ></textarea>
+
+        <div class="denuncia-actions">
+          <button
+            type="button"
+            class="btn-cancelar-denuncia"
+            @click="fecharModalDenuncia"
+          >
+            Cancelar
+          </button>
+
+          <button
+            type="button"
+            class="btn-enviar-denuncia"
+            :disabled="enviandoDenuncia"
+            @click="enviarDenuncia"
+          >
+            {{ enviandoDenuncia ? 'Enviando...' : 'Enviar denúncia' }}
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -496,6 +568,22 @@ let debounceBusca = null
 const sugestoesUsuarios = ref([])
 const carregandoSugestoes = ref(false)
 
+const modalDenunciaAberto = ref(false)
+const postDenunciado = ref(null)
+const enviandoDenuncia = ref(false)
+
+const denuncia = ref({
+  motivo: '',
+  descricao: ''
+})
+
+const podePublicarFeed = computed(() => {
+  return (
+    usuario.value?.tipo === 'admin' ||
+    usuario.value?.tipo === 'admin_feed'
+  )
+})
+
 const iniciaisUsuario = computed(() => {
   return getInitials(usuario.value?.nome || 'Usuário')
 })
@@ -512,6 +600,69 @@ const authHeaders = computed(() => ({
 
 function atualizarUsuarioLocal() {
   usuario.value = JSON.parse(localStorage.getItem('usuario')) || null
+}
+
+function abrirModalDenuncia(post) {
+  if (!token) {
+    alert('Você precisa estar logado para denunciar.')
+    return
+  }
+
+  postDenunciado.value = post
+  denuncia.value = {
+    motivo: '',
+    descricao: ''
+  }
+
+  modalDenunciaAberto.value = true
+}
+
+function fecharModalDenuncia() {
+  modalDenunciaAberto.value = false
+  postDenunciado.value = null
+  enviandoDenuncia.value = false
+
+  denuncia.value = {
+    motivo: '',
+    descricao: ''
+  }
+}
+
+async function enviarDenuncia() {
+  if (!postDenunciado.value) return
+
+  if (!denuncia.value.motivo) {
+    alert('Escolha um motivo para a denúncia.')
+    return
+  }
+
+  try {
+    enviandoDenuncia.value = true
+
+    await api.post(
+      '/api/reports',
+      {
+        tipo: 'post',
+        referencia_id: postDenunciado.value.id,
+        motivo: denuncia.value.motivo,
+        descricao: denuncia.value.descricao || ''
+      },
+      authHeaders.value
+    )
+
+    alert('Denúncia enviada com sucesso.')
+    fecharModalDenuncia()
+  } catch (error) {
+    console.error('Erro ao enviar denúncia:', error)
+
+    alert(
+      error.response?.data?.erro ||
+      error.response?.data?.message ||
+      'Erro ao enviar denúncia.'
+    )
+  } finally {
+    enviandoDenuncia.value = false
+  }
 }
 
 function montarUrlFoto(item) {
@@ -618,6 +769,10 @@ function isDonoPost(post) {
   return Number(pegarIdDonoPost(post)) === Number(pegarIdUsuarioLogado())
 }
 
+function podeGerenciarPost(post) {
+  return podePublicarFeed.value || isDonoPost(post)
+}
+
 function isDonoComentario(comentario) {
   return Number(comentario.usuario_id) === Number(pegarIdUsuarioLogado())
 }
@@ -656,10 +811,8 @@ function ordenarComentarios(post) {
   })
 }
 
-/* ================================
-   IMAGEM DO POST
-================================ */
 function abrirSeletorImagem() {
+  if (!podePublicarFeed.value) return
   inputImagemPost.value?.click()
 }
 
@@ -686,9 +839,6 @@ function removerImagemPost() {
   }
 }
 
-/* ================================
-   POSTS
-================================ */
 async function carregarPosts() {
   carregandoPosts.value = true
 
@@ -740,6 +890,11 @@ async function carregarQuantidadeComentariosDosPosts() {
 }
 
 async function publicarPost() {
+  if (!podePublicarFeed.value) {
+    alert('Você não tem permissão para publicar no feed.')
+    return
+  }
+
   if (!novoPost.value.trim() && !imagemPost.value) return
 
   carregandoPublicacao.value = true
@@ -765,17 +920,30 @@ async function publicarPost() {
     await carregarPosts()
   } catch (error) {
     console.error('Erro ao publicar post:', error)
+
+    alert(
+      error.response?.data?.erro ||
+      error.response?.data?.message ||
+      'Erro ao publicar post.'
+    )
   } finally {
     carregandoPublicacao.value = false
   }
 }
 
 function editarPost(post) {
+  if (!podeGerenciarPost(post)) return
+
   post.conteudoEditado = post.conteudo
   post.editando = true
 }
 
 async function salvarEdicaoPost(post) {
+  if (!podeGerenciarPost(post)) {
+    alert('Você não tem permissão para editar este post.')
+    return
+  }
+
   if (!post.conteudoEditado.trim()) {
     alert('O post não pode ficar vazio.')
     return
@@ -812,6 +980,11 @@ async function deletarPost(postId) {
     await carregarPosts()
   } catch (error) {
     console.error('Erro ao deletar post:', error)
+    alert(
+      error.response?.data?.erro ||
+      error.response?.data?.message ||
+      'Erro ao deletar post.'
+    )
   }
 }
 
@@ -832,9 +1005,6 @@ async function toggleLike(post) {
   }
 }
 
-/* ================================
-   COMENTÁRIOS
-================================ */
 async function toggleComentarios(post) {
   post.mostrarComentarios = !post.mostrarComentarios
 
@@ -974,9 +1144,6 @@ async function excluirComentario(post, comentarioId) {
   }
 }
 
-/* ================================
-   BUSCAR USUÁRIOS
-================================ */
 async function buscarUsuarios() {
   if (debounceBusca) clearTimeout(debounceBusca)
 
@@ -1004,9 +1171,6 @@ async function buscarUsuarios() {
   }, 300)
 }
 
-/* ================================
-   SUGESTÕES DE USUÁRIOS
-================================ */
 async function carregarSugestoesUsuarios() {
   carregandoSugestoes.value = true
 
@@ -1054,4 +1218,145 @@ onBeforeUnmount(() => {
 
 <style>
 @import '../assets/css/feed.css';
+
+.post-action-report {
+  border: none;
+  border-radius: 10px;
+  padding: 8px 12px;
+  background: #f97316;
+  color: #ffffff;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.post-action-report:hover {
+  background: #ea580c;
+}
+
+.denuncia-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(15, 23, 42, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.denuncia-card {
+  width: 100%;
+  max-width: 480px;
+  background: #ffffff;
+  border-radius: 22px;
+  padding: 24px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.25);
+}
+
+.denuncia-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.denuncia-header h3 {
+  color: #111827;
+  font-size: 22px;
+}
+
+.denuncia-header button {
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 50%;
+  background: #f1f5f9;
+  color: #111827;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.denuncia-texto {
+  color: #64748b;
+  margin-bottom: 18px;
+}
+
+.denuncia-card label {
+  display: block;
+  margin: 12px 0 6px;
+  color: #1f2937;
+  font-weight: 800;
+}
+
+.denuncia-card select,
+.denuncia-card textarea {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 12px;
+  font-family: inherit;
+  font-size: 15px;
+  outline: none;
+}
+
+.denuncia-card textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+.denuncia-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.btn-cancelar-denuncia,
+.btn-enviar-denuncia {
+  border: none;
+  border-radius: 12px;
+  padding: 11px 16px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.btn-cancelar-denuncia {
+  background: #e5e7eb;
+  color: #111827;
+}
+
+.btn-enviar-denuncia {
+  background: #dc2626;
+  color: #ffffff;
+}
+
+.btn-enviar-denuncia:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+body.dark-mode .denuncia-card {
+  background: #1e293b;
+}
+
+body.dark-mode .denuncia-header h3,
+body.dark-mode .denuncia-card label {
+  color: #f8fafc;
+}
+
+body.dark-mode .denuncia-texto {
+  color: #cbd5e1;
+}
+
+body.dark-mode .denuncia-card select,
+body.dark-mode .denuncia-card textarea {
+  background: #0f172a;
+  color: #f8fafc;
+  border-color: #334155;
+}
+
+body.dark-mode .denuncia-header button {
+  background: #334155;
+  color: #f8fafc;
+}
 </style>
