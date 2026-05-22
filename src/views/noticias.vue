@@ -42,14 +42,6 @@
             placeholder="Ex: Tecnologia, Educação, Eventos"
           >
 
-          <label>Data da publicação</label>
-          <input
-            v-model="novaNoticia.data_publicacao"
-            type="date"
-            :min="dataMinima"
-            required
-          >
-
           <label>Imagem da notícia (obrigatório)</label>
           <input
             type="file"
@@ -275,7 +267,7 @@ export default {
         imagem: "",
         link: "",
         categoria: "",
-        data_publicacao: ""
+        data_publicacao: new Date().toISOString().split("T")[0]
       }
     }
   },
@@ -292,10 +284,6 @@ export default {
         this.usuario.tipo === "admin" ||
         this.usuario.tipo === "admin_noticias"
       )
-    },
-
-    dataMinima() {
-      return new Date().toISOString().split("T")[0]
     },
 
     noticiaPrincipal() {
@@ -349,6 +337,30 @@ export default {
       this.imagemArquivo = arquivo
     },
 
+    ordenarNoticias(lista) {
+      return lista.sort((a, b) => {
+        const dataA = new Date(a.data_publicacao || a.data_noticia || a.data || a.created_at || a.data_criacao || 0).getTime()
+        const dataB = new Date(b.data_publicacao || b.data_noticia || b.data || b.created_at || b.data_criacao || 0).getTime()
+
+        if (this.ordem === "mais-antigas") {
+          return dataA - dataB
+        }
+
+        if (this.ordem === "mais-curtidas") {
+          const curtidasA = Number(a.curtidas || 0)
+          const curtidasB = Number(b.curtidas || 0)
+
+          if (curtidasB !== curtidasA) {
+            return curtidasB - curtidasA
+          }
+
+          return dataB - dataA
+        }
+
+        return dataB - dataA
+      })
+    },
+
     async carregarNoticias() {
       try {
         this.carregando = true
@@ -357,7 +369,7 @@ export default {
         const resposta = await api.get(`/api/news?ordem=${this.ordem}`)
         const listaNoticias = this.pegarListaDaResposta(resposta.data)
 
-        this.noticias = listaNoticias.map((noticia) => {
+        const noticiasMapeadas = listaNoticias.map((noticia) => {
           return {
             ...noticia,
             ativo: false,
@@ -373,6 +385,8 @@ export default {
               noticia.data_criacao
           }
         })
+
+        this.noticias = this.ordenarNoticias(noticiasMapeadas)
       } catch (erro) {
         console.error("Erro ao carregar notícias:", erro)
 
@@ -401,23 +415,10 @@ export default {
         return
       }
 
-      if (!this.novaNoticia.data_publicacao) {
-        alert("A data da publicação é obrigatória.")
-        return
-      }
-
-      const hoje = new Date()
-      hoje.setHours(0, 0, 0, 0)
-
-      const dataSelecionada = new Date(this.novaNoticia.data_publicacao + "T00:00:00")
-
-      if (dataSelecionada < hoje) {
-        alert("Não é permitido publicar notícia com data anterior à data atual.")
-        return
-      }
-
       try {
         this.publicando = true
+
+        const hoje = new Date().toISOString().split("T")[0]
 
         const formData = new FormData()
 
@@ -434,9 +435,9 @@ export default {
 
         formData.append("categoria", this.novaNoticia.categoria || "Geral")
 
-        formData.append("data_publicacao", this.novaNoticia.data_publicacao)
-        formData.append("data_noticia", this.novaNoticia.data_publicacao)
-        formData.append("data", this.novaNoticia.data_publicacao)
+        formData.append("data_publicacao", hoje)
+        formData.append("data_noticia", hoje)
+        formData.append("data", hoje)
 
         formData.append("imagem", this.imagemArquivo)
 
@@ -449,7 +450,7 @@ export default {
           imagem: "",
           link: "",
           categoria: "",
-          data_publicacao: ""
+          data_publicacao: new Date().toISOString().split("T")[0]
         }
 
         this.imagemArquivo = null

@@ -746,3 +746,75 @@ body.dark-mode .projetos-hero {
   }
 }
 
+.projeto-card {
+  position: relative;
+}
+
+
+
+.btn-estrela {
+  position: absolute;
+  top: 54px;
+  right: 16px;
+  width: 38px;
+  height: 38px;
+  border: none;
+  border-radius: 50%;
+  background: #ffffff;
+  color: #f5b301;
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+  z-index: 2;
+}
+
+.btn-estrela:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.projeto-destaque {
+  border: 2px solid #f5b301;
+}
+
+.badge-destaque {
+  display: inline-block;
+  margin-bottom: 12px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #fff4c2;
+  color: #7a5a00;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.filtro-box select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #d8dde6;
+  border-radius: 12px;
+  outline: none;
+  font-family: inherit;
+}
+
+
+.btn-card-denuncia {
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #fff1f2;
+  color: #be123c;
+  font-weight: 700;
+  text-decoration: none;
+  border: 1px solid #fecdd3;
+  transition: 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 110px;
+}
+
+.btn-card-denuncia:hover {
+  background: #be123c;
+  color: #ffffff;
+  transform: translateY(-2px);
+}

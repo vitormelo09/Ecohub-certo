@@ -19,9 +19,6 @@
             Publicar projeto
           </button>
 
-          <button class="btn-secondary" @click="ordem = 'curtidos'; carregarProjetos()">
-            Ver destaques
-          </button>
         </div>
       </div>
     </section>
@@ -107,11 +104,6 @@
       </div>
     </section>
 
-    <section v-if="!podeGerenciarProjetos" class="sem-permissao-projetos">
-      <p>
-        Você pode visualizar e curtir projetos, mas não tem permissão para publicar, destacar ou excluir.
-      </p>
-    </section>
 
     <section class="filtros-section">
       <div class="filtros-topo">
@@ -247,6 +239,16 @@
               {{ curtindoId === projeto.id ? 'Curtindo...' : `Curtir (${projeto.curtidas || 0})` }}
             </button>
 
+            <!-- BOTÃO DENÚNCIA IGUAL AO FEED -->
+            <button
+              v-if="!isDonoProjeto(projeto)"
+              class="post-action-report"
+              @click="abrirModalDenuncia(projeto)"
+              title="Denunciar projeto"
+            >
+              Denunciar
+            </button>
+
             <button
               v-if="podeGerenciarProjetos"
               class="btn-card-danger"
@@ -263,6 +265,62 @@
         Nenhum projeto encontrado com esse filtro.
       </div>
     </section>
+
+    <!-- MODAL DENÚNCIA -->
+    <div
+      v-if="modalDenunciaAberto"
+      class="denuncia-overlay"
+      @click.self="fecharModalDenuncia"
+    >
+      <div class="denuncia-card">
+        <div class="denuncia-header">
+          <h3>Denunciar projeto</h3>
+
+          <button type="button" @click="fecharModalDenuncia">
+            ×
+          </button>
+        </div>
+
+        <p class="denuncia-texto">
+          Informe o motivo da denúncia. Um administrador poderá analisar depois.
+        </p>
+
+        <label>Motivo</label>
+        <select v-model="denuncia.motivo">
+          <option value="">Selecione um motivo</option>
+          <option value="Conteúdo ofensivo">Conteúdo ofensivo</option>
+          <option value="Spam">Spam</option>
+          <option value="Informação falsa">Informação falsa</option>
+          <option value="Assédio ou bullying">Assédio ou bullying</option>
+          <option value="Outro">Outro</option>
+        </select>
+
+        <label>Descrição</label>
+        <textarea
+          v-model="denuncia.descricao"
+          placeholder="Explique melhor o problema, se quiser..."
+        ></textarea>
+
+        <div class="denuncia-actions">
+          <button
+            type="button"
+            class="btn-cancelar-denuncia"
+            @click="fecharModalDenuncia"
+          >
+            Cancelar
+          </button>
+
+          <button
+            type="button"
+            class="btn-enviar-denuncia"
+            :disabled="enviandoDenuncia"
+            @click="enviarDenuncia"
+          >
+            {{ enviandoDenuncia ? 'Enviando...' : 'Enviar denúncia' }}
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -287,6 +345,15 @@ const mensagemErro = ref('')
 const mensagemSucesso = ref('')
 
 const imagemSelecionada = ref(null)
+
+const modalDenunciaAberto = ref(false)
+const projetoDenunciado = ref(null)
+const enviandoDenuncia = ref(false)
+
+const denuncia = ref({
+  motivo: '',
+  descricao: ''
+})
 
 const novoProjeto = ref({
   titulo: '',
@@ -328,6 +395,101 @@ const fecharFormulario = () => {
     descricao: '',
     link_github: '',
     tecnologias_usadas: ''
+  }
+}
+
+const pegarIdUsuarioLogado = () => {
+  return usuarioLogado.value?.id || usuarioLogado.value?._id || usuarioLogado.value?.usuario_id
+}
+
+const pegarIdDonoProjeto = (projeto) => {
+  return (
+    projeto.usuario_id ||
+    projeto.userId ||
+    projeto.user_id ||
+    projeto.autor_id ||
+    projeto.criador_id
+  )
+}
+
+const isDonoProjeto = (projeto) => {
+  return Number(pegarIdDonoProjeto(projeto)) === Number(pegarIdUsuarioLogado())
+}
+
+const abrirModalDenuncia = (projeto) => {
+  const token = localStorage.getItem('token')
+
+  if (!token) {
+    alert('Você precisa estar logado para denunciar.')
+    return
+  }
+
+  projetoDenunciado.value = projeto
+
+  denuncia.value = {
+    motivo: '',
+    descricao: ''
+  }
+
+  modalDenunciaAberto.value = true
+}
+
+const fecharModalDenuncia = () => {
+  modalDenunciaAberto.value = false
+  projetoDenunciado.value = null
+  enviandoDenuncia.value = false
+
+  denuncia.value = {
+    motivo: '',
+    descricao: ''
+  }
+}
+
+const enviarDenuncia = async () => {
+  if (!projetoDenunciado.value) return
+
+  if (!denuncia.value.motivo) {
+    alert('Escolha um motivo para a denúncia.')
+    return
+  }
+
+  try {
+    const token = localStorage.getItem('token')
+
+    if (!token) {
+      alert('Você precisa estar logado para denunciar.')
+      return
+    }
+
+    enviandoDenuncia.value = true
+
+    await api.post(
+      '/api/reports',
+      {
+        tipo: 'projeto',
+        referencia_id: projetoDenunciado.value.id,
+        motivo: denuncia.value.motivo,
+        descricao: denuncia.value.descricao || ''
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    )
+
+    alert('Denúncia enviada com sucesso.')
+    fecharModalDenuncia()
+  } catch (error) {
+    console.error('Erro ao enviar denúncia:', error)
+
+    alert(
+      error.response?.data?.erro ||
+      error.response?.data?.message ||
+      'Erro ao enviar denúncia.'
+    )
+  } finally {
+    enviandoDenuncia.value = false
   }
 }
 
@@ -624,65 +786,149 @@ onBeforeUnmount(() => {
 })
 </script>
 
+
 <style scoped>
 @import "../assets/css/projetos.css";
 
-.projeto-card {
-  position: relative;
+.post-action-report {
+  border: none;
+  border-radius: 10px;
+  padding: 8px 12px;
+  background: #f97316;
+  color: #ffffff;
+  font-weight: 800;
+  cursor: pointer;
 }
 
-.sem-permissao-projetos {
-  max-width: 1100px;
-  margin: 25px auto 0;
-  padding: 18px 22px;
-  border-radius: 16px;
-  background: #fff7ed;
-  color: #9a3412;
-  font-weight: 700;
+.post-action-report:hover {
+  background: #ea580c;
 }
 
-.btn-estrela {
-  position: absolute;
-  top: 54px;
-  right: 16px;
-  width: 38px;
-  height: 38px;
+.denuncia-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(15, 23, 42, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.denuncia-card {
+  width: 100%;
+  max-width: 480px;
+  background: #ffffff;
+  border-radius: 22px;
+  padding: 24px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.25);
+}
+
+.denuncia-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.denuncia-header h3 {
+  color: #111827;
+  font-size: 22px;
+}
+
+.denuncia-header button {
+  width: 34px;
+  height: 34px;
   border: none;
   border-radius: 50%;
-  background: #ffffff;
-  color: #f5b301;
+  background: #f1f5f9;
+  color: #111827;
   font-size: 24px;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
-  z-index: 2;
 }
 
-.btn-estrela:disabled {
+.denuncia-texto {
+  color: #64748b;
+  margin-bottom: 18px;
+}
+
+.denuncia-card label {
+  display: block;
+  margin: 12px 0 6px;
+  color: #1f2937;
+  font-weight: 800;
+}
+
+.denuncia-card select,
+.denuncia-card textarea {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 12px;
+  font-family: inherit;
+  font-size: 15px;
+  outline: none;
+}
+
+.denuncia-card textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+.denuncia-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.btn-cancelar-denuncia,
+.btn-enviar-denuncia {
+  border: none;
+  border-radius: 12px;
+  padding: 11px 16px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.btn-cancelar-denuncia {
+  background: #e5e7eb;
+  color: #111827;
+}
+
+.btn-enviar-denuncia {
+  background: #dc2626;
+  color: #ffffff;
+}
+
+.btn-enviar-denuncia:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
-.projeto-destaque {
-  border: 2px solid #f5b301;
+body.dark-mode .denuncia-card {
+  background: #1e293b;
 }
 
-.badge-destaque {
-  display: inline-block;
-  margin-bottom: 12px;
-  padding: 6px 12px;
-  border-radius: 999px;
-  background: #fff4c2;
-  color: #7a5a00;
-  font-size: 13px;
-  font-weight: 700;
+body.dark-mode .denuncia-header h3,
+body.dark-mode .denuncia-card label {
+  color: #f8fafc;
 }
 
-.filtro-box select {
-  width: 100%;
-  padding: 12px 14px;
-  border: 1px solid #d8dde6;
-  border-radius: 12px;
-  outline: none;
-  font-family: inherit;
+body.dark-mode .denuncia-texto {
+  color: #cbd5e1;
 }
+
+body.dark-mode .denuncia-card select,
+body.dark-mode .denuncia-card textarea {
+  background: #0f172a;
+  color: #f8fafc;
+  border-color: #334155;
+}
+
+body.dark-mode .denuncia-header button {
+  background: #334155;
+  color: #f8fafc;
+}
+
 </style>

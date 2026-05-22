@@ -105,12 +105,6 @@
           </div>
         </div>
 
-        <div v-else class="side-card">
-          <h4>Feed</h4>
-          <p>
-            Você pode visualizar, curtir e comentar posts, mas não tem permissão para publicar no feed.
-          </p>
-        </div>
 
         <div class="feed-title">
           <h3>Publicações em destaque</h3>
@@ -578,10 +572,7 @@ const denuncia = ref({
 })
 
 const podePublicarFeed = computed(() => {
-  return (
-    usuario.value?.tipo === 'admin' ||
-    usuario.value?.tipo === 'admin_feed'
-  )
+  return !!usuario.value
 })
 
 const iniciaisUsuario = computed(() => {
@@ -1219,144 +1210,5 @@ onBeforeUnmount(() => {
 <style>
 @import '../assets/css/feed.css';
 
-.post-action-report {
-  border: none;
-  border-radius: 10px;
-  padding: 8px 12px;
-  background: #f97316;
-  color: #ffffff;
-  font-weight: 800;
-  cursor: pointer;
-}
 
-.post-action-report:hover {
-  background: #ea580c;
-}
-
-.denuncia-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  background: rgba(15, 23, 42, 0.72);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-}
-
-.denuncia-card {
-  width: 100%;
-  max-width: 480px;
-  background: #ffffff;
-  border-radius: 22px;
-  padding: 24px;
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.25);
-}
-
-.denuncia-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 12px;
-}
-
-.denuncia-header h3 {
-  color: #111827;
-  font-size: 22px;
-}
-
-.denuncia-header button {
-  width: 34px;
-  height: 34px;
-  border: none;
-  border-radius: 50%;
-  background: #f1f5f9;
-  color: #111827;
-  font-size: 24px;
-  cursor: pointer;
-}
-
-.denuncia-texto {
-  color: #64748b;
-  margin-bottom: 18px;
-}
-
-.denuncia-card label {
-  display: block;
-  margin: 12px 0 6px;
-  color: #1f2937;
-  font-weight: 800;
-}
-
-.denuncia-card select,
-.denuncia-card textarea {
-  width: 100%;
-  border: 1px solid #cbd5e1;
-  border-radius: 12px;
-  padding: 12px;
-  font-family: inherit;
-  font-size: 15px;
-  outline: none;
-}
-
-.denuncia-card textarea {
-  min-height: 110px;
-  resize: vertical;
-}
-
-.denuncia-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 18px;
-}
-
-.btn-cancelar-denuncia,
-.btn-enviar-denuncia {
-  border: none;
-  border-radius: 12px;
-  padding: 11px 16px;
-  font-weight: 900;
-  cursor: pointer;
-}
-
-.btn-cancelar-denuncia {
-  background: #e5e7eb;
-  color: #111827;
-}
-
-.btn-enviar-denuncia {
-  background: #dc2626;
-  color: #ffffff;
-}
-
-.btn-enviar-denuncia:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-body.dark-mode .denuncia-card {
-  background: #1e293b;
-}
-
-body.dark-mode .denuncia-header h3,
-body.dark-mode .denuncia-card label {
-  color: #f8fafc;
-}
-
-body.dark-mode .denuncia-texto {
-  color: #cbd5e1;
-}
-
-body.dark-mode .denuncia-card select,
-body.dark-mode .denuncia-card textarea {
-  background: #0f172a;
-  color: #f8fafc;
-  border-color: #334155;
-}
-
-body.dark-mode .denuncia-header button {
-  background: #334155;
-  color: #f8fafc;
-}
 </style>
