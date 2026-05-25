@@ -203,6 +203,49 @@
         </div>
       </div>
 
+
+      <!-- POST FIXADO -->
+      <div class="tweet-card-fake post-fixado-card">
+        <div class="section-head">
+          <h3>Post fixado no perfil</h3>
+          <span class="tag-status">Fixado</span>
+        </div>
+
+        <div v-if="postFixado" class="post-fixado-view">
+          <div class="post-fixado-topo">
+            <strong>{{ postFixado.nome || usuario?.nome || 'Usuário' }}</strong>
+            <span>{{ formatarData(postFixado.data_publicacao || postFixado.data_criacao) }}</span>
+          </div>
+
+          <p class="post-fixado-texto">
+            {{ postFixado.conteudo || postFixado.texto }}
+          </p>
+
+          <div v-if="postFixado.imagem_post_url || postFixado.imagem_url || postFixado.imagem" class="post-fixado-img">
+            <img
+              :src="montarImagemProjeto(postFixado.imagem_post_url || postFixado.imagem_url || postFixado.imagem)"
+              alt="Imagem do post fixado"
+            >
+          </div>
+
+          <div class="post-fixado-footer">
+            <span>❤️ {{ postFixado.likes || 0 }} curtida(s)</span>
+
+            <button
+              class="btn-remover-fixado"
+              type="button"
+              @click="removerPostFixado"
+            >
+              Remover post fixado
+            </button>
+          </div>
+        </div>
+
+        <p v-else class="mensagem-perfil">
+          Você ainda não fixou nenhum post no seu perfil.
+        </p>
+      </div>
+
       <!-- MEUS PROJETOS -->
       <div class="tweet-card-fake">
         <div class="section-head">
@@ -294,6 +337,7 @@
             v-for="post in posts"
             :key="post.id"
             class="meu-post-card"
+            :class="{ 'post-ja-fixado': postFixado?.id === post.id }"
           >
             <div class="meu-post-topo">
               <strong>{{ post.nome }}</strong>
@@ -313,6 +357,24 @@
 
             <div class="meu-post-footer">
               <span>❤️ {{ post.likes || 0 }} curtida(s)</span>
+
+              <button
+                v-if="postFixado?.id !== post.id"
+                class="btn-fixar-post"
+                type="button"
+                @click="fixarPost(post)"
+              >
+                📌 Fixar no perfil
+              </button>
+
+              <button
+                v-else
+                class="btn-remover-fixado"
+                type="button"
+                @click="removerPostFixado"
+              >
+                Remover fixado
+              </button>
             </div>
           </article>
         </div>
@@ -357,6 +419,8 @@ const arquivoFoto = ref(null)
 const inputFoto = ref(null)
 const modalFotoAberto = ref(false)
 const salvando = ref(false)
+const postFixado = ref(null)
+
 
 const projetos = ref([])
 const carregandoProjetos = ref(false)
@@ -365,6 +429,7 @@ const erroProjetos = ref('')
 const posts = ref([])
 const carregandoPosts = ref(false)
 const erroPosts = ref('')
+
 
 const token = localStorage.getItem('token') || ''
 
@@ -478,6 +543,11 @@ function preencherDados(user) {
   }
 
   fotoPerfil.value = montarFotoPerfil(user)
+  postFixado.value =
+    user.post_fixado ||
+    user.postFixado ||
+    user.post_fixado_perfil ||
+    null
 }
 
 function pegarListaDaResposta(dados) {
@@ -487,6 +557,67 @@ function pegarListaDaResposta(dados) {
   if (Array.isArray(dados.data)) return dados.data
   if (Array.isArray(dados.results)) return dados.results
   return []
+}
+
+async function fixarPost(post) {
+  if (!post?.id) {
+    alert('Post inválido para fixar.')
+    return
+  }
+
+  try {
+    await api.put(
+      '/api/users/me/fixar-post',
+      {
+        postId: post.id
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    )
+
+    postFixado.value = post
+
+    alert('Post fixado no perfil!')
+  } catch (error) {
+    console.error('Erro ao fixar post:', error)
+
+    alert(
+      error.response?.data?.detalhes ||
+      error.response?.data?.erro ||
+      error.response?.data?.message ||
+      'Erro ao fixar post no perfil.'
+    )
+  }
+}
+
+async function removerPostFixado() {
+  const confirmar = window.confirm('Deseja remover o post fixado do seu perfil?')
+
+  if (!confirmar) return
+
+  try {
+    await api.delete('/api/users/me/fixar-post', {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+
+    postFixado.value = null
+
+    alert('Post fixado removido!')
+  } catch (error) {
+    console.error('Erro ao remover post fixado:', error)
+
+    alert(
+      error.response?.data?.detalhes ||
+      error.response?.data?.erro ||
+      error.response?.data?.message ||
+      'Erro ao remover post fixado.'
+    )
+  }
 }
 
 async function carregarPerfil() {
@@ -739,8 +870,8 @@ function confirmarLogout() {
   router.push('/login')
 }
 
-onMounted(() => {
-  carregarPerfil()
+onMounted(async () => {
+  await carregarPerfil()
   carregarMeusProjetos()
   carregarMeusPosts()
 })
@@ -860,4 +991,332 @@ onMounted(() => {
   font-weight: 700;
   cursor: pointer;
 }
+
+
+.comentario-fixado-card {
+  border-left: 5px solid #2788C8;
+}
+
+.comentario-fixado-view,
+.comentario-fixado-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.comentario-fixado-texto {
+  margin: 0;
+  padding: 16px;
+  border-radius: 16px;
+  background: #f1f5f9;
+  color: #0f172a;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.comentario-fixado-form label {
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.comentario-fixado-form textarea {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 14px;
+  padding: 12px;
+  resize: vertical;
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
+}
+
+.comentario-fixado-form textarea:focus {
+  border-color: #2788C8;
+  box-shadow: 0 0 0 3px rgba(39, 136, 200, 0.15);
+}
+
+.comentario-fixado-contador {
+  text-align: right;
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 700;
+}
+
+.comentario-fixado-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.btn-fixar-comentario,
+.btn-cancelar-comentario,
+.btn-remover-comentario {
+  border: none;
+  border-radius: 999px;
+  padding: 10px 16px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-fixar-comentario {
+  background: linear-gradient(135deg, #2788C8, #31BADF);
+  color: #fff;
+}
+
+.btn-cancelar-comentario {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.btn-remover-comentario {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.btn-fixar-comentario:hover,
+.btn-cancelar-comentario:hover,
+.btn-remover-comentario:hover {
+  transform: translateY(-2px);
+  opacity: 0.95;
+}
+
+body.dark .comentario-fixado-texto,
+body.dark-mode .comentario-fixado-texto {
+  background: #0f172a;
+  color: #e5e7eb;
+}
+
+body.dark .comentario-fixado-form label,
+body.dark-mode .comentario-fixado-form label {
+  color: #e5e7eb;
+}
+
+body.dark .comentario-fixado-form textarea,
+body.dark-mode .comentario-fixado-form textarea {
+  background: #111827;
+  color: #f8fafc;
+  border-color: #334155;
+}
+
+body.dark .btn-cancelar-comentario,
+body.dark-mode .btn-cancelar-comentario {
+  background: #334155;
+  color: #f8fafc;
+}
+
+.meus-comentarios-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.meu-comentario-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 16px;
+  background: #fff;
+  transition: 0.2s;
+}
+
+.meu-comentario-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
+.comentario-ja-fixado {
+  border-color: #2788C8;
+  background: #eff6ff;
+}
+
+.meu-comentario-topo,
+.comentario-fixado-topo {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.meu-comentario-topo strong,
+.comentario-fixado-topo strong {
+  color: #0f172a;
+}
+
+.meu-comentario-topo span,
+.comentario-fixado-topo span {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 700;
+}
+
+.meu-comentario-texto {
+  margin: 0;
+  color: #334155;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.comentario-post-origem {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 14px;
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.comentario-post-origem span {
+  display: block;
+  margin-top: 4px;
+  color: #334155;
+  font-weight: 500;
+}
+
+.meu-comentario-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 14px;
+}
+
+body.dark .meu-comentario-card,
+body.dark-mode .meu-comentario-card {
+  background: #111827;
+  border-color: #334155;
+}
+
+body.dark .comentario-ja-fixado,
+body.dark-mode .comentario-ja-fixado {
+  background: #0f172a;
+  border-color: #31BADF;
+}
+
+body.dark .meu-comentario-topo strong,
+body.dark-mode .meu-comentario-topo strong,
+body.dark .comentario-fixado-topo strong,
+body.dark-mode .comentario-fixado-topo strong {
+  color: #f8fafc;
+}
+
+body.dark .meu-comentario-texto,
+body.dark-mode .meu-comentario-texto {
+  color: #e5e7eb;
+}
+
+body.dark .comentario-post-origem,
+body.dark-mode .comentario-post-origem {
+  background: #0f172a;
+  color: #94a3b8;
+}
+
+body.dark .comentario-post-origem span,
+body.dark-mode .comentario-post-origem span {
+  color: #e5e7eb;
+}
+
+.post-fixado-card {
+  border-left: 5px solid #2788C8;
+}
+
+.post-fixado-view {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.post-fixado-topo {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+
+.post-fixado-topo strong {
+  color: #0f172a;
+}
+
+.post-fixado-topo span {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 700;
+}
+
+.post-fixado-texto {
+  margin: 0;
+  padding: 16px;
+  border-radius: 16px;
+  background: #f1f5f9;
+  color: #0f172a;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.post-fixado-img img {
+  width: 100%;
+  max-height: 360px;
+  object-fit: cover;
+  border-radius: 16px;
+}
+
+.post-fixado-footer,
+.meu-post-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.btn-fixar-post,
+.btn-remover-fixado {
+  border: none;
+  border-radius: 999px;
+  padding: 10px 16px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-fixar-post {
+  background: linear-gradient(135deg, #2788C8, #31BADF);
+  color: #fff;
+}
+
+.btn-remover-fixado {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.btn-fixar-post:hover,
+.btn-remover-fixado:hover {
+  transform: translateY(-2px);
+  opacity: 0.95;
+}
+
+.post-ja-fixado {
+  border-color: #2788C8;
+  background: #eff6ff;
+}
+
+body.dark .post-fixado-texto,
+body.dark-mode .post-fixado-texto {
+  background: #0f172a;
+  color: #e5e7eb;
+}
+
+body.dark .post-fixado-topo strong,
+body.dark-mode .post-fixado-topo strong {
+  color: #f8fafc;
+}
+
+body.dark .post-ja-fixado,
+body.dark-mode .post-ja-fixado {
+  background: #0f172a;
+  border-color: #31BADF;
+}
+
 </style>
