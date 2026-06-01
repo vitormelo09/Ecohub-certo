@@ -4,7 +4,9 @@
 .pagina-inicio {
     font-family: 'Poppins', sans-serif;
     background: #f1f5f9;
-    min-height: 100vh;
+
+    min-height: auto;
+    padding-bottom: 0;
 }
 
 /* --- Hero --- */
@@ -389,3 +391,15 @@ body.dark-mode .ver-tudo:hover { border-color: #38bdf8; }
     .estatisticas { grid-template-columns: 1fr; }
 }
 
+/* remove faixa escura antes do footer */
+body.dark-mode .pagina-inicio{
+    background: #0f172a;
+}
+
+body.dark-mode footer{
+    margin-top: 0 !important;
+}
+
+footer{
+    margin-top: 0 !important;
+}

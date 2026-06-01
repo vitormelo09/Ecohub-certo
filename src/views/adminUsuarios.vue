@@ -203,7 +203,7 @@ onMounted(() => {
 .admin-page {
   min-height: calc(100vh - 70px);
   padding: 40px 20px;
-  background: #081225;
+
 }
 
 .admin-card {
@@ -393,5 +393,82 @@ onMounted(() => {
     justify-content: flex-start;
     max-width: 100%;
   }
+}
+
+/* ==========================
+   MODO CLARO
+========================== */
+
+body:not(.dark):not(.dark-mode) .admin-page {
+  background: #f4f7fb;
+}
+
+body:not(.dark):not(.dark-mode) .admin-card {
+  background: #ffffff;
+  border: 1px solid #dbe3ee;
+}
+
+body:not(.dark):not(.dark-mode) .admin-header h1 {
+  color: #14213d;
+}
+
+body:not(.dark):not(.dark-mode) .admin-header p {
+  color: #5f6f86;
+}
+
+body:not(.dark):not(.dark-mode) .usuario-card {
+  background: #f8fbff;
+  border-color: #d8e2f0;
+}
+
+body:not(.dark):not(.dark-mode) .usuario-info h3 {
+  color: #18253d;
+}
+
+body:not(.dark):not(.dark-mode) .usuario-info p {
+  color: #56657a;
+}
+
+body:not(.dark):not(.dark-mode) .mensagem {
+  background: #eef7ff;
+  color: #183153;
+}
+
+body:not(.dark):not(.dark-mode) .acoes button {
+  box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+
+/* ==========================
+   MODO ESCURO
+========================== */
+
+body.dark .admin-page,
+body.dark-mode .admin-page {
+  
+}
+
+body.dark .admin-card,
+body.dark-mode .admin-card {
+  background: #18253d;
+  border-color: #2d3f61;
+}
+
+body.dark .usuario-card,
+body.dark-mode .usuario-card {
+  background: #1b2942;
+}
+
+body.dark .admin-header h1,
+body.dark-mode .admin-header h1,
+body.dark .usuario-info h3,
+body.dark-mode .usuario-info h3 {
+  color: white;
+}
+
+body.dark .admin-header p,
+body.dark-mode .admin-header p,
+body.dark .usuario-info p,
+body.dark-mode .usuario-info p {
+  color: #d7e0ec;
 }
 </style>

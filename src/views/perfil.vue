@@ -145,6 +145,14 @@
             Ver Denúncias
           </button>
 
+          <button
+            v-if="usuario?.tipo === 'admin' || usuario?.tipo === 'admin_projetos'"
+            class="btn-admin-projetos"
+            @click="irParaAdminProjetos"
+          >
+            Aprovar Projetos
+          </button>
+
           <button class="btn-sair" @click="confirmarLogout">
             Sair (Logout)
           </button>
@@ -863,6 +871,10 @@ function irParaDenuncias() {
   router.push('/denuncias')
 }
 
+function irParaAdminProjetos() {
+  router.push('/admin-projetos')
+}
+
 function confirmarLogout() {
   localStorage.removeItem('usuario')
   localStorage.removeItem('token')
@@ -1319,4 +1331,44 @@ body.dark-mode .post-ja-fixado {
   border-color: #31BADF;
 }
 
+
+.btn-admin-projetos {
+  width: 100%;
+  margin-top: 10px;
+  border: none;
+  border-radius: 14px;
+  padding: 12px;
+  background: linear-gradient(135deg, #7c3aed, #9333ea);
+  color: white;
+  font-weight: 800;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-admin-projetos:hover {
+  transform: translateY(-2px);
+  opacity: 0.95;
+}
+
+body.dark .btn-admin-projetos,
+body.dark-mode .btn-admin-projetos {
+  background: linear-gradient(135deg, #6d28d9, #7e22ce);
+}
+
+/* ==========================
+/* ==========================
+ PERFIL DESCE NORMAL
+========================== */
+
+.sidebar-perfil{
+
+position:relative !important;
+
+top:auto !important;
+
+align-self:stretch;
+
+height:auto;
+
+}
 </style>

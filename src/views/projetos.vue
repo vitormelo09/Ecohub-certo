@@ -12,21 +12,20 @@
 
         <div class="hero-actions">
           <button
-            v-if="podeGerenciarProjetos"
             class="btn-primary"
             @click="abrirFormulario"
           >
-            Publicar projeto
+            Enviar projeto
           </button>
 
         </div>
       </div>
     </section>
 
-    <section v-if="mostrarFormulario && podeGerenciarProjetos" class="form-projeto-section">
+    <section v-if="mostrarFormulario" class="form-projeto-section">
       <div class="form-projeto-card">
         <div class="form-header">
-          <h2>Publicar novo projeto</h2>
+          <h2>Enviar novo projeto</h2>
           <button class="btn-fechar" @click="fecharFormulario">×</button>
         </div>
 
@@ -97,7 +96,7 @@
             </button>
 
             <button type="submit" class="btn-primary" :disabled="salvando">
-              {{ salvando ? 'Publicando...' : 'Publicar projeto' }}
+              {{ salvando ? 'Enviando...' : 'Enviar projeto' }}
             </button>
           </div>
         </form>
@@ -374,8 +373,10 @@ const atualizarUsuarioLocal = () => {
 }
 
 const abrirFormulario = () => {
-  if (!podeGerenciarProjetos.value) {
-    alert('Você não tem permissão para publicar projetos.')
+  const token = localStorage.getItem('token')
+
+  if (!token) {
+    alert('Você precisa estar logado para enviar projetos.')
     return
   }
 
@@ -576,11 +577,6 @@ const carregarProjetos = async () => {
 
 const publicarProjeto = async () => {
   try {
-    if (!podeGerenciarProjetos.value) {
-      mensagemErro.value = 'Você não tem permissão para publicar projetos.'
-      return
-    }
-
     salvando.value = true
     mensagemErro.value = ''
     mensagemSucesso.value = ''
@@ -588,7 +584,7 @@ const publicarProjeto = async () => {
     const token = localStorage.getItem('token')
 
     if (!token) {
-      mensagemErro.value = 'Você precisa estar logado para publicar um projeto.'
+      mensagemErro.value = 'Você precisa estar logado para enviar um projeto.'
       return
     }
 
@@ -613,7 +609,7 @@ const publicarProjeto = async () => {
 
     await api.post('/api/projects', formData)
 
-    mensagemSucesso.value = 'Projeto publicado com sucesso!'
+    mensagemSucesso.value = 'Projeto enviado para avaliação! Aguarde aprovação.'
 
     await carregarProjetos()
 

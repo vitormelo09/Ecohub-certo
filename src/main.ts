@@ -1,8 +1,9 @@
 import { createApp } from 'vue'
 import App from './App.vue'
-import router from './router' // Isso aponta para src/router/index.ts
+import router from './router'
 
 const app = createApp(App)
 
-app.use(router) // OBRIGATÓRIO
+app.use(router)
+
 app.mount('#app')

@@ -72,6 +72,14 @@
             {{ Number(perfil.euSigo) === 1 ? 'Seguindo' : 'Seguir' }}
           </button>
 
+          <button
+            v-if="!souEu"
+            class="btn-denunciar-perfil"
+            @click="denunciarPerfil"
+          >
+            Denunciar Perfil
+          </button>
+
           <RouterLink
             v-else
             to="/perfil"
@@ -118,6 +126,48 @@
           </RouterLink>
         </section>
 
+        <!-- POST FIXADO -->
+        <section class="perfil-publico-card perfil-detalhes post-fixado-card">
+          <div class="section-head">
+            <h2>Post fixado</h2>
+            <span>Fixado</span>
+          </div>
+
+          <div v-if="postFixado" class="post-fixado-view">
+            <div class="post-fixado-topo">
+              <strong>{{ postFixado.nome || perfil.nome || 'Usuário' }}</strong>
+              <span>{{ formatarData(postFixado.data_publicacao || postFixado.data_criacao || postFixado.created_at) }}</span>
+            </div>
+
+            <p v-if="postFixado.conteudo || postFixado.texto" class="post-fixado-texto">
+              {{ postFixado.conteudo || postFixado.texto }}
+            </p>
+
+            <div v-if="getImagemPost(postFixado)" class="post-fixado-img">
+              <img
+                :src="getImagemPost(postFixado)"
+                alt="Imagem do post fixado"
+              >
+            </div>
+
+            <div class="post-fixado-footer">
+              <span>
+                <i class="fa-solid fa-heart"></i>
+                {{ postFixado.likes || postFixado.totalCurtidas || 0 }} curtida(s)
+              </span>
+
+              <span>
+                <i class="fa-solid fa-comment"></i>
+                {{ postFixado.totalComentarios || postFixado.comentarios_count || 0 }} comentário(s)
+              </span>
+            </div>
+          </div>
+
+          <p v-else class="empty-text">
+            Esse usuário ainda não fixou nenhum post no perfil.
+          </p>
+        </section>
+
         <!-- PROJETOS -->
         <section class="perfil-publico-card perfil-detalhes">
           <div class="section-head">
@@ -135,6 +185,13 @@
               :key="projeto.id"
               class="projeto-card"
             >
+              <div v-if="getImagemProjeto(projeto)" class="projeto-card-img">
+                <img
+                  :src="getImagemProjeto(projeto)"
+                  alt="Imagem do projeto"
+                >
+              </div>
+
               <h3>{{ projeto.titulo || projeto.nome || 'Projeto sem título' }}</h3>
 
               <p>
@@ -226,6 +283,7 @@ const route = useRoute()
 const perfil = ref({})
 const postsUsuario = ref([])
 const projetosUsuario = ref([])
+const postFixado = ref(null)
 
 const carregando = ref(false)
 const carregandoPosts = ref(false)
@@ -304,12 +362,34 @@ function montarUrlImagem(caminho) {
 }
 
 function getImagemPost(post) {
+  if (!post) return null
+
   return montarUrlImagem(
+    post.imagem_post_url ||
     post.imagem_url ||
     post.imagem ||
     post.foto_post ||
     post.post_image
   )
+}
+
+function getImagemProjeto(projeto) {
+  if (!projeto) return null
+
+  return montarUrlImagem(
+    projeto.imagem_url ||
+    projeto.imagem ||
+    projeto.foto_projeto ||
+    projeto.project_image
+  )
+}
+
+function pegarListaDaResposta(dados, chavePrincipal) {
+  if (Array.isArray(dados)) return dados
+  if (Array.isArray(dados?.[chavePrincipal])) return dados[chavePrincipal]
+  if (Array.isArray(dados?.data)) return dados.data
+  if (Array.isArray(dados?.results)) return dados.results
+  return []
 }
 
 function getInitials(nome) {
@@ -342,6 +422,12 @@ async function carregarPerfilPublico() {
     )
 
     perfil.value = response.data
+
+    postFixado.value =
+      response.data.post_fixado ||
+      response.data.postFixado ||
+      response.data.post_fixado_perfil ||
+      null
   } catch (error) {
     console.error('Erro ao carregar perfil público:', error)
     erro.value = 'Não foi possível carregar esse perfil.'
@@ -359,7 +445,7 @@ async function carregarPostsDoUsuario() {
       authHeaders.value
     )
 
-    postsUsuario.value = response.data
+    postsUsuario.value = pegarListaDaResposta(response.data, 'posts')
   } catch (error) {
     console.error('Erro ao carregar posts do usuário:', error)
     postsUsuario.value = []
@@ -377,7 +463,7 @@ async function carregarProjetosDoUsuario() {
       authHeaders.value
     )
 
-    projetosUsuario.value = response.data
+    projetosUsuario.value = pegarListaDaResposta(response.data, 'projetos')
   } catch (error) {
     console.error('Erro ao carregar projetos do usuário:', error)
     projetosUsuario.value = []
@@ -402,6 +488,47 @@ async function toggleSeguir() {
   } catch (error) {
     console.error('Erro ao seguir/deixar de seguir:', error)
     alert('Erro ao seguir/deixar de seguir usuário.')
+  }
+}
+
+async function denunciarPerfil() {
+  const tokenAtual = localStorage.getItem('token') || token
+
+  if (!tokenAtual) {
+    alert('Você precisa estar logado para denunciar um perfil.')
+    return
+  }
+
+  const motivo = window.prompt('Motivo da denúncia:')
+
+  if (!motivo || !motivo.trim()) return
+
+  try {
+    await api.post(
+      '/api/reports',
+      {
+        tipo: 'perfil',
+        referencia_id: Number(route.params.id),
+        motivo: motivo.trim(),
+        descricao: `Perfil denunciado: ${perfil.value?.nome || 'Usuário'} (${perfil.value?.email || 'sem e-mail'})`
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${tokenAtual}`
+        }
+      }
+    )
+
+    alert('Perfil denunciado com sucesso.')
+  } catch (error) {
+    console.error('Erro ao denunciar perfil:', error)
+
+    alert(
+      error.response?.data?.detalhes ||
+      error.response?.data?.erro ||
+      error.response?.data?.message ||
+      'Erro ao denunciar perfil.'
+    )
   }
 }
 
@@ -543,7 +670,8 @@ onMounted(async () => {
 }
 
 .btn-seguir,
-.btn-voltar {
+.btn-voltar,
+.btn-denunciar-perfil {
   display: inline-flex;
   justify-content: center;
   align-items: center;
@@ -560,7 +688,8 @@ onMounted(async () => {
 }
 
 .btn-seguir:hover,
-.btn-voltar:hover {
+.btn-voltar:hover,
+.btn-denunciar-perfil:hover {
   transform: translateY(-1px);
 }
 
@@ -692,6 +821,103 @@ onMounted(async () => {
   margin-right: 4px;
 }
 
+.projeto-card-img {
+  width: 100%;
+  margin-bottom: 14px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #e2e8f0;
+}
+
+.projeto-card-img img {
+  width: 100%;
+  max-height: 260px;
+  object-fit: cover;
+  display: block;
+}
+
+.post-fixado-card {
+  border-left: 5px solid #2788C8;
+}
+
+.post-fixado-view {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.post-fixado-topo {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+
+.post-fixado-topo strong {
+  color: #0f172a;
+}
+
+.post-fixado-topo span {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 700;
+}
+
+.post-fixado-texto {
+  margin: 0;
+  padding: 16px;
+  border-radius: 16px;
+  background: #f1f5f9;
+  color: #0f172a;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.post-fixado-img {
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.post-fixado-img img {
+  width: 100%;
+  max-height: 360px;
+  object-fit: cover;
+  display: block;
+}
+
+.post-fixado-footer {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.post-fixado-footer i {
+  color: #1ca4a6;
+  margin-right: 4px;
+}
+
+body.dark-mode .post-fixado-topo strong,
+body.dark .post-fixado-topo strong {
+  color: #f8fafc;
+}
+
+body.dark-mode .post-fixado-texto,
+body.dark .post-fixado-texto {
+  background: #0f172a;
+  color: #e5e7eb;
+}
+
+body.dark-mode .post-fixado-footer,
+body.dark .post-fixado-footer {
+  color: #94a3b8;
+}
+
+
 /* DARK MODE */
 body.dark-mode .perfil-publico-page,
 body.dark .perfil-publico-page {
@@ -807,4 +1033,22 @@ body.dark .projeto-card span {
   max-height: 90vh;
   border-radius: 20px;
 }
+/* ==========================
+ PERFIL PUBLICO NORMAL
+========================== */
+
+.perfil-info{
+
+position:relative !important;
+
+top:auto !important;
+
+align-self:flex-start !important;
+
+height:fit-content !important;
+
+min-height:auto !important;
+
+}
+
 </style>
