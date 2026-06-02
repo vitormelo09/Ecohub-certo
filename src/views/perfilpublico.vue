@@ -1051,4 +1051,24 @@ min-height:auto !important;
 
 }
 
+.btn-seguir,
+.btn-voltar,
+.btn-denunciar-perfil {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none;
+  width: 100%;
+  border: none;
+  border-radius: 14px;
+  padding: 13px 18px;
+  background: linear-gradient(135deg, #0b5fa5, #1ca4a6);
+  color: #ffffff;
+  font-weight: 800;
+  cursor: pointer;
+  transition: 0.2s ease;
+
+  /* NOVO */
+  margin-bottom: 20px;
+}
 </style>

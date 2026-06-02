@@ -139,29 +139,27 @@
               👍 {{ noticiaPrincipal.curtidas || 0 }} curtidas
             </span>
 
-            <a
-              :href="linkNoticia(noticiaPrincipal)"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Ler notícia completa →
-            </a>
+            <RouterLink to="/fontes">
+              Ver fontes →
+            </RouterLink>
           </div>
 
-          <button
-            class="btn-vermais"
-            @click="curtirNoticia(noticiaPrincipal.id)"
-          >
-            Curtir
-          </button>
+          <div class="destaque-acoes">
+            <button
+              class="btn-vermais"
+              @click="curtirNoticia(noticiaPrincipal.id)"
+            >
+              Curtir
+            </button>
 
-          <button
-            v-if="podePublicar"
-            class="btn-excluir-noticia"
-            @click="excluirNoticia(noticiaPrincipal.id)"
-          >
-            Excluir Notícia
-          </button>
+            <button
+              v-if="podePublicar"
+              class="btn-excluir-noticia"
+              @click="excluirNoticia(noticiaPrincipal.id)"
+            >
+              Excluir Notícia
+            </button>
+          </div>
         </div>
       </section>
 
@@ -207,22 +205,26 @@
               </transition>
 
               <div class="card-acoes">
-                <button class="btn-vermais" @click="toggleConteudo(noticia.id)">
+                <button
+                  class="btn-vermais"
+                  @click="toggleConteudo(noticia.id)"
+                >
                   {{ noticia.ativo ? 'Ver menos' : 'Ver mais' }}
                 </button>
 
-                <button class="btn-vermais" @click="curtirNoticia(noticia.id)">
+                <button
+                  class="btn-vermais"
+                  @click="curtirNoticia(noticia.id)"
+                >
                   Curtir
                 </button>
 
-                <a
-                  :href="linkNoticia(noticia)"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <RouterLink
+                  to="/fontes"
                   class="link-externo"
                 >
                   Acessar fonte
-                </a>
+                </RouterLink>
               </div>
 
               <button
@@ -571,16 +573,6 @@ export default {
       }
 
       return "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80"
-    },
-
-    linkNoticia(noticia) {
-      return (
-        noticia.link ||
-        noticia.link_fonte ||
-        noticia.fonte_url ||
-        noticia.fonte ||
-        "#"
-      )
     }
   },
 
@@ -625,6 +617,42 @@ export default {
   border-color: #1ca4a6;
 }
 
+.card-acoes {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 22px;
+}
+
+.card-acoes .btn-vermais,
+.card-acoes .link-externo {
+  min-height: 52px;
+  padding: 14px 20px;
+  border-radius: 12px;
+}
+
+.card-acoes .link-externo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  font-weight: 800;
+  color: #60a5fa;
+}
+
+.btn-excluir-noticia {
+  margin-top: 14px;
+}
+
+.destaque-acoes {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
 body.dark-mode .form-noticia label {
   color: #e2e8f0;
 }
@@ -633,5 +661,17 @@ body.dark-mode .busca-box select {
   background: #0f172a;
   color: #f8fafc;
   border-color: #334155;
+}
+
+@media (max-width: 768px) {
+  .card-acoes {
+    gap: 10px;
+  }
+
+  .card-acoes .btn-vermais,
+  .card-acoes .link-externo {
+    flex: 1;
+    min-width: 120px;
+  }
 }
 </style>

@@ -15,9 +15,8 @@ import Projetos from '../views/projetos.vue'
 import Perfilpublico from '../views/perfilpublico.vue'
 import AdminUsuarios from '../views/adminUsuarios.vue'
 import Denuncias from '../views/denuncias.vue'
-
-/* NOVO */
 import AdminProjetos from '../views/AdminProjetos.vue'
+import Fontes from '../views/fontes.vue'
 
 const routes = [
 
@@ -124,8 +123,13 @@ const routes = [
     path: '/perfil/:id',
     name: 'perfilpublico',
     component: Perfilpublico
-  }
+  },
 
+  {
+    path: '/fontes',
+    name: 'fontes',
+    component: Fontes
+  }
 ]
 
 const router = createRouter({
