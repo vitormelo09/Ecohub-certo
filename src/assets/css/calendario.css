@@ -45,6 +45,14 @@ body {
   opacity: 0.9;
 }
 
+/* DARK MODE */
+body.dark-mode .hero h1 {
+  color: #ffffff !important;
+}
+
+body.dark-mode .hero p {
+  color: rgba(255,255,255,0.88) !important;
+}
 /* ================= LAYOUT ================= */
 .calendar-section {
   display: flex;
@@ -473,9 +481,22 @@ body.dark-mode {
 }
 
 /* HERO */
+/* HERO */
 body.dark-mode .hero {
-  background: linear-gradient(135deg, #1f3b57, #235b7c, #2788c8);
+  background: #1e2c46 !important;
   color: #ffffff;
+  border: 1px solid rgba(120, 160, 220, 0.18);
+  box-shadow:
+    0 0 25px rgba(39, 136, 200, 0.10),
+    inset 0 1px 0 rgba(255,255,255,0.03);
+}
+
+body.dark-mode .hero h1 {
+  color: #ffffff;
+}
+
+body.dark-mode .hero p {
+  color: rgba(255,255,255,0.90);
 }
 
 /* PAINÉIS LATERAIS */

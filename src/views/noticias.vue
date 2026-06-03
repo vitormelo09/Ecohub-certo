@@ -205,12 +205,12 @@
               </transition>
 
               <div class="card-acoes">
-                <button
-                  class="btn-vermais"
-                  @click="toggleConteudo(noticia.id)"
-                >
-                  {{ noticia.ativo ? 'Ver menos' : 'Ver mais' }}
-                </button>
+               <RouterLink
+  class="btn-vermais"
+  :to="`/noticias/${noticia.id}`"
+>
+  Ver mais
+</RouterLink>
 
                 <button
                   class="btn-vermais"
@@ -219,12 +219,7 @@
                   Curtir
                 </button>
 
-                <RouterLink
-                  to="/fontes"
-                  class="link-externo"
-                >
-                  Acessar fonte
-                </RouterLink>
+                
               </div>
 
               <button
@@ -673,5 +668,21 @@ body.dark-mode .busca-box select {
     flex: 1;
     min-width: 120px;
   }
+  
+}
+.btn-vermais {
+  text-decoration: none !important;
+}
+
+.btn-vermais:hover {
+  text-decoration: none !important;
+}
+
+.btn-vermais:visited {
+  text-decoration: none !important;
+}
+
+.card-acoes a {
+  text-decoration: none !important;
 }
 </style>

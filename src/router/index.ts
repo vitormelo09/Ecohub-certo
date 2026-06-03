@@ -17,6 +17,7 @@ import AdminUsuarios from '../views/adminUsuarios.vue'
 import Denuncias from '../views/denuncias.vue'
 import AdminProjetos from '../views/AdminProjetos.vue'
 import Fontes from '../views/fontes.vue'
+import VerMais from '../views/vermais.vue'
 
 const routes = [
 
@@ -129,7 +130,13 @@ const routes = [
     path: '/fontes',
     name: 'fontes',
     component: Fontes
-  }
+  },
+
+  {
+    path: '/noticias/:id',
+    name: 'vermais',
+    component: VerMais
+  },
 ]
 
 const router = createRouter({

@@ -403,3 +403,144 @@ body.dark-mode footer{
 footer{
     margin-top: 0 !important;
 }
+
+/* ===== PROJETOS HOME ===== */
+
+.secao-noticias,
+.secao-projetos{
+    padding:0 5% 80px;
+
+    max-width:1200px;
+
+    margin:0 auto;
+}
+
+.secao-projetos{
+
+margin-top:70px;
+
+}
+
+.secao-projetos .titulo-secao{
+
+display:flex;
+
+align-items:center;
+
+justify-content:space-between;
+
+margin-bottom:28px;
+
+}
+
+.secao-projetos .grade-noticias{
+
+display:grid;
+
+grid-template-columns:
+repeat(3,1fr);
+
+gap:20px;
+
+}
+
+.secao-projetos .card-noticia{
+
+height:100%;
+
+display:flex;
+
+flex-direction:column;
+
+}
+
+.secao-projetos .card-body{
+
+padding:18px 20px 20px;
+
+display:flex;
+
+flex-direction:column;
+
+flex:1;
+
+}
+
+.secao-projetos .card-tag{
+
+font-size:10px;
+
+font-weight:700;
+
+letter-spacing:1px;
+
+text-transform:uppercase;
+
+color:#2788C8;
+
+margin-bottom:8px;
+
+}
+
+.secao-projetos h3{
+
+font-size:1rem;
+
+font-weight:600;
+
+margin-bottom:10px;
+
+}
+
+.secao-projetos p{
+
+flex:1;
+
+line-height:1.6;
+
+}
+
+.secao-projetos .news-link{
+
+margin-top:auto;
+
+text-decoration:none;
+
+}
+
+/* DARK */
+
+body.dark-mode .secao-projetos h3{
+
+color:#f8fafc;
+
+}
+
+body.dark-mode .secao-projetos p{
+
+color:#94a3b8;
+
+}
+
+/* RESPONSIVO */
+
+@media (max-width:1024px){
+
+.secao-projetos .grade-noticias{
+
+grid-template-columns:
+repeat(2,1fr);
+
+}
+
+}
+
+@media (max-width:768px){
+
+.secao-projetos .grade-noticias{
+
+grid-template-columns:1fr;
+
+}
+
+}

@@ -31,16 +31,7 @@
     <section class="estatisticas">
       <div class="stat-card blue">
         <div class="stat-icon blue">
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
             <circle cx="9" cy="7" r="4" />
             <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
@@ -55,16 +46,7 @@
       <RouterLink to="/projetos" class="stat-card-link">
         <div class="stat-card teal">
           <div class="stat-icon teal">
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
               <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
               <line x1="12" y1="22.08" x2="12" y2="12" />
@@ -79,16 +61,7 @@
       <RouterLink to="/calendario" class="stat-card-link">
         <div class="stat-card green">
           <div class="stat-icon green">
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
               <line x1="16" y1="2" x2="16" y2="6" />
               <line x1="8" y1="2" x2="8" y2="6" />
@@ -103,16 +76,7 @@
 
       <div class="stat-card amber">
         <div class="stat-icon amber">
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
             <polyline points="17 6 23 6 23 12" />
           </svg>
@@ -126,6 +90,7 @@
     <section class="secao-noticias">
       <div class="titulo-secao">
         <h2 class="section-title">Últimas Notícias</h2>
+
         <RouterLink to="/noticias" class="ver-tudo">
           Ver todas →
         </RouterLink>
@@ -145,7 +110,7 @@
           <div class="card-body">
             <span class="card-tag">Erro</span>
             <h3>Não foi possível carregar os dados</h3>
-            <p>Verifique se a API está ligada e se a rota /api/home está funcionando.</p>
+            <p>Verifique se a API está ligada.</p>
           </div>
         </div>
       </div>
@@ -177,8 +142,74 @@
               {{ noticia.resumo || noticia.conteudo || noticia.conteudo_completo || 'Sem descrição disponível.' }}
             </p>
 
-            <RouterLink to="/noticias" class="news-link">
+            <RouterLink
+              :to="`/noticias/${noticia.id}`"
+              class="news-link"
+            >
               Ler mais <span class="arrow">→</span>
+            </RouterLink>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="secao-projetos">
+      <div class="titulo-secao">
+        <h2 class="section-title">Projetos em Destaque</h2>
+
+        <RouterLink to="/projetos" class="ver-tudo">
+          Ver todos →
+        </RouterLink>
+      </div>
+
+      <div v-if="carregando" class="grade-noticias">
+        <div class="card-noticia">
+          <div class="card-body">
+            <h3>Carregando projetos...</h3>
+            <p>Aguarde enquanto buscamos os projetos publicados.</p>
+          </div>
+        </div>
+      </div>
+
+      <div v-else-if="erro" class="grade-noticias">
+        <div class="card-noticia">
+          <div class="card-body">
+            <span class="card-tag">Erro</span>
+            <h3>Não foi possível carregar os projetos</h3>
+            <p>Verifique se a rota /api/projects está funcionando.</p>
+          </div>
+        </div>
+      </div>
+
+      <div v-else-if="projetos.length === 0" class="grade-noticias">
+        <div class="card-noticia">
+          <div class="card-body">
+            <span class="card-tag">Aviso</span>
+            <h3>Nenhum projeto encontrado</h3>
+            <p>Ainda não existem projetos publicados na plataforma.</p>
+          </div>
+        </div>
+      </div>
+
+      <div v-else class="grade-noticias">
+        <div
+          v-for="projeto in projetos"
+          :key="projeto.id"
+          class="card-noticia"
+        >
+          <div class="card-faixa c1"></div>
+
+          <div class="card-body">
+            <span class="card-tag">Projeto</span>
+
+            <h3>{{ projeto.titulo }}</h3>
+
+            <p>
+              {{ projeto.descricao || projeto.resumo || 'Sem descrição disponível.' }}
+            </p>
+
+            <RouterLink to="/projetos" class="news-link">
+              Ver projeto <span class="arrow">→</span>
             </RouterLink>
           </div>
         </div>
@@ -197,6 +228,8 @@ const eventosMes = ref(0)
 const taxaEmpregabilidade = ref(94)
 
 const noticias = ref([])
+const projetos = ref([])
+
 const carregando = ref(true)
 const erro = ref(false)
 
@@ -205,13 +238,27 @@ const carregarDadosInicio = async () => {
     carregando.value = true
     erro.value = false
 
-    const resposta = await api.get('/api/home')
+    const [respostaHome, respostaProjetos] = await Promise.all([
+      api.get('/api/home'),
+      api.get('/api/projects')
+    ])
 
-    totalAlunos.value = resposta.data.totalAlunos || 0
-    totalProjetos.value = resposta.data.totalProjetos || 0
-    eventosMes.value = resposta.data.eventosMes || 0
-    taxaEmpregabilidade.value = resposta.data.taxaEmpregabilidade || 94
-    noticias.value = resposta.data.noticias || []
+    totalAlunos.value = respostaHome.data.totalAlunos || 0
+    totalProjetos.value = respostaHome.data.totalProjetos || 0
+    eventosMes.value = respostaHome.data.eventosMes || 0
+    taxaEmpregabilidade.value = respostaHome.data.taxaEmpregabilidade || 94
+
+    noticias.value = respostaHome.data.noticias || []
+
+    const listaProjetos = Array.isArray(respostaProjetos.data)
+      ? respostaProjetos.data
+      : respostaProjetos.data.projetos || respostaProjetos.data.projects || []
+
+    projetos.value = listaProjetos.slice(0, 3)
+
+    if (!totalProjetos.value) {
+      totalProjetos.value = listaProjetos.length
+    }
   } catch (error) {
     console.error('Erro ao carregar dados do início:', error)
     erro.value = true
@@ -234,4 +281,7 @@ onBeforeUnmount(() => {
 @import "../assets/css/geral.css";
 @import "../assets/css/inicio.css";
 
+.secao-projetos {
+  margin-top: 70px;
+}
 </style>
